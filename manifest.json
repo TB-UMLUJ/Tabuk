@@ -1,0 +1,22 @@
+{
+  "short_name": "HEALTH",
+  "name": "HEALTH",
+  "description": "منصة ذكية موحدة لتجمع تبوك الصحي، تُمكّن من الوصول السريع إلى بيانات الموظفين وتحويلات المكاتب والمعاملات والتذكيرات، بما يعزز كفاءة التواصل والتنظيم الإداري.",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/zWXjmsRP/2e0622ca-655f-4fdd-99bd43691398.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://i.ibb.co/zWXjmsRP/2e0622ca-655f-4fdd-99bd43691398.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#008755",
+  "background_color": "#ffffff"
+}

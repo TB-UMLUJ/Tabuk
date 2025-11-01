@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>HEALTH</title>
+    <link rel="icon" href="https://i.ibb.co/zWXjmsRP/2e0622ca-655f-4fdd-99bd43691398.png" type="image/png">
+    <link rel="apple-touch-icon" href="https://i.ibb.co/zWXjmsRP/2e0622ca-655f-4fdd-99bd43691398.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#008755">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=El+Messiri:wght@400;500;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Tajawal', 'sans-serif'],
+              cairo: ['Cairo', 'sans-serif'],
+              tajawal: ['Tajawal', 'sans-serif'],
+            },
+            colors: {
+              primary: { // Green from Ministry of Health brand guide
+                DEFAULT: '#008755',
+                light: '#E6F3EE',
+                dark: '#006640'
+              },
+              accent: { // Khaki from Ministry of Health brand guide
+                light: '#E2E1D2',   // Lighter tint (30%)
+                DEFAULT: '#9b945f', // Main Khaki color
+                dark: '#B5B197'     // Darker tint (75%)
+              },
+              brand: { // Blue from Ministry of Health brand guide secondary palette
+                DEFAULT: '#009ACE',
+                light: '#E5F5FF',
+                dark: '#0076A2'
+              },
+              danger: '#C8102E', // Red from Ministry of Health brand guide secondary palette
+              gray: {
+                50: '#F7F9FA',
+                100: '#EFF2F3',
+                200: '#DEE3E6',
+                300: '#BDCBD3',
+                400: '#9CB7C7',
+                500: '#7E8F99',
+                600: '#5A7381',
+                700: '#454F5B',
+                800: '#212B36', // Card and modal background
+                900: '#161C24'  // Main dark background
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Tajawal', sans-serif;
+      }
+      /* Prevent iOS zoom on focus by ensuring font size is at least 16px */
+      input[type="text"],
+      input[type="password"],
+      input[type="email"],
+      input[type="tel"],
+      input[type="date"],
+      textarea,
+      select {
+        font-size: 16px;
+      }
+      .dark {
+        background-color: #161C24;
+      }
+      @media (max-width: 640px) {
+        input::placeholder,
+        textarea::placeholder {
+          font-size: 13px;
+        }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+      @keyframes tab-content-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-tab-content-in {
+        animation: tab-content-in 0.4s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+      }
+       @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+      }
+       .animate-fade-out {
+        animation: fadeOut 0.5s ease-in-out forwards;
+      }
+      @keyframes modal-in {
+        from { opacity: 0; transform: translateY(20px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      @keyframes modal-out {
+        from { opacity: 1; transform: translateY(0) scale(1); }
+        to { opacity: 0; transform: translateY(20px) scale(0.95); }
+      }
+      @keyframes modal-in-scale {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      @keyframes modal-out-scale {
+        from { opacity: 1; transform: scale(1); }
+        to { opacity: 0; transform: scale(0.9); }
+      }
+      @keyframes backdrop-in {
+        from { opacity: 0; }
+        to { opacity: 0.6; }
+      }
+      @keyframes backdrop-out {
+        from { opacity: 0.6; }
+        to { opacity: 0; }
+      }
+      .animate-modal-in { animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      .animate-modal-out { animation: modal-out 0.3s ease-out forwards; }
+      .animate-modal-in-scale { animation: modal-in-scale 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      .animate-modal-out-scale { animation: modal-out-scale 0.5s ease-out forwards; }
+      .animate-backdrop-in { animation: backdrop-in 0.3s ease-out forwards; }
+      .animate-backdrop-out { animation: backdrop-out 0.3s ease-out forwards; }
+
+      @keyframes slide-in-left {
+        from { transform: translateX(-100%); }
+        to { transform: translateX(0); }
+      }
+      @keyframes slide-out-left {
+        from { transform: translateX(0); }
+        to { transform: translateX(-100%); }
+      }
+      .animate-slide-in-left { animation: slide-in-left 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      .animate-slide-out-left { animation: slide-out-left 0.3s ease-out forwards; }
+      
+      /* Toast Notifications */
+      .toast-container {
+        position: fixed;
+        top: 1.5rem;
+        right: 1.5rem;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-end; /* Default for desktop */
+      }
+      
+      .toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        width: 100%;
+        max-width: 22rem;
+        background-color: white;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        border: 1px solid #e5e7eb;
+      }
+      .dark .toast {
+        background-color: #212B36; /* gray-800 */
+        border-color: #454F5B; /* gray-700 */
+      }
+
+      .toast-icon-container {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 9999px;
+      }
+      
+      .toast-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+      
+      .toast-content .title {
+        font-weight: 700;
+        font-size: 0.875rem;
+        color: #161C24; /* gray-900 */
+      }
+      .dark .toast-content .title {
+        color: #F7F9FA; /* gray-50 */
+      }
+
+      .toast-content .message {
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: #5A7381; /* gray-600 */
+      }
+      .dark .toast-content .message {
+        color: #BDCBD3; /* gray-300 */
+      }
+
+      /* Success (Green) */
+      .toast-success .toast-icon-container { background-color: #E6F3EE; /* primary-light */ }
+      .toast-success .toast-icon { color: #008755; /* primary */ }
+      .dark .toast-success .toast-icon-container { background-color: rgba(0, 135, 85, 0.2); }
+      .dark .toast-success .toast-icon { color: #a3e6c7; }
+
+      /* Failed / Deleted (Red) */
+      .toast-failed .toast-icon-container { background-color: #fee2e2; }
+      .toast-failed .toast-icon { color: #C8102E; /* danger */ }
+      .dark .toast-failed .toast-icon-container { background-color: rgba(200, 16, 46, 0.2); }
+      .dark .toast-failed .toast-icon { color: #fca5a5; }
+      
+      /* Submitted / Info (Blue) */
+      .toast-submitted .toast-icon-container { background-color: #E5F5FF; /* brand-light */ }
+      .toast-submitted .toast-icon { color: #009ACE; /* brand */ }
+      .dark .toast-submitted .toast-icon-container { background-color: rgba(0, 154, 206, 0.2); }
+      .dark .toast-submitted .toast-icon { color: #7dd3fc; }
+
+      /* Pending / Warning (Amber) */
+      .toast-pending .toast-icon-container { background-color: #fffbeb; }
+      .toast-pending .toast-icon { color: #f59e0b; }
+      .dark .toast-pending .toast-icon-container { background-color: rgba(245, 158, 11, 0.2); }
+      .dark .toast-pending .toast-icon { color: #fcd34d; }
+      
+      /* Desktop Animation Keyframes */
+      @keyframes toast-in-right {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+      }
+      @keyframes toast-out-right {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(100%); opacity: 0; }
+      }
+
+      /* Default Animation Application (Desktop) */
+      .animate-toast-in { animation: toast-in-right 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards; }
+      .animate-toast-out { animation: toast-out-right 0.5s ease-in-out forwards; }
+      
+      /* Mobile-specific styles for Toasts */
+      @media (max-width: 767px) { /* Tailwind's 'md' breakpoint is 768px */
+        .toast-container {
+          top: 1.5rem;
+          left: 1rem;
+          right: 1rem;
+          bottom: auto;
+          align-items: center;
+        }
+        
+        /* Mobile Animation Keyframes */
+        @keyframes toast-in-top {
+          from { transform: translateY(-100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes toast-out-top {
+          from { transform: translateY(0); opacity: 1; }
+          to { transform: translateY(-100%); opacity: 0; }
+        }
+        
+        /* Override animation application for mobile */
+        .animate-toast-in {
+          animation: toast-in-top 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+        }
+        .animate-toast-out {
+          animation: toast-out-top 0.5s ease-in-out forwards;
+        }
+      }
+      
+      @keyframes fade-in-out {
+        0%, 100% { opacity: 0; transform: translateY(10px); }
+        10%, 90% { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in-out {
+          animation: fade-in-out 2s ease-in-out forwards;
+      }
+      @keyframes step-text-fade {
+        0%, 100% { opacity: 0; transform: translateY(8px); }
+        15%, 85% { opacity: 1; transform: translateY(0); }
+      }
+      .animate-step-text-fade {
+        animation: step-text-fade 800ms ease-in-out forwards;
+      }
+    </style>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.25.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <div id="modal-root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
