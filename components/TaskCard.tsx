@@ -1,7 +1,3 @@
-
-
-
-
 import React from 'react';
 import { Task } from '../types';
 import { CalendarDaysIcon, CheckIcon } from '../icons/Icons';
@@ -29,14 +25,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggleComplete, onSelect })
         >
             <button
                 onClick={handleToggle}
-                className={`w-7 h-7 flex-shrink-0 rounded-lg border-2 flex items-center justify-center transition-all duration-200 mt-1 ${
+                className={`w-6 h-6 flex-shrink-0 rounded-full border-2 flex items-center justify-center transition-all duration-200 mt-1 ${
                     task.is_completed
                         ? 'bg-primary border-primary text-white'
                         : 'bg-gray-100 border-gray-300 text-transparent hover:border-primary dark:bg-gray-700 dark:border-gray-500 dark:hover:border-primary-light'
                 }`}
                 aria-label={task.is_completed ? "إلغاء إكمال المهمة" : "إكمال المهمة"}
             >
-                <CheckIcon className="w-5 h-5" />
+                <CheckIcon className="w-4 h-4" />
             </button>
 
             <div className="flex-1 min-w-0">

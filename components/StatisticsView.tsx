@@ -259,6 +259,30 @@ const RecentActivitiesCard: React.FC<{ activities: Activity[] }> = ({ activities
     </div>
 );
 
+interface UsageStatCardProps {
+    icon: React.ReactNode;
+    title: string;
+    value: string;
+    bgColor: string;
+    iconBgColor: string;
+    textColor: string;
+}
+
+const UsageStatCard: React.FC<UsageStatCardProps> = ({ icon, title, value, bgColor, iconBgColor, textColor }) => (
+    <div className={`p-6 rounded-2xl shadow-lg transition-transform duration-300 hover:-translate-y-1.5 ${bgColor}`}>
+        <div className="flex items-center justify-between">
+            <div>
+                <p className={`font-semibold text-sm ${textColor} opacity-80`}>{title}</p>
+                <p className={`text-2xl font-bold mt-1 ${textColor}`}>{value}</p>
+            </div>
+            <div className={`p-3 rounded-full ${iconBgColor}`}>
+                {icon}
+            </div>
+        </div>
+    </div>
+);
+
+
 const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees, transactions, officeContacts, tasks }) => {
     const [isReportMenuOpen, setIsReportMenuOpen] = useState(false);
     const exportMenuRef = useRef<HTMLDivElement>(null);
@@ -513,26 +537,33 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                 {/* 3. User Activity Analytics */}
                 <div className="lg:col-span-4">
                     <hr className="my-6 border-gray-200 dark:border-gray-700" />
-                </div>
-                 <div className="lg:col-span-4 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                     <h3 className="font-bold text-lg text-gray-800 mb-4 dark:text-white">تحليل الاستخدام <span className="text-xs text-gray-400">(بيانات تجريبية)</span></h3>
-                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                            <UsersIcon className="w-8 h-8 mx-auto text-primary" />
-                            <p className="mt-2 font-semibold text-gray-700 dark:text-gray-200">أكثر المستخدمين نشاطًا</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">عبدالله القرني</p>
-                        </div>
-                         <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                            <BuildingOfficeIcon className="w-8 h-8 mx-auto text-primary" />
-                            <p className="mt-2 font-semibold text-gray-700 dark:text-gray-200">أكثر الأقسام استخدامًا</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">إدارة المعاملات</p>
-                        </div>
-                         <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                            <ClockIcon className="w-8 h-8 mx-auto text-primary" />
-                            <p className="mt-2 font-semibold text-gray-700 dark:text-gray-200">الأوقات الأكثر نشاطًا</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">11:00 صباحًا</p>
-                        </div>
-                     </div>
+                    <h3 className="font-bold text-xl text-center text-gray-800 mb-6 dark:text-white">تحليل استخدام المنصة <span className="text-sm font-normal text-gray-400">(بيانات تجريبية)</span></h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <UsageStatCard
+                            icon={<UsersIcon className="w-8 h-8 text-white" />}
+                            title="أكثر المستخدمين نشاطًا"
+                            value="عبدالله الفايدي"
+                            bgColor="bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700"
+                            iconBgColor="bg-white/20"
+                            textColor="text-white"
+                        />
+                        <UsageStatCard
+                            icon={<BuildingOfficeIcon className="w-8 h-8 text-white" />}
+                            title="أكثر الأقسام استخدامًا"
+                            value="إدارة المعاملات"
+                            bgColor="bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700"
+                            iconBgColor="bg-white/20"
+                            textColor="text-white"
+                        />
+                        <UsageStatCard
+                            icon={<ClockIcon className="w-8 h-8 text-white" />}
+                            title="الأوقات الأكثر نشاطًا"
+                            value="11:00 صباحًا"
+                            bgColor="bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700"
+                            iconBgColor="bg-white/20"
+                            textColor="text-white"
+                        />
+                    </div>
                 </div>
 
             </div>
