@@ -68,10 +68,10 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                     <div className="text-center">
                          <img src={tabukHealthClusterLogoMain} alt="شعار تجمع تبوك الصحي" className="w-40 h-auto mx-auto mb-4" />
                         <div className="mb-4">
-                            <p className="text-sm text-gray-500 font-semibold dark:text-gray-400">الإصدار 1.0.1</p>
+                            <p className="text-sm text-gray-500 font-semibold dark:text-gray-400">الإصدار 1.0.3</p>
                             <div className="mt-2 text-xs bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-md p-2">
                                 <p className="font-semibold">ما الجديد في هذا الإصدار:</p>
-                                <p>تمت إضافة تحسينات عامة على الأداء.</p>
+                                <p>تحسينات عامة في التصميم.</p>
                             </div>
                         </div>
                         <p className="text-gray-600 bg-gray-50 p-4 rounded-lg text-base leading-relaxed mb-6 dark:bg-gray-700 dark:text-gray-300">
