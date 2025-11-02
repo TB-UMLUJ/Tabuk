@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { Employee, Transaction, OfficeContact, Task, User } from '../types';
 import EmployeeCountGauge from './EmployeeCountGauge';
@@ -540,10 +541,10 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                     <h3 className="font-bold text-xl text-center text-gray-800 mb-6 dark:text-white">تحليل استخدام المنصة <span className="text-sm font-normal text-gray-400">(بيانات تجريبية)</span></h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                         <UsageStatCard
-                            icon={<UsersIcon className="w-8 h-8 text-white" />}
+                            icon={<UserIcon className="w-8 h-8 text-white" />}
                             title="أكثر المستخدمين نشاطًا"
                             value="عبدالله الفايدي"
-                            bgColor="bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700"
+                            bgColor="bg-brand dark:bg-brand-dark"
                             iconBgColor="bg-white/20"
                             textColor="text-white"
                         />
@@ -551,7 +552,7 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                             icon={<BuildingOfficeIcon className="w-8 h-8 text-white" />}
                             title="أكثر الأقسام استخدامًا"
                             value="إدارة المعاملات"
-                            bgColor="bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700"
+                            bgColor="bg-primary dark:bg-primary-dark"
                             iconBgColor="bg-white/20"
                             textColor="text-white"
                         />
@@ -559,7 +560,7 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                             icon={<ClockIcon className="w-8 h-8 text-white" />}
                             title="الأوقات الأكثر نشاطًا"
                             value="11:00 صباحًا"
-                            bgColor="bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700"
+                            bgColor="bg-amber-500 dark:bg-amber-600"
                             iconBgColor="bg-white/20"
                             textColor="text-white"
                         />

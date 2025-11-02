@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useMemo, useRef } from 'react';
 import { Transaction } from '../types';
 import TransactionCard from './TransactionCard';
@@ -15,9 +13,19 @@ interface TransactionsViewProps {
     onSelectTransaction: (transaction: Transaction) => void;
     onImportClick: () => void;
     onExportClick: () => void;
+    onCycleStatus: (transactionId: number) => void;
 }
 
-const TransactionsView: React.FC<TransactionsViewProps> = ({ transactions, onAddTransaction, onEditTransaction, onDeleteTransaction, onSelectTransaction, onImportClick, onExportClick }) => {
+const TransactionsView: React.FC<TransactionsViewProps> = ({ 
+    transactions, 
+    onAddTransaction, 
+    onEditTransaction, 
+    onDeleteTransaction, 
+    onSelectTransaction, 
+    onImportClick, 
+    onExportClick,
+    onCycleStatus 
+}) => {
     const [searchTerm, setSearchTerm] = useState('');
     const { hasPermission } = useAuth();
 
@@ -76,6 +84,7 @@ const TransactionsView: React.FC<TransactionsViewProps> = ({ transactions, onAdd
                             key={transaction.id}
                             transaction={transaction}
                             onSelect={() => onSelectTransaction(transaction)}
+                            onCycleStatus={onCycleStatus}
                         />
                     ))}
                 </div>

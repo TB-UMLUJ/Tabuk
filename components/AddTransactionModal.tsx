@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { Transaction, Attachment, TransactionType, TransactionPlatform, TransactionStatus, Employee, OfficeContact } from '../types';
@@ -202,7 +203,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, onClo
                                 <select id="status" name="status" value={transactionData.status} onChange={handleChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                     <option value="new">جديدة</option>
                                     <option value="inProgress">قيد الإجراء</option>
-                                    <option value="followedUp">تمت المتابعة</option>
+                                    <option value="followedUp">متابعة</option>
                                     <option value="completed">منجزة</option>
                                 </select>
                             </div>

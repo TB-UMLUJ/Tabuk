@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
-import { Employee, OfficeContact, Task, Transaction, User } from './types';
+import { Employee, OfficeContact, Task, Transaction, User, TransactionStatus } from './types';
 import Header from './components/Header';
 import SearchAndFilter, { SearchAndFilterRef } from './components/SearchAndFilter';
 import EmployeeList from './components/EmployeeList';
@@ -165,7 +165,7 @@ const App: React.FC = () => {
         if (justLoggedIn) {
             const timer = setTimeout(() => {
                 clearJustLoggedIn();
-            }, 4000); // Show welcome message for 4 seconds
+            }, 6000); // Show welcome message for 6 seconds
             return () => clearTimeout(timer);
         }
     }, [justLoggedIn, clearJustLoggedIn]);
@@ -557,6 +557,45 @@ const App: React.FC = () => {
         });
     };
     
+    const handleCycleTransactionStatus = async (transactionId: number) => {
+        const transaction = transactions.find(t => t.id === transactionId);
+        if (!transaction || transaction.status === 'completed') return;
+
+        let nextStatus: TransactionStatus;
+        switch (transaction.status) {
+            case 'new':
+                nextStatus = 'inProgress';
+                break;
+            case 'inProgress':
+                nextStatus = 'followedUp';
+                break;
+            case 'followedUp':
+                nextStatus = 'completed';
+                break;
+            default:
+                return; // Should not reach here due to the initial check
+        }
+        
+        const originalTransactions = [...transactions];
+        
+        // Optimistic update
+        setTransactions(prev => prev.map(t => t.id === transactionId ? { ...t, status: nextStatus } : t));
+
+        const { error } = await supabase.from('transactions').update({ status: nextStatus }).eq('id', transactionId);
+
+        if (error) {
+            addToast('خطأ', `فشل تحديث حالة المعاملة: ${error.message}`, 'error');
+            setTransactions(originalTransactions); // Revert on error
+        } else {
+            const statusTextMap = {
+                inProgress: 'قيد الإجراء',
+                followedUp: 'متابعة',
+                completed: 'منجزة'
+            };
+            addToast('تم التحديث', `تم نقل المعاملة إلى حالة "${statusTextMap[nextStatus as keyof typeof statusTextMap]}".`, 'info');
+        }
+    };
+
     const handleGenericImport = () => {
         const handlerMap = {
             directory: handleImportEmployees,
@@ -660,6 +699,7 @@ const App: React.FC = () => {
                                 onEditTransaction={(t) => { setTransactionToEdit(t); setShowAddTransactionModal(true); }}
                                 onDeleteTransaction={handleDeleteTransaction}
                                 onSelectTransaction={setSelectedTransaction}
+                                onCycleStatus={handleCycleTransactionStatus}
                                 onImportClick={() => addToast('غير متوفر', 'استيراد المعاملات غير مدعوم حاليًا.', 'info')}
                                 onExportClick={() => addToast('غير متوفر', 'تصدير المعاملات غير مدعوم حاليًا.', 'info')}
                             />

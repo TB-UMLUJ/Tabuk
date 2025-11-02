@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { Task } from '../types';
-import { CloseIcon, PencilIcon, TrashIcon, CheckCircleIcon, XCircleIcon, ClipboardDocumentCheckIcon } from '../icons/Icons';
+import { CloseIcon, PencilIcon, TrashIcon, CheckCircleIcon, XCircleIcon, BellIcon } from '../icons/Icons';
 import { useAuth } from '../contexts/AuthContext';
 
 interface TaskDetailModalProps {
@@ -79,7 +79,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, task, onClose
 
                     <div className="flex items-start gap-4 mb-4">
                         <div className="bg-primary-light p-3 rounded-lg text-primary dark:bg-primary/20 dark:text-primary-light mt-1">
-                            <ClipboardDocumentCheckIcon className="w-8 h-8"/>
+                            <BellIcon className="w-8 h-8"/>
                         </div>
                         <div className="flex-1">
                             <h2 className="text-xl md:text-2xl font-bold text-primary dark:text-white">{task.title}</h2>
@@ -111,15 +111,13 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, task, onClose
                         </button>
                         <div className="flex gap-2">
                             {hasPermission('edit_tasks') && (
-                                <button onClick={handleEdit} className="text-center bg-gray-100 text-gray-700 p-2.5 rounded-lg hover:bg-gray-200 transition-all duration-200 transform hover:scale-105 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 flex items-center gap-2 font-semibold px-4">
+                                <button onClick={handleEdit} className="text-center bg-gray-100 text-gray-700 p-2.5 rounded-lg hover:bg-gray-200 transition-all duration-200 transform hover:scale-105 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600" aria-label="تعديل" title="تعديل">
                                     <PencilIcon className="w-5 h-5" />
-                                    <span>تعديل</span>
                                 </button>
                             )}
                             {hasPermission('delete_tasks') && (
-                                <button onClick={handleDelete} className="text-center bg-danger/10 text-danger p-2.5 rounded-lg hover:bg-danger/20 transition-all duration-200 transform hover:scale-105 dark:bg-danger/20 dark:text-red-400 dark:hover:bg-danger/30 flex items-center gap-2 font-semibold px-4">
+                                <button onClick={handleDelete} className="text-center bg-danger/10 text-danger p-2.5 rounded-lg hover:bg-danger/20 transition-all duration-200 transform hover:scale-105 dark:bg-danger/20 dark:text-red-400 dark:hover:bg-danger/30" aria-label="حذف" title="حذف">
                                     <TrashIcon className="w-5 h-5" />
-                                    <span>حذف</span>
                                 </button>
                             )}
                         </div>

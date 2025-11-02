@@ -87,7 +87,7 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
         ({onClick, title, children, className}) => (
         <button
             onClick={onClick}
-            className={`flex flex-col items-center gap-1 p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors ${className}`}
+            className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors ${className}`}
             title={title}
         >
             {children}
@@ -145,13 +145,11 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
                     {hasPermission('edit_contacts') && (
                         <ActionButton onClick={handleEdit} title="تعديل">
                             <PencilIcon className="w-6 h-6" />
-                            <span className="text-xs">تعديل</span>
                         </ActionButton>
                     )}
                     {hasPermission('delete_contacts') && (
                         <ActionButton onClick={handleDelete} title="حذف" className="text-danger hover:bg-danger/10">
                             <TrashIcon className="w-6 h-6" />
-                            <span className="text-xs">حذف</span>
                         </ActionButton>
                     )}
                     {isValidEmail && (

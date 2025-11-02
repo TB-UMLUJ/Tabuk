@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { CloseIcon, ChevronLeftIcon, ArrowRightOnRectangleIcon, KeyIcon, InformationCircleIcon } from '../icons/Icons';
-import ThemeToggle from './ThemeToggle';
 import AboutModal from './AboutModal';
 import { useAuth } from '../contexts/AuthContext';
 import UserManagementView from './UserManagementView';
@@ -52,10 +51,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
     const mainSettingsContent = (
          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
             <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-                <li className="p-4 flex justify-between items-center">
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">الوضع الداكن</span>
-                    <ThemeToggle />
-                </li>
                 <li className="p-2">
                     <button onClick={() => setShowChangePasswordModal(true)} className="w-full flex justify-between items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                         <span className="font-semibold text-gray-700 dark:text-gray-300">تغيير كلمة المرور</span>

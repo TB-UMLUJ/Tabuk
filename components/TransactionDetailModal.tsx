@@ -18,7 +18,7 @@ interface TransactionDetailModalProps {
 const statusMap: Record<TransactionStatus, { text: string; className: string }> = {
     new: { text: 'جديدة', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' },
     inProgress: { text: 'قيد الإجراء', className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' },
-    followedUp: { text: 'تمت المتابعة', className: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' },
+    followedUp: { text: 'متابعة', className: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' },
     completed: { text: 'منجزة', className: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' }
 };
 
@@ -165,15 +165,13 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({ isOpen,
                     
                     <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4 flex justify-end gap-2">
                         {hasPermission('edit_transactions') && (
-                            <button onClick={handleEdit} className="text-center bg-gray-100 text-gray-700 p-2.5 rounded-lg hover:bg-gray-200 transition-all duration-200 transform hover:scale-105 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 flex items-center gap-2 font-semibold px-4">
+                            <button onClick={handleEdit} className="text-center bg-gray-100 text-gray-700 p-2.5 rounded-lg hover:bg-gray-200 transition-all duration-200 transform hover:scale-105 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600" aria-label="تعديل" title="تعديل">
                                 <PencilIcon className="w-5 h-5" />
-                                <span>تعديل</span>
                             </button>
                         )}
                         {hasPermission('delete_transactions') && (
-                            <button onClick={handleDelete} className="text-center bg-danger/10 text-danger p-2.5 rounded-lg hover:bg-danger/20 transition-all duration-200 transform hover:scale-105 dark:bg-danger/20 dark:text-red-400 dark:hover:bg-danger/30 flex items-center gap-2 font-semibold px-4">
+                            <button onClick={handleDelete} className="text-center bg-danger/10 text-danger p-2.5 rounded-lg hover:bg-danger/20 transition-all duration-200 transform hover:scale-105 dark:bg-danger/20 dark:text-red-400 dark:hover:bg-danger/30" aria-label="حذف" title="حذف">
                                 <TrashIcon className="w-5 h-5" />
-                                <span>حذف</span>
                             </button>
                         )}
                     </div>

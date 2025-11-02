@@ -1,6 +1,7 @@
 import React from 'react';
 import { AdjustmentsVerticalIcon } from '../icons/Icons';
 import { tabukHealthClusterLogoHeader } from './Logo';
+import ThemeToggle from './ThemeToggle';
 
 interface HeaderProps {
     onOpenSettings: () => void;
@@ -17,6 +18,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
+                    <ThemeToggle />
                     <button
                         onClick={onOpenSettings}
                         className="p-2.5 rounded-lg text-gray-500 hover:bg-primary/10 hover:text-primary transition-all duration-200 transform hover:-translate-y-0.5 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"

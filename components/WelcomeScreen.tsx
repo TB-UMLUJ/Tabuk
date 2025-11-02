@@ -4,11 +4,11 @@ import { User } from '../types';
 import { tabukHealthClusterLogoMain } from './Logo';
 
 const steps = [
-    { id: 1, duration: 800, text: "التحقق من الهوية..." },
-    { id: 2, duration: 800, text: "تجهيز بيئة العمل..." },
-    { id: 3, duration: 800, text: "جلب أحدث البيانات..." },
-    { id: 4, duration: 800, text: "وضع اللمسات الأخيرة..." },
-    { id: 5, duration: 800, text: "أهلاً بك في منصة تجمع تبوك الصحي!" }
+    { id: 1, duration: 1200, text: "التحقق من الهوية..." },
+    { id: 2, duration: 1200, text: "تجهيز بيئة العمل..." },
+    { id: 3, duration: 1200, text: "جلب أحدث البيانات..." },
+    { id: 4, duration: 1200, text: "وضع اللمسات الأخيرة..." },
+    { id: 5, duration: 1200, text: "أهلاً بك في منصة تجمع تبوك الصحي!" }
 ];
 
 const WelcomeScreen: React.FC<{ currentUser: User | null }> = ({ currentUser }) => {
@@ -28,9 +28,9 @@ const WelcomeScreen: React.FC<{ currentUser: User | null }> = ({ currentUser }) 
             cumulativeTime += step.duration;
         });
 
-        // Total duration for the screen is cumulativeTime (4000ms).
+        // Total duration for the screen is cumulativeTime (6000ms).
         // We make the animation a bit faster to ensure it completes before the component unmounts.
-        const totalAnimationDuration = 3800; 
+        const totalAnimationDuration = 5800; 
 
         const animateProgress = (timestamp: number) => {
             if (!startTimeRef.current) {
