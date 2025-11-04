@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { Employee, Transaction, OfficeContact, Task, User } from '../types';
 import EmployeeCountGauge from './EmployeeCountGauge';
@@ -360,8 +359,7 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
         const allActivities: Activity[] = [];
 
         if(tasks) {
-            // FIX: Filter out items without a `created_at` date and use non-null assertion.
-            tasks.filter(t => t.created_at).forEach(t => allActivities.push({
+            tasks.forEach(t => allActivities.push({
                 type: 'task',
                 date: new Date(t.created_at!),
                 description: t.title,
@@ -370,8 +368,7 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
         }
 
         if(transactions) {
-            // FIX: Filter out items without a `created_at` date and use non-null assertion.
-            transactions.filter(t => t.created_at).forEach(t => allActivities.push({
+            transactions.forEach(t => allActivities.push({
                 type: 'transaction',
                 date: new Date(t.created_at!),
                 description: t.subject,

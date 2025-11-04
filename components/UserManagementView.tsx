@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { User, Role } from '../types';
@@ -8,6 +9,13 @@ import AddUserModal from './AddUserModal';
 import ConfirmationModal from './ConfirmationModal';
 import ToggleSwitch from './ToggleSwitch';
 import { useAuth } from '../contexts/AuthContext';
+
+const roleNameMap: { [key: string]: string } = {
+    'Admin': 'مسؤول النظام',
+    'HR_Manager': 'مدير موارد بشرية',
+    'User': 'مستخدم'
+};
+
 
 const UserManagementView: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
@@ -133,11 +141,10 @@ const UserManagementView: React.FC = () => {
 
     return (
         <div className="animate-fade-in relative">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">المستخدمون</h2>
+            <div className="text-right mb-6">
                 <button
                     onClick={handleAddUser}
-                    className="p-2.5 rounded-lg flex items-center justify-center transition-all duration-200 font-semibold bg-primary text-white hover:bg-primary-dark transform hover:-translate-y-0.5"
+                    className="p-2.5 rounded-lg inline-flex items-center justify-center transition-all duration-200 font-semibold bg-primary text-white hover:bg-primary-dark transform hover:-translate-y-0.5"
                     title="إضافة مستخدم جديد"
                 >
                     <PlusIcon className="h-5 w-5 ml-2" /> إضافة مستخدم
@@ -162,7 +169,7 @@ const UserManagementView: React.FC = () => {
                                 <tr key={user.user_id}>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{user.full_name}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{user.username}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{user.role?.role_name}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{roleNameMap[user.role?.role_name] || user.role?.role_name}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                         <ToggleSwitch checked={user.is_active} onChange={() => handleToggleStatus(user)} ariaLabel={`Toggle status for ${user.full_name}`} />
                                     </td>
@@ -207,7 +214,7 @@ const UserManagementView: React.FC = () => {
                             </div>
                             <div className="mt-3 grid grid-cols-2 items-center text-sm gap-2">
                                 <p className="text-gray-600 dark:text-gray-300">
-                                    <span className="font-semibold">الدور:</span> {user.role?.role_name}
+                                    <span className="font-semibold">الدور:</span> {roleNameMap[user.role?.role_name] || user.role?.role_name}
                                 </p>
                                 <div className="flex items-center justify-end gap-2">
                                      <span className={`text-xs font-semibold ${user.is_active ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>

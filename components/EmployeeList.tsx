@@ -1,3 +1,4 @@
+
 import React, { useRef, useCallback } from 'react';
 import { Employee } from '../types';
 import EmployeeCard from './EmployeeCard';
@@ -11,11 +12,8 @@ interface EmployeeListProps {
 }
 
 const EmployeeList: React.FC<EmployeeListProps> = ({ employees, onSelectEmployee, onLoadMore, hasMore, isLoadingMore }) => {
-    // FIX: Initialize useRef with null to fix "Expected 1 arguments, but got 0" error.
-    // This provides an initial value to useRef, satisfying the requirement.
     const observer = useRef<IntersectionObserver | null>(null);
 
-    // FIX: Corrected the type for 'node' from Element to the more specific HTMLDivElement as the ref is attached to a div.
     const lastElementRef = useCallback((node: HTMLDivElement | null) => {
         if (isLoadingMore) return;
         if (observer.current) observer.current.disconnect();

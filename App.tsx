@@ -1,8 +1,9 @@
 
+
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
-import { Employee, OfficeContact, Task, Transaction, User, TransactionStatus } from './types';
+import { Employee, OfficeContact, Task, Transaction, User, TransactionStatus, ActionType } from './types';
 import Header from './components/Header';
 import SearchAndFilter, { SearchAndFilterRef } from './components/SearchAndFilter';
 import EmployeeList from './components/EmployeeList';
@@ -30,6 +31,8 @@ import StatisticsView from './components/StatisticsView';
 import { useAuth } from './contexts/AuthContext';
 import { tabukHealthClusterLogoMain } from './components/Logo';
 import TaskDetailModal from './components/TaskDetailModal';
+import { logActivity } from './lib/activityLogger';
+import { useNotifications } from './contexts/NotificationContext';
 
 
 declare const XLSX: any;
@@ -37,6 +40,7 @@ declare const XLSX: any;
 const App: React.FC = () => {
     const { addToast } = useToast();
     const { currentUser, isAuthenticating, justLoggedIn, clearJustLoggedIn } = useAuth();
+    const { addNotification } = useNotifications();
     const [showSettings, setShowSettings] = useState(false);
     
     // Data State
@@ -138,18 +142,16 @@ const App: React.FC = () => {
                 setTasks(tasksData || []);
                 setTransactions(transactionsData || []);
 
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error fetching or seeding data:", error);
-                 let errorMessage = "حدث خطأ غير معروف.";
-                if (error && typeof error === 'object' && 'message' in error) {
-                    errorMessage = String((error as { message: string }).message);
-                } else if (error) {
-                    errorMessage = String(error);
+                let errorMessage = "فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى.";
+
+                if (typeof error?.message === 'string') {
+                    errorMessage = error.message;
+                } else if (typeof error === 'string') {
+                    errorMessage = error;
                 }
                 
-                if (errorMessage === '[object Object]') {
-                    errorMessage = 'فشل الاتصال بالخادم. يرجى المحاولة مرة أخرى.';
-                }
                 addToast('خطأ في الشبكة', `فشل في جلب البيانات: ${errorMessage}`, 'error');
             } finally {
                 setLoading(false);
@@ -205,11 +207,17 @@ const App: React.FC = () => {
     // --- Handlers ---
     const handleSaveEmployee = async (employeeData: Omit<Employee, 'id'> & { id?: number }) => {
         const isEditing = !!employeeData.id;
-        const { data, error } = await supabase.from('employees').upsert(employeeData).select();
+        const dataWithTimestamp = { ...employeeData, updated_at: new Date().toISOString() };
+        const { data, error } = await supabase.from('employees').upsert(dataWithTimestamp).select();
 
         if (error) {
             addToast('خطأ', `فشل حفظ الموظف: ${error.message}`, 'error');
         } else if (data) {
+            const employeeName = data[0].full_name_ar;
+            const action: ActionType = isEditing ? 'تعديل' : 'إضافة';
+            const description = isEditing ? `قام بتحديث بيانات الموظف: ${employeeName}` : `قام بإضافة موظف جديد: ${employeeName}`;
+            logActivity(currentUser, action, 'موظف', description);
+
             if (isEditing) {
                 setEmployees(prev => prev.map(emp => (emp.id === data[0].id ? data[0] : emp)));
             } else {
@@ -230,6 +238,7 @@ const App: React.FC = () => {
                 if (error) {
                     addToast('خطأ', `فشل حذف الموظف: ${error.message}`, 'error');
                 } else {
+                    logActivity(currentUser, 'حذف', 'موظف', `قام بحذف الموظف: ${employee.full_name_ar}`);
                     setEmployees(prev => prev.filter(emp => emp.id !== employee.id));
                     addToast('تم الحذف', 'تم حذف الموظف بنجاح.', 'deleted');
                 }
@@ -355,11 +364,17 @@ const App: React.FC = () => {
 
     const handleSaveOfficeContact = async (contactData: Omit<OfficeContact, 'id'> & { id?: number }) => {
         const isEditing = !!contactData.id;
-        const { data, error } = await supabase.from('office_contacts').upsert(contactData).select();
+        const dataWithTimestamp = { ...contactData, updated_at: new Date().toISOString() };
+        const { data, error } = await supabase.from('office_contacts').upsert(dataWithTimestamp).select();
         
         if (error) {
             addToast('خطأ', `فشل حفظ جهة الاتصال: ${error.message}`, 'error');
         } else if (data) {
+             const contactName = data[0].name;
+             const action: ActionType = isEditing ? 'تعديل' : 'إضافة';
+             const description = isEditing ? `قام بتحديث بيانات التحويلة: ${contactName}` : `قام بإضافة تحويلة جديدة: ${contactName}`;
+             logActivity(currentUser, action, 'تحويلة مكتب', description);
+
              if (isEditing) {
                 setOfficeContacts(prev => prev.map(c => c.id === data[0].id ? data[0] : c));
             } else {
@@ -377,6 +392,7 @@ const App: React.FC = () => {
             if (error) {
                 addToast('خطأ', `فشل الحذف: ${error.message}`, 'error');
             } else {
+                logActivity(currentUser, 'حذف', 'تحويلة مكتب', `قام بحذف التحويلة: ${contact.name}`);
                 setOfficeContacts(prev => prev.filter(c => c.id !== contact.id));
                 addToast('تم الحذف', 'تم حذف جهة الاتصال بنجاح.', 'deleted');
             }
@@ -445,14 +461,21 @@ const App: React.FC = () => {
 
     const handleSaveTask = async (taskData: Omit<Task, 'id'> & { id?: number }) => {
         const isEditing = !!taskData.id;
-        const { data, error } = await supabase.from('tasks').upsert(taskData).select();
+        const dataWithTimestamp = { ...taskData, updated_at: new Date().toISOString() };
+        const { data, error } = await supabase.from('tasks').upsert(dataWithTimestamp).select();
         if (error) {
             addToast('خطأ', `فشل حفظ المهمة: ${error.message}`, 'error');
         } else if (data) {
+            const taskTitle = data[0].title;
+            const action: ActionType = isEditing ? 'تعديل' : 'إضافة';
+            const description = isEditing ? `قام بتحديث المهمة: "${taskTitle}"` : `قام بإضافة مهمة جديدة: "${taskTitle}"`;
+            logActivity(currentUser, action, 'مهمة', description);
+
             if (isEditing) {
                 setTasks(prev => prev.map(t => (t.id === data[0].id ? data[0] : t)));
             } else {
                 setTasks(prev => [...prev, data[0]]);
+                addNotification('مهمة جديدة', `أضاف ${currentUser?.full_name} مهمة: "${taskTitle}"`, 'task', data[0].id);
             }
             addToast('نجاح', `تم ${isEditing ? 'تحديث' : 'إضافة'} المهمة بنجاح.`, 'success');
             setShowAddTaskModal(false);
@@ -466,6 +489,7 @@ const App: React.FC = () => {
             if (error) {
                 addToast('خطأ', `فشل الحذف: ${error.message}`, 'error');
             } else {
+                logActivity(currentUser, 'حذف', 'مهمة', `قام بحذف المهمة: "${task.title}"`);
                 setTasks(prev => prev.filter(t => t.id !== task.id));
                 addToast('تم الحذف', 'تم حذف المهمة بنجاح.', 'deleted');
                 setSelectedTask(null); // Close detail modal on successful delete
@@ -477,11 +501,18 @@ const App: React.FC = () => {
         const task = tasks.find(t => t.id === taskId);
         if (task) {
             const newStatus = !task.is_completed;
-            const { data, error } = await supabase.from('tasks').update({ is_completed: newStatus }).eq('id', taskId).select();
+            const { data, error } = await supabase.from('tasks').update({ 
+                is_completed: newStatus,
+                updated_at: new Date().toISOString()
+            }).eq('id', taskId).select();
             if (error) {
                 addToast('خطأ', `فشل تحديث حالة المهمة: ${error.message}`, 'error');
             } else if (data) {
                 const updatedTask = data[0];
+                const action: ActionType = newStatus ? 'إكمال' : 'إعادة فتح';
+                const description = newStatus ? `أكمل المهمة: "${task.title}"` : `أعاد فتح المهمة: "${task.title}"`;
+                logActivity(currentUser, action, 'مهمة', description);
+
                 setTasks(prev => prev.map(t => t.id === taskId ? updatedTask : t));
 
                 if(selectedTask && selectedTask.id === taskId) {
@@ -511,6 +542,7 @@ const App: React.FC = () => {
             attachment: transactionData.attachment ?? null,
             linked_employee_id: transactionData.linked_employee_id ?? null,
             linked_office_contact_id: transactionData.linked_office_contact_id ?? null,
+            updated_at: new Date().toISOString(),
         };
 
         if (isEditing) {
@@ -523,6 +555,9 @@ const App: React.FC = () => {
             addToast('خطأ', `فشل حفظ المعاملة: ${error.message}`, 'error');
         } else if (data) {
             const savedTransaction = data[0];
+            const action: ActionType = isEditing ? 'تعديل' : 'إضافة';
+            const description = isEditing ? `قام بتحديث المعاملة رقم: ${savedTransaction.transaction_number}` : `قام بإضافة معاملة جديدة برقم: ${savedTransaction.transaction_number}`;
+            logActivity(currentUser, action, 'معاملة', description);
             
             const emp = savedTransaction.linked_employee_id ? employees.find(e => e.id === savedTransaction.linked_employee_id) : null;
             const contact = savedTransaction.linked_office_contact_id ? officeContacts.find(c => c.id === savedTransaction.linked_office_contact_id) : null;
@@ -537,6 +572,7 @@ const App: React.FC = () => {
                 setTransactions(prev => prev.map(t => (t.id === enrichedTransaction.id ? enrichedTransaction : t)));
             } else {
                 setTransactions(prev => [enrichedTransaction, ...prev]);
+                 addNotification('معاملة جديدة', `أضاف ${currentUser?.full_name} معاملة: "${savedTransaction.subject}"`, 'transaction', savedTransaction.id);
             }
             addToast('نجاح', `تم ${isEditing ? 'تحديث' : 'إضافة'} المعاملة بنجاح.`, 'success');
             setShowAddTransactionModal(false);
@@ -550,6 +586,7 @@ const App: React.FC = () => {
             if (error) {
                 addToast('خطأ', `فشل حذف المعاملة: ${error.message}`, 'error');
             } else {
+                logActivity(currentUser, 'حذف', 'معاملة', `قام بحذف المعاملة رقم: ${transaction.transaction_number}`);
                 setTransactions(prev => prev.filter(t => t.id !== transaction.id));
                 addToast('تم الحذف', 'تم حذف المعاملة بنجاح.', 'deleted');
             }
@@ -562,6 +599,12 @@ const App: React.FC = () => {
         if (!transaction || transaction.status === 'completed') return;
 
         let nextStatus: TransactionStatus;
+        const statusTextMap = {
+            inProgress: 'قيد الإجراء',
+            followedUp: 'متابعة',
+            completed: 'منجزة'
+        };
+
         switch (transaction.status) {
             case 'new':
                 nextStatus = 'inProgress';
@@ -577,22 +620,20 @@ const App: React.FC = () => {
         }
         
         const originalTransactions = [...transactions];
+        const newTimestamp = new Date().toISOString();
         
         // Optimistic update
-        setTransactions(prev => prev.map(t => t.id === transactionId ? { ...t, status: nextStatus } : t));
+        setTransactions(prev => prev.map(t => t.id === transactionId ? { ...t, status: nextStatus, updated_at: newTimestamp } : t));
 
-        const { error } = await supabase.from('transactions').update({ status: nextStatus }).eq('id', transactionId);
+        const { error } = await supabase.from('transactions').update({ status: nextStatus, updated_at: newTimestamp }).eq('id', transactionId);
 
         if (error) {
             addToast('خطأ', `فشل تحديث حالة المعاملة: ${error.message}`, 'error');
             setTransactions(originalTransactions); // Revert on error
         } else {
-            const statusTextMap = {
-                inProgress: 'قيد الإجراء',
-                followedUp: 'متابعة',
-                completed: 'منجزة'
-            };
-            addToast('تم التحديث', `تم نقل المعاملة إلى حالة "${statusTextMap[nextStatus as keyof typeof statusTextMap]}".`, 'info');
+            const nextStatusText = statusTextMap[nextStatus as keyof typeof statusTextMap];
+            logActivity(currentUser, 'تحديث حالة', 'معاملة', `قام بتحديث حالة المعاملة #${transaction.transaction_number} إلى "${nextStatusText}"`);
+            addToast('تم التحديث', `تم نقل المعاملة إلى حالة "${nextStatusText}".`, 'info');
         }
     };
 

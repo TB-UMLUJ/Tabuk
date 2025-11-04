@@ -1,7 +1,9 @@
 
+
 export interface Employee {
   id: number;
   created_at?: string;
+  updated_at?: string;
   full_name_ar: string;
   full_name_en: string;
   employee_id: string;
@@ -20,6 +22,7 @@ export interface Employee {
 export interface OfficeContact {
   id: number;
   created_at?: string;
+  updated_at?: string;
   name: string;
   extension: string;
   location?: string;
@@ -29,6 +32,7 @@ export interface OfficeContact {
 export interface Task {
   id: number;
   created_at?: string;
+  updated_at?: string;
   title: string;
   description?: string;
   due_date?: string; // Storing as 'YYYY-MM-DD'
@@ -48,6 +52,7 @@ export type TransactionStatus = 'new' | 'inProgress' | 'followedUp' | 'completed
 export interface Transaction {
   id: number;
   created_at?: string;
+  updated_at?: string;
   transaction_number: string;
   subject: string;
   type: TransactionType;
@@ -64,9 +69,17 @@ export interface Transaction {
 }
 
 // --- New RBAC Types ---
+export interface Permission {
+  permission_id: number;
+  permission_name: string;
+  description?: string;
+}
+
 export interface Role {
   role_id: number;
   role_name: string;
+  description?: string;
+  role_permissions?: { permissions: Permission }[]; // For Supabase join
 }
 
 export interface User {
@@ -77,4 +90,31 @@ export interface User {
   role: Role;
   role_id: number;
   permissions: string[];
+}
+
+// --- New Activity Log Types ---
+export type ActionType = 'إضافة' | 'تعديل' | 'حذف' | 'إكمال' | 'إعادة فتح' | 'تحديث حالة' | 'تسجيل دخول' | 'تسجيل خروج';
+export type TargetType = 'موظف' | 'مهمة' | 'معاملة' | 'تحويلة مكتب' | 'مستخدم' | 'النظام';
+
+export interface ActivityLog {
+  id: number;
+  created_at: string;
+  user_id: number | null;
+  user_full_name: string;
+  action_type: ActionType;
+  target_type: TargetType | null;
+  description: string;
+}
+
+// --- New Notification Types ---
+export type NotificationCategory = 'task' | 'transaction' | 'system';
+
+export interface Notification {
+  id: number;
+  created_at: string;
+  title: string;
+  message: string;
+  category: NotificationCategory;
+  is_read: boolean;
+  link_id?: number; // e.g., task id or transaction id
 }

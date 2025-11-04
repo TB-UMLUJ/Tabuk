@@ -8,10 +8,31 @@ interface TaskCardProps {
     onSelect: () => void;
 }
 
+const formatTimestamp = (isoString?: string): string | null => {
+    if (!isoString) return null;
+    try {
+        const date = new Date(isoString);
+        if (isNaN(date.getTime())) return null;
+
+        const datePart = date.toLocaleDateString('en-CA'); // Gets YYYY-MM-DD format
+        const timePart = date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+
+        return `${datePart} | ${timePart}`;
+    } catch (e) {
+        return null;
+    }
+};
+
 const TaskCard: React.FC<TaskCardProps> = ({ task, onToggleComplete, onSelect }) => {
     const formattedDate = task.due_date 
         ? new Date(task.due_date + 'T00:00:00.000Z').toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })
         : null;
+
+    const lastUpdate = formatTimestamp(task.updated_at || task.created_at);
 
     const handleToggle = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -21,7 +42,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggleComplete, onSelect })
     return (
         <div 
             onClick={onSelect}
-            className={`bg-white rounded-xl shadow-md p-4 flex items-start gap-4 transition-all duration-300 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-lg hover:border-primary/50 dark:hover:border-primary-light/50 ${task.is_completed ? 'opacity-60' : ''}`}
+            className={`bg-white rounded-xl shadow-md p-4 pb-8 flex items-start gap-4 transition-all duration-300 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-lg hover:border-primary/50 dark:hover:border-primary-light/50 relative ${task.is_completed ? 'opacity-60' : ''}`}
         >
             <button
                 onClick={handleToggle}
@@ -46,6 +67,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggleComplete, onSelect })
                     </div>
                 )}
             </div>
+             {lastUpdate && (
+                <p className="absolute bottom-2 left-4 text-[10px] text-gray-400 dark:text-gray-500" dir="ltr">
+                    Last Update: {lastUpdate}
+                </p>
+            )}
         </div>
     );
 };

@@ -1,18 +1,20 @@
 
+
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { CloseIcon, ChevronLeftIcon, ArrowRightOnRectangleIcon, KeyIcon, InformationCircleIcon } from '../icons/Icons';
+import { CloseIcon, ChevronLeftIcon, ArrowRightOnRectangleIcon, KeyIcon, InformationCircleIcon, ShieldCheckIcon } from '../icons/Icons';
 import AboutModal from './AboutModal';
 import { useAuth } from '../contexts/AuthContext';
-import UserManagementView from './UserManagementView';
 import ChangePasswordModal from './ChangePasswordModal';
+import ActivityLogView from './ActivityLogView';
+import UserRoleManagementView from './UserRoleManagementView';
 
 interface SettingsScreenProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-type SettingsView = 'main' | 'userManagement';
+type SettingsView = 'main' | 'userRoleManagement' | 'activityLog';
 
 const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
     const { logout, hasPermission } = useAuth();
@@ -58,12 +60,20 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
                     </button>
                 </li>
                 {hasPermission('manage_users') && (
-                     <li className="p-2">
-                        <button onClick={() => setCurrentView('userManagement')} className="w-full flex justify-between items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <span className="font-semibold text-gray-700 dark:text-gray-300">إدارة المستخدمين</span>
-                            <ChevronLeftIcon className="w-5 h-5 text-gray-400" />
-                        </button>
-                    </li>
+                     <>
+                        <li className="p-2">
+                            <button onClick={() => setCurrentView('userRoleManagement')} className="w-full flex justify-between items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                <span className="font-semibold text-gray-700 dark:text-gray-300">إدارة المستخدمين والأدوار</span>
+                                 <ChevronLeftIcon className="w-5 h-5 text-gray-400" />
+                            </button>
+                        </li>
+                         <li className="p-2">
+                            <button onClick={() => setCurrentView('activityLog')} className="w-full flex justify-between items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                <span className="font-semibold text-gray-700 dark:text-gray-300">سجل النشاط</span>
+                                <ChevronLeftIcon className="w-5 h-5 text-gray-400" />
+                            </button>
+                        </li>
+                     </>
                 )}
                 <li className="p-2">
                     <button onClick={() => setShowAboutModal(true)} className="w-full flex justify-between items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
@@ -80,10 +90,16 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
             </ul>
         </div>
     );
+    
+    const viewTitles: Record<SettingsView, string> = {
+        main: 'الإعدادات',
+        userRoleManagement: 'إدارة المستخدمين والأدوار',
+        activityLog: 'سجل النشاط',
+    };
 
     return ReactDOM.createPortal(
         <div 
-            className={`fixed inset-0 z-50 bg-gray-50 dark:bg-gray-900 ${isOpen ? 'animate-slide-in-left' : 'animate-slide-out-left'}`}
+            className={`fixed inset-0 z-50 bg-gray-50 dark:bg-gray-900 overflow-y-auto ${isOpen ? 'animate-slide-in-left' : 'animate-slide-out-left'}`}
             role="dialog"
             aria-modal="true"
         >
@@ -100,7 +116,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
                             </button>
                         )}
                         <h2 className="text-xl font-bold text-primary dark:text-white">
-                            {currentView === 'main' ? 'الإعدادات' : 'إدارة المستخدمين'}
+                            {viewTitles[currentView]}
                         </h2>
                     </div>
                     <button
@@ -113,8 +129,10 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
                 </div>
             </header>
 
-            <main className="container mx-auto p-4 md:p-6">
-                {currentView === 'main' ? mainSettingsContent : <UserManagementView />}
+            <main className="container mx-auto p-4 md:p-6 pb-24 md:pb-6">
+                {currentView === 'main' && mainSettingsContent}
+                {currentView === 'userRoleManagement' && <UserRoleManagementView />}
+                {currentView === 'activityLog' && <ActivityLogView />}
             </main>
 
             <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />

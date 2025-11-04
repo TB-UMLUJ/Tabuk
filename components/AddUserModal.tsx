@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { User, Role } from '../types';
-import { CloseIcon, UserPlusIcon, EyeIcon, EyeSlashIcon } from '../icons/Icons';
+import { CloseIcon, UserPlusIcon, EyeIcon, EyeSlashIcon, InformationCircleIcon } from '../icons/Icons';
 import { useToast } from '../contexts/ToastContext';
 import { supabase } from '../lib/supabaseClient';
 
@@ -20,6 +20,21 @@ const initialUserState = {
     password: '',
     role_id: 0,
     is_active: true,
+};
+
+const roleDetailsMap: { [key: string]: { name: string; description: string } } = {
+    'Admin': {
+        name: 'مسؤول النظام',
+        description: 'يمتلك صلاحية الوصول الكامل إلى جميع أجزاء النظام، بما في ذلك إدارة المستخدمين والصلاحيات.'
+    },
+    'HR_Manager': {
+        name: 'مدير موارد بشرية',
+        description: 'يمتلك صلاحيات لإدارة بيانات الموظفين، التوظيف، والرواتب. لا يمتلك صلاحيات إدارة النظام.'
+    },
+    'User': {
+        name: 'مستخدم عادي',
+        description: 'يمتلك صلاحيات محدودة مخصصة لعرض بعض البيانات أو تنفيذ مهام معينة.'
+    }
 };
 
 const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSave, userToEdit, roles }) => {
@@ -117,13 +132,16 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSave, us
     if (!isOpen) return null;
     const modalRoot = document.getElementById('modal-root');
     if (!modalRoot) return null;
+    
+    const selectedRoleInfo = roles.find(role => role.role_id === Number(userData.role_id));
+    const arabicRoleDetails = selectedRoleInfo ? roleDetailsMap[selectedRoleInfo.role_name] : null;
 
     return ReactDOM.createPortal(
         <div className="fixed inset-0 z-50 flex justify-center items-center p-4" role="dialog" aria-modal="true">
             <div className="fixed inset-0 bg-black/60" onClick={handleClose} />
             <div className={`relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform ${isClosing ? 'animate-modal-out' : 'animate-modal-in'} dark:bg-gray-800`}>
                 <div className="p-6 md:p-8">
-                    <button onClick={handleClose} className="absolute top-4 left-4 p-2 text-gray-400 hover:text-gray-600">
+                     <button onClick={handleClose} className="absolute top-4 left-4 p-2 text-gray-400 hover:text-gray-600">
                         <CloseIcon className="w-6 h-6" />
                     </button>
                     <div className="flex items-center gap-4 mb-6">
@@ -160,9 +178,17 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSave, us
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الدور</label>
                             <select name="role_id" value={userData.role_id} onChange={handleChange} required className="w-full input-style">
                                 {roles.map(role => (
-                                    <option key={role.role_id} value={role.role_id}>{role.role_name}</option>
+                                    <option key={role.role_id} value={role.role_id}>
+                                        {roleDetailsMap[role.role_name]?.name || role.role_name}
+                                    </option>
                                 ))}
                             </select>
+                            {arabicRoleDetails && arabicRoleDetails.description && (
+                                <div className="mt-2 p-3 rounded-lg bg-amber-50 text-amber-900 dark:bg-amber-900/20 dark:text-amber-200 flex items-start gap-2.5 text-sm">
+                                    <InformationCircleIcon className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-500 dark:text-amber-400" />
+                                    <p>{arabicRoleDetails.description}</p>
+                                </div>
+                            )}
                         </div>
                         <div className="flex items-center">
                             <input id="is_active" name="is_active" type="checkbox" checked={userData.is_active} onChange={handleChange} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"/>
@@ -179,7 +205,6 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSave, us
                     </form>
                 </div>
             </div>
-            {/* FIX: Removed 'jsx' prop from style tag which is not standard in React without styled-jsx. */}
             <style>{`
                 .input-style {
                     background-color: #F9FAFB;

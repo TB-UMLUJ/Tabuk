@@ -1,17 +1,8 @@
 import React from 'react';
-import { BookOpenIcon, UserGroupIcon, PhoneIcon, BellIcon, DocumentDuplicateIcon, ChartBarIcon } from '../icons/Icons';
+import { BookOpenIcon, UserGroupIcon, PhoneIcon, BellIcon, DocumentDuplicateIcon, ChartBarIcon, ClipboardDocumentListIcon } from '../icons/Icons';
 import { useAuth } from '../contexts/AuthContext';
 
 type TabId = 'directory' | 'orgChart' | 'officeDirectory' | 'tasks' | 'transactions' | 'statistics';
-
-// FIX: Defined a type for tab objects to include the optional 'requiredPermission' property.
-// This resolves the TypeScript error where 'requiredPermission' was accessed on an inferred type that did not include it.
-type TabInfo = {
-    id: TabId;
-    name: string;
-    icon: React.ElementType;
-    requiredPermission?: string;
-};
 
 interface TabsProps {
     activeTab: TabId;
@@ -21,7 +12,7 @@ interface TabsProps {
 const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
     const { hasPermission } = useAuth();
     
-    const allTabs: TabInfo[] = [
+    const allTabs = [
         { id: 'statistics', name: 'الإحصائيات', icon: ChartBarIcon },
         { id: 'directory', name: 'الدليل', icon: BookOpenIcon },
         { id: 'officeDirectory', name: 'تحويلات المكاتب', icon: PhoneIcon },
@@ -30,7 +21,7 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
         { id: 'orgChart', name: 'الهيكل التنظيمي', icon: UserGroupIcon },
     ];
     
-    const visibleTabs = allTabs.filter(tab => !tab.requiredPermission || hasPermission(tab.requiredPermission));
+    const visibleTabs = allTabs.filter(tab => !(tab as any).requiredPermission || hasPermission((tab as any).requiredPermission));
 
     return (
         <div className="hidden md:block border-b border-gray-200 mb-6 dark:border-gray-700">
