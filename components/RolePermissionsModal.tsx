@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -45,7 +46,11 @@ const RolePermissionsModal: React.FC<RolePermissionsModalProps> = ({ isOpen, onC
                 const { data, error } = await supabase.from('permissions').select('*');
                 if (error) throw error;
                 setAllPermissions(data || []);
-                const initialSelected = new Set(role?.role_permissions?.map(rp => rp.permissions.permission_id) || []);
+                const perms = role?.role_permissions;
+                // FIX: 'perms' can be undefined, causing a crash on .map(). Added Array.isArray check.
+                const initialSelected = new Set(
+                    Array.isArray(perms) ? perms.map((rp: any) => rp.permissions.permission_id) : []
+                );
                 setSelectedPermissions(initialSelected);
             } catch (error) {
                 addToast('خطأ', 'فشل في تحميل قائمة الصلاحيات.', 'error');

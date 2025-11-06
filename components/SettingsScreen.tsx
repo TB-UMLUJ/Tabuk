@@ -1,12 +1,10 @@
 
-
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { CloseIcon, ChevronLeftIcon, ArrowRightOnRectangleIcon, KeyIcon, InformationCircleIcon, ShieldCheckIcon } from '../icons/Icons';
+import { CloseIcon, ChevronLeftIcon, ArrowRightOnRectangleIcon, KeyIcon, InformationCircleIcon, UsersIcon } from '../icons/Icons';
 import AboutModal from './AboutModal';
 import { useAuth } from '../contexts/AuthContext';
 import ChangePasswordModal from './ChangePasswordModal';
-import ActivityLogView from './ActivityLogView';
 import UserRoleManagementView from './UserRoleManagementView';
 
 interface SettingsScreenProps {
@@ -14,7 +12,32 @@ interface SettingsScreenProps {
     onClose: () => void;
 }
 
-type SettingsView = 'main' | 'userRoleManagement' | 'activityLog';
+type SettingsView = 'main' | 'userRoleManagement';
+
+const SettingsCard: React.FC<{
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    onClick: () => void;
+    colorClass?: string;
+}> = ({ icon, title, description, onClick, colorClass = 'text-primary dark:text-primary-light bg-primary/10 dark:bg-primary/20' }) => {
+    return (
+        <button
+            onClick={onClick}
+            className="w-full text-right p-5 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary-light hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-5"
+        >
+            <div className={`p-4 rounded-lg ${colorClass}`}>
+                {icon}
+            </div>
+            <div className="flex-1">
+                <h3 className="font-bold text-lg text-gray-800 dark:text-white">{title}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>
+            </div>
+            <ChevronLeftIcon className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+        </button>
+    );
+};
+
 
 const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
     const { logout, hasPermission } = useAuth();
@@ -51,50 +74,40 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
     if (!modalRoot) return null;
 
     const mainSettingsContent = (
-         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
-            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-                <li className="p-2">
-                    <button onClick={() => setShowChangePasswordModal(true)} className="w-full flex justify-between items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">تغيير كلمة المرور</span>
-                        <KeyIcon className="w-5 h-5 text-gray-400" />
-                    </button>
-                </li>
-                {hasPermission('manage_users') && (
-                     <>
-                        <li className="p-2">
-                            <button onClick={() => setCurrentView('userRoleManagement')} className="w-full flex justify-between items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                <span className="font-semibold text-gray-700 dark:text-gray-300">إدارة المستخدمين والأدوار</span>
-                                 <ChevronLeftIcon className="w-5 h-5 text-gray-400" />
-                            </button>
-                        </li>
-                         <li className="p-2">
-                            <button onClick={() => setCurrentView('activityLog')} className="w-full flex justify-between items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                <span className="font-semibold text-gray-700 dark:text-gray-300">سجل النشاط</span>
-                                <ChevronLeftIcon className="w-5 h-5 text-gray-400" />
-                            </button>
-                        </li>
-                     </>
-                )}
-                <li className="p-2">
-                    <button onClick={() => setShowAboutModal(true)} className="w-full flex justify-between items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">حول التطبيق</span>
-                        <ChevronLeftIcon className="w-5 h-5 text-gray-400" />
-                    </button>
-                </li>
-                <li className="p-2">
-                    <button onClick={logout} className="w-full flex justify-between items-center p-2 rounded-lg text-danger hover:bg-danger/10 transition-colors">
-                        <span className="font-semibold">تسجيل الخروج</span>
-                        <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                    </button>
-                </li>
-            </ul>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <SettingsCard
+                icon={<KeyIcon className="w-7 h-7" />}
+                title="تغيير كلمة المرور"
+                description="تحديث كلمة المرور لزيادة أمان حسابك."
+                onClick={() => setShowChangePasswordModal(true)}
+            />
+            {hasPermission('manage_users') && (
+                <SettingsCard
+                    icon={<UsersIcon className="w-7 h-7" />}
+                    title="إدارة المستخدمين والأدوار"
+                    description="إضافة وتعديل المستخدمين وتحديد صلاحياتهم."
+                    onClick={() => setCurrentView('userRoleManagement')}
+                />
+            )}
+            <SettingsCard
+                icon={<InformationCircleIcon className="w-7 h-7" />}
+                title="حول التطبيق"
+                description="معلومات الإصدار، الميزات الجديدة، وتفاصيل التطبيق."
+                onClick={() => setShowAboutModal(true)}
+            />
+            <SettingsCard
+                icon={<ArrowRightOnRectangleIcon className="w-7 h-7" />}
+                title="تسجيل الخروج"
+                description="إنهاء الجلسة الحالية والخروج من حسابك."
+                onClick={logout}
+                colorClass="text-danger dark:text-red-400 bg-danger/10 dark:bg-danger/20"
+            />
         </div>
     );
     
     const viewTitles: Record<SettingsView, string> = {
         main: 'الإعدادات',
         userRoleManagement: 'إدارة المستخدمين والأدوار',
-        activityLog: 'سجل النشاط',
     };
 
     return ReactDOM.createPortal(
@@ -132,7 +145,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
             <main className="container mx-auto p-4 md:p-6 pb-24 md:pb-6">
                 {currentView === 'main' && mainSettingsContent}
                 {currentView === 'userRoleManagement' && <UserRoleManagementView />}
-                {currentView === 'activityLog' && <ActivityLogView />}
             </main>
 
             <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />

@@ -96,34 +96,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setCurrentUser(user);
         sessionStorage.setItem('currentUser', JSON.stringify(user));
         setJustLoggedIn(true);
-
-        // Log login activity
-        supabase.from('activity_log').insert({
-            user_id: user.user_id,
-            user_full_name: user.full_name,
-            action_type: 'تسجيل دخول',
-            target_type: 'النظام',
-            description: 'قام بتسجيل الدخول إلى النظام.'
-        }).then(({ error }) => {
-            if (error) console.error(error);
-        });
     };
 
 
     const logout = () => {
-         // Log logout activity before clearing user data
-        if (currentUser) {
-            supabase.from('activity_log').insert({
-                user_id: currentUser.user_id,
-                user_full_name: currentUser.full_name,
-                action_type: 'تسجيل خروج',
-                target_type: 'النظام',
-                description: 'قام بتسجيل الخروج من النظام.'
-            }).then(({ error }) => {
-                if (error) console.error(error);
-            });
-        }
-        
         setCurrentUser(null);
         sessionStorage.removeItem('currentUser');
         sessionStorage.setItem('logoutMessage', 'تم تسجيل خروجك بنجاح.');

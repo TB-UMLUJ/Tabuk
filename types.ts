@@ -92,22 +92,8 @@ export interface User {
   permissions: string[];
 }
 
-// --- New Activity Log Types ---
-export type ActionType = 'إضافة' | 'تعديل' | 'حذف' | 'إكمال' | 'إعادة فتح' | 'تحديث حالة' | 'تسجيل دخول' | 'تسجيل خروج';
-export type TargetType = 'موظف' | 'مهمة' | 'معاملة' | 'تحويلة مكتب' | 'مستخدم' | 'النظام';
-
-export interface ActivityLog {
-  id: number;
-  created_at: string;
-  user_id: number | null;
-  user_full_name: string;
-  action_type: ActionType;
-  target_type: TargetType | null;
-  description: string;
-}
-
 // --- New Notification Types ---
-export type NotificationCategory = 'task' | 'transaction' | 'system';
+export type NotificationCategory = 'task' | 'transaction' | 'system' | 'employee' | 'contact';
 
 export interface Notification {
   id: number;

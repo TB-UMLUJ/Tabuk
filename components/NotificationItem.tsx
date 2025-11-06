@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Notification, NotificationCategory } from '../types';
 import { useNotifications } from '../contexts/NotificationContext';
-import { BellIcon, ClipboardDocumentCheckIcon, DocumentDuplicateIcon } from '../icons/Icons';
+import { BellIcon, ClipboardDocumentCheckIcon, DocumentDuplicateIcon, UserIcon, PhoneIcon } from '../icons/Icons';
 
 interface NotificationItemProps {
     notification: Notification;
@@ -28,6 +29,8 @@ const categoryIcons: Record<NotificationCategory, React.ReactNode> = {
     task: <ClipboardDocumentCheckIcon className="w-5 h-5 text-yellow-500" />,
     transaction: <DocumentDuplicateIcon className="w-5 h-5 text-purple-500" />,
     system: <BellIcon className="w-5 h-5 text-blue-500" />,
+    employee: <UserIcon className="w-5 h-5 text-green-500" />,
+    contact: <PhoneIcon className="w-5 h-5 text-brand" />,
 };
 
 const NotificationItem: React.FC<NotificationItemProps> = ({ notification }) => {

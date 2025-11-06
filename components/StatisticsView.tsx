@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { Employee, Transaction, OfficeContact, Task, User } from '../types';
+import { Employee, Transaction, OfficeContact, Task, User, Notification, NotificationCategory } from '../types';
 import EmployeeCountGauge from './EmployeeCountGauge';
 import { 
     UserGroupIcon, 
@@ -34,6 +34,7 @@ interface StatisticsViewProps {
     transactions: Transaction[];
     officeContacts: OfficeContact[];
     tasks: Task[];
+    notifications: Notification[];
 }
 
 // --- Helper Functions ---
@@ -230,7 +231,7 @@ const LineChartCard: React.FC<{ title: string, data: { label: string, value: num
 };
 
 type Activity = {
-    type: 'employee' | 'contact' | 'task' | 'transaction';
+    type: NotificationCategory;
     date: Date;
     description: string;
     icon: React.ReactElement;
@@ -283,7 +284,7 @@ const UsageStatCard: React.FC<UsageStatCardProps> = ({ icon, title, value, bgCol
 );
 
 
-const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees, transactions, officeContacts, tasks }) => {
+const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees, transactions, officeContacts, tasks, notifications }) => {
     const [isReportMenuOpen, setIsReportMenuOpen] = useState(false);
     const exportMenuRef = useRef<HTMLDivElement>(null);
     const { addToast } = useToast();
@@ -356,30 +357,26 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
     }, [employees, transactions]);
 
     const recentActivities = useMemo(() => {
-        const allActivities: Activity[] = [];
+        const categoryIcons: Record<NotificationCategory, React.ReactElement> = {
+            employee: <UserIcon className="w-5 h-5 text-green-500" />,
+            contact: <PhoneIcon className="w-5 h-5 text-brand" />,
+            task: <BellIcon className="w-5 h-5 text-yellow-500" />,
+            transaction: <DocumentDuplicateIcon className="w-5 h-5 text-purple-500" />,
+            system: <Cog6ToothIcon className="w-5 h-5 text-blue-500" />,
+        };
 
-        if(tasks) {
-            tasks.forEach(t => allActivities.push({
-                type: 'task',
-                date: new Date(t.created_at!),
-                description: t.title,
-                icon: <BellIcon className="w-5 h-5 text-yellow-500" />
-            }));
-        }
+        if (!notifications) return [];
 
-        if(transactions) {
-            transactions.forEach(t => allActivities.push({
-                type: 'transaction',
-                date: new Date(t.created_at!),
-                description: t.subject,
-                icon: <DocumentDuplicateIcon className="w-5 h-5 text-purple-500" />
-            }));
-        }
-
-        return allActivities
+        return notifications
+            .map(notification => ({
+                type: notification.category,
+                date: new Date(notification.created_at),
+                description: notification.message, // The message already contains "User did X"
+                icon: categoryIcons[notification.category] || <InformationCircleIcon className="w-5 h-5 text-gray-500" />
+            }))
             .sort((a, b) => b.date.getTime() - a.date.getTime())
             .slice(0, 7);
-    }, [tasks, transactions]);
+    }, [notifications]);
 
     const handleExport = () => {
          const dataToExport = [

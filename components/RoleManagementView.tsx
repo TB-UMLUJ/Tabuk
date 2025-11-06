@@ -92,7 +92,8 @@ const RoleManagementView: React.FC = () => {
                             <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                                 <p className="text-xs font-semibold text-gray-400 mb-2 uppercase">الصلاحيات الممنوحة</p>
                                 <div className="text-sm text-gray-700 dark:text-gray-300">
-                                    {role.role_permissions && role.role_permissions.length > 0
+                                    {/* FIX: role.role_permissions could be undefined, causing a crash. Added Array.isArray to safely check for its existence and length. */}
+                                    {Array.isArray(role.role_permissions) && role.role_permissions.length > 0
                                         ? `${role.role_permissions.length} صلاحيات`
                                         : 'لا توجد صلاحيات'}
                                 </div>
