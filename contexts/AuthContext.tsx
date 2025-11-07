@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { User } from '../types';
+import { logActivity } from '../lib/activityLogger';
 
 interface AuthContextType {
     currentUser: User | null;
@@ -96,10 +97,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setCurrentUser(user);
         sessionStorage.setItem('currentUser', JSON.stringify(user));
         setJustLoggedIn(true);
+        logActivity(user, 'LOGIN');
     };
 
 
     const logout = () => {
+        logActivity(currentUser, 'LOGOUT');
         setCurrentUser(null);
         sessionStorage.removeItem('currentUser');
         sessionStorage.setItem('logoutMessage', 'تم تسجيل خروجك بنجاح.');

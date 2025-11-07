@@ -88,11 +88,11 @@
         animation: fadeIn 0.5s ease-out forwards;
       }
       @keyframes tab-content-in {
-        from { opacity: 0; transform: translateY(10px); }
+        from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
       }
       .animate-tab-content-in {
-        animation: tab-content-in 0.4s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+        animation: tab-content-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
       }
        @keyframes fadeOut {
         from { opacity: 1; }
@@ -285,6 +285,16 @@
       }
       .animate-step-text-fade {
         animation: step-text-fade 800ms ease-in-out forwards;
+      }
+
+      /* Skeleton Loader Animation */
+      @keyframes pulse {
+        50% {
+          opacity: .5;
+        }
+      }
+      .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
     </style>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>

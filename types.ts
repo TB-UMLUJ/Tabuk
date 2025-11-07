@@ -1,5 +1,6 @@
 
 
+
 export interface Employee {
   id: number;
   created_at?: string;
@@ -104,3 +105,34 @@ export interface Notification {
   is_read: boolean;
   link_id?: number; // e.g., task id or transaction id
 }
+
+// --- New Activity Log Type ---
+export interface ActivityLog {
+  id: number;
+  created_at: string;
+  user_id: number;
+  user_full_name: string;
+  action: string;
+  action_type?: string;
+  details: Record<string, any>;
+}
+
+// --- New Policy Type ---
+export interface Policy {
+  id: number;
+  created_at: string;
+  title: string;
+  description?: string;
+  file_name: string;
+  file_url: string;
+}
+
+// --- New Activity Log Actions ---
+export type ActivityAction =
+  | 'LOGIN'
+  | 'LOGOUT'
+  | 'CREATE_EMPLOYEE' | 'UPDATE_EMPLOYEE' | 'DELETE_EMPLOYEE' | 'IMPORT_EMPLOYEES'
+  | 'CREATE_CONTACT' | 'UPDATE_CONTACT' | 'DELETE_CONTACT' | 'IMPORT_CONTACTS'
+  | 'CREATE_TASK' | 'UPDATE_TASK' | 'DELETE_TASK' | 'COMPLETE_TASK'
+  | 'CREATE_TRANSACTION' | 'UPDATE_TRANSACTION' | 'DELETE_TRANSACTION' | 'UPDATE_TRANSACTION_STATUS'
+  | 'CREATE_POLICY' | 'UPDATE_POLICY' | 'DELETE_POLICY';

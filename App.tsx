@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
@@ -33,6 +34,8 @@ import { useAuth } from './contexts/AuthContext';
 import { tabukHealthClusterLogoMain } from './components/Logo';
 import TaskDetailModal from './components/TaskDetailModal';
 import { useNotifications } from './contexts/NotificationContext';
+import { logActivity } from './lib/activityLogger';
+import SkeletonLoader from './components/SkeletonLoader';
 
 
 declare const XLSX: any;
@@ -218,9 +221,11 @@ const App: React.FC = () => {
             if (isEditing) {
                 setEmployees(prev => prev.map(emp => (emp.id === savedEmployee.id ? savedEmployee : emp)));
                 addNotification('تحديث موظف', `قام ${userName} بتحديث بيانات: "${savedEmployee.full_name_ar}"`, 'employee', savedEmployee.id);
+                logActivity(currentUser, 'UPDATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
             } else {
                 setEmployees(prev => [...prev, savedEmployee]);
                  addNotification('إضافة موظف', `أضاف ${userName} موظفًا جديدًا: "${savedEmployee.full_name_ar}"`, 'employee', savedEmployee.id);
+                 logActivity(currentUser, 'CREATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
             }
             addToast('نجاح', `تم ${isEditing ? 'تحديث' : 'إضافة'} الموظف بنجاح.`, 'success');
             setShowAddEmployeeModal(false);
@@ -239,6 +244,7 @@ const App: React.FC = () => {
                 } else {
                     const userName = currentUser?.full_name || 'مستخدم';
                     addNotification('حذف موظف', `قام ${userName} بحذف الموظف: "${employee.full_name_ar}"`, 'employee', employee.id);
+                    logActivity(currentUser, 'DELETE_EMPLOYEE', { employeeId: employee.id, employeeName: employee.full_name_ar });
                     setEmployees(prev => prev.filter(emp => emp.id !== employee.id));
                     addToast('تم الحذف', 'تم حذف الموظف بنجاح.', 'deleted');
                 }
@@ -327,6 +333,7 @@ const App: React.FC = () => {
                 
                 const userName = currentUser?.full_name || 'مستخدم';
                 addNotification('استيراد موظفين', `قام ${userName} باستيراد وتحديث ${upsertedData.length} موظف.`, 'employee');
+                logActivity(currentUser, 'IMPORT_EMPLOYEES', { count: upsertedData.length });
                 addToast('نجاح', `تم استيراد وتحديث ${upsertedData.length} موظف بنجاح.`, 'success');
 
             } catch (err: any) {
@@ -377,9 +384,11 @@ const App: React.FC = () => {
              if (isEditing) {
                 setOfficeContacts(prev => prev.map(c => c.id === savedContact.id ? savedContact : c));
                 addNotification('تحديث جهة اتصال', `قام ${userName} بتحديث بيانات: "${savedContact.name}"`, 'contact', savedContact.id);
+                logActivity(currentUser, 'UPDATE_CONTACT', { contactId: savedContact.id, contactName: savedContact.name });
             } else {
                 setOfficeContacts(prev => [...prev, savedContact]);
                 addNotification('إضافة جهة اتصال', `أضاف ${userName} جهة اتصال جديدة: "${savedContact.name}"`, 'contact', savedContact.id);
+                logActivity(currentUser, 'CREATE_CONTACT', { contactId: savedContact.id, contactName: savedContact.name });
             }
             addToast('نجاح', `تم ${isEditing ? 'تحديث' : 'إضافة'} جهة الاتصال بنجاح.`, 'success');
             setShowAddOfficeContactModal(false);
@@ -395,6 +404,7 @@ const App: React.FC = () => {
             } else {
                 const userName = currentUser?.full_name || 'مستخدم';
                 addNotification('حذف جهة اتصال', `قام ${userName} بحذف جهة الاتصال: "${contact.name}"`, 'contact', contact.id);
+                logActivity(currentUser, 'DELETE_CONTACT', { contactId: contact.id, contactName: contact.name });
                 setOfficeContacts(prev => prev.filter(c => c.id !== contact.id));
                 addToast('تم الحذف', 'تم حذف جهة الاتصال بنجاح.', 'deleted');
             }
@@ -438,6 +448,7 @@ const App: React.FC = () => {
                 
                 const userName = currentUser?.full_name || 'مستخدم';
                 addNotification('استيراد جهات اتصال', `قام ${userName} باستيراد وتحديث ${upsertedData.length} جهة اتصال.`, 'contact');
+                logActivity(currentUser, 'IMPORT_CONTACTS', { count: upsertedData.length });
                 addToast('نجاح', `تم استيراد وتحديث ${upsertedData.length} جهة اتصال بنجاح.`, 'success');
             } catch (err) {
                 console.error("Import error:", err);
@@ -475,9 +486,11 @@ const App: React.FC = () => {
             if (isEditing) {
                 setTasks(prev => prev.map(t => (t.id === savedTask.id ? savedTask : t)));
                 addNotification('تحديث مهمة', `قام ${userName} بتحديث مهمة: "${savedTask.title}"`, 'task', savedTask.id);
+                logActivity(currentUser, 'UPDATE_TASK', { taskId: savedTask.id, taskTitle: savedTask.title });
             } else {
                 setTasks(prev => [...prev, savedTask]);
                 addNotification('مهمة جديدة', `أضاف ${userName} مهمة: "${savedTask.title}"`, 'task', savedTask.id);
+                logActivity(currentUser, 'CREATE_TASK', { taskId: savedTask.id, taskTitle: savedTask.title });
             }
             addToast('نجاح', `تم ${isEditing ? 'تحديث' : 'إضافة'} المهمة بنجاح.`, 'success');
             setShowAddTaskModal(false);
@@ -493,6 +506,7 @@ const App: React.FC = () => {
             } else {
                 const userName = currentUser?.full_name || 'مستخدم';
                 addNotification('حذف مهمة', `قام ${userName} بحذف مهمة: "${task.title}"`, 'task', task.id);
+                logActivity(currentUser, 'DELETE_TASK', { taskId: task.id, taskTitle: task.title });
                 setTasks(prev => prev.filter(t => t.id !== task.id));
                 addToast('تم الحذف', 'تم حذف المهمة بنجاح.', 'deleted');
                 setSelectedTask(null); // Close detail modal on successful delete
@@ -521,9 +535,11 @@ const App: React.FC = () => {
 
                 if (newStatus) {
                     addNotification('إكمال مهمة', `أكمل ${userName} مهمة: "${task.title}"`, 'task', task.id);
+                    logActivity(currentUser, 'COMPLETE_TASK', { taskId: task.id, taskTitle: task.title, status: 'completed' });
                     addToast('اكتملت المهمة', `"${task.title}" تم إكمالها.`, 'success');
                 } else {
                     addNotification('إعادة فتح مهمة', `أعاد ${userName} فتح مهمة: "${task.title}"`, 'task', task.id);
+                    logActivity(currentUser, 'UPDATE_TASK', { taskId: task.id, taskTitle: task.title, status: 're-opened' });
                     addToast('أعيد فتح المهمة', `"${task.title}" أعيدت إلى المهام القادمة.`, 'info');
                 }
             }
@@ -570,9 +586,11 @@ const App: React.FC = () => {
             if (isEditing) {
                 setTransactions(prev => prev.map(t => (t.id === enrichedTransaction.id ? enrichedTransaction : t)));
                 addNotification('تحديث معاملة', `قام ${userName} بتحديث معاملة: "${savedTransaction.subject}"`, 'transaction', savedTransaction.id);
+                logActivity(currentUser, 'UPDATE_TRANSACTION', { transactionId: savedTransaction.id, transactionSubject: savedTransaction.subject });
             } else {
                 setTransactions(prev => [enrichedTransaction, ...prev]);
                  addNotification('معاملة جديدة', `أضاف ${userName} معاملة: "${savedTransaction.subject}"`, 'transaction', savedTransaction.id);
+                 logActivity(currentUser, 'CREATE_TRANSACTION', { transactionId: savedTransaction.id, transactionSubject: savedTransaction.subject });
             }
             addToast('نجاح', `تم ${isEditing ? 'تحديث' : 'إضافة'} المعاملة بنجاح.`, 'success');
             setShowAddTransactionModal(false);
@@ -588,6 +606,7 @@ const App: React.FC = () => {
             } else {
                 const userName = currentUser?.full_name || 'مستخدم';
                 addNotification('حذف معاملة', `قام ${userName} بحذف معاملة رقم "${transaction.transaction_number}"`, 'transaction', transaction.id);
+                logActivity(currentUser, 'DELETE_TRANSACTION', { transactionId: transaction.id, transactionNumber: transaction.transaction_number });
                 setTransactions(prev => prev.filter(t => t.id !== transaction.id));
                 addToast('تم الحذف', 'تم حذف المعاملة بنجاح.', 'deleted');
             }
@@ -635,6 +654,7 @@ const App: React.FC = () => {
             const nextStatusText = statusTextMap[nextStatus as keyof typeof statusTextMap];
             const userName = currentUser?.full_name || 'مستخدم';
             addNotification('تحديث حالة معاملة', `قام ${userName} بتغيير حالة معاملة "${transaction.subject}" إلى "${nextStatusText}".`, 'transaction', transaction.id);
+            logActivity(currentUser, 'UPDATE_TRANSACTION_STATUS', { transactionId: transaction.id, transactionSubject: transaction.subject, newStatus: nextStatus });
             addToast('تم التحديث', `تم نقل المعاملة إلى حالة "${nextStatusText}".`, 'info');
         }
     };
@@ -687,13 +707,9 @@ const App: React.FC = () => {
                     setSearchTerm(''); 
                  }} />
 
-                 {loading && (
-                    <div className="flex justify-center items-center py-20">
-                         <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-primary dark:border-gray-700 dark:border-t-primary"></div>
-                    </div>
-                 )}
-
-                 {!loading && (
+                 {loading ? (
+                    <SkeletonLoader activeTab={activeTab} />
+                 ) : (
                     <div key={activeTab} className="animate-tab-content-in">
                         {activeTab === 'directory' && (
                             <>

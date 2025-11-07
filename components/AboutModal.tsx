@@ -4,9 +4,11 @@ import ReactDOM from 'react-dom';
 import { 
     CloseIcon, 
     SparklesIcon, 
-    CheckCircleIcon
+    CheckCircleIcon,
+    ShareIcon
 } from '../icons/Icons';
 import { tabukHealthClusterLogoMain } from './Logo';
+import { useToast } from '../contexts/ToastContext';
 
 // Hardcoded metadata to prevent fetch errors on deployed environments.
 const metadata = {
@@ -21,6 +23,7 @@ interface AboutModalProps {
 
 const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
     const [isClosing, setIsClosing] = useState(false);
+    const { addToast } = useToast();
 
     useEffect(() => {
         if (isOpen) {
@@ -35,6 +38,30 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
     const handleClose = () => {
         setIsClosing(true);
         setTimeout(onClose, 300);
+    };
+
+    const handleShare = async () => {
+        const shareData = {
+            title: 'منصة تجمع تبوك الصحي',
+            text: 'اكتشف منصة تجمع تبوك الصحي للوصول السريع إلى بيانات الموظفين، التحويلات، والمزيد!',
+            url: 'https://tabuk-tau.vercel.app/'
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (error) {
+                console.log('Share was cancelled or failed', error);
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareData.url);
+                addToast('تم نسخ الرابط', 'تم نسخ رابط الموقع إلى الحافظة.', 'info');
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+                addToast('خطأ', 'فشل نسخ الرابط.', 'error');
+            }
+        }
     };
 
     if (!isOpen && !isClosing) return null;
@@ -102,14 +129,23 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
 
                 {/* Footer Section */}
                 <div className="text-center border-t border-gray-200 dark:border-gray-700 pt-8">
-                     <a 
-                        href="https://www.health.sa/ar"
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="inline-block bg-primary text-white font-bold py-2.5 px-6 rounded-lg hover:bg-primary-dark transition-all duration-300 transform hover:-translate-y-0.5"
-                    >
-                        زيارة موقع تجمع تبوك الصحي
-                    </a>
+                     <div className="flex items-stretch justify-center gap-3">
+                        <button 
+                            onClick={handleShare}
+                            className="flex-1 inline-flex items-center gap-2 bg-brand/10 text-brand-dark dark:bg-brand/20 dark:text-brand-light font-bold py-2.5 px-4 rounded-lg hover:bg-brand/20 dark:hover:bg-brand/30 transition-all duration-300 transform hover:-translate-y-0.5 justify-center text-sm"
+                        >
+                            <ShareIcon className="w-5 h-5" />
+                            <span>مشاركة التطبيق</span>
+                        </button>
+                        <a 
+                            href="https://www.health.sa/ar"
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="flex-1 inline-flex items-center justify-center text-center bg-primary text-white font-bold py-2.5 px-4 rounded-lg hover:bg-primary-dark transition-all duration-300 transform hover:-translate-y-0.5 text-sm"
+                        >
+                            زيارة موقع التجمع
+                        </a>
+                    </div>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-6">
                         &copy; {new Date().getFullYear()} تجمع تبوك الصحي. جميع الحقوق محفوظة.
                     </p>

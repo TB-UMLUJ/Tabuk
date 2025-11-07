@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -47,7 +45,6 @@ const RolePermissionsModal: React.FC<RolePermissionsModalProps> = ({ isOpen, onC
                 if (error) throw error;
                 setAllPermissions(data || []);
                 const perms = role?.role_permissions;
-                // FIX: 'perms' can be undefined, causing a crash on .map(). Added Array.isArray check.
                 const initialSelected = new Set(
                     Array.isArray(perms) ? perms.map((rp: any) => rp.permissions.permission_id) : []
                 );
@@ -138,7 +135,8 @@ const RolePermissionsModal: React.FC<RolePermissionsModalProps> = ({ isOpen, onC
                 <div className="p-6 overflow-y-auto flex-grow">
                     {loading ? <p>جاري التحميل...</p> : (
                         <div className="space-y-6">
-                            {Object.entries(groupedPermissions).map(([groupName, permissions]) => permissions.length > 0 && (
+                            {/* FIX: Add Array.isArray check to ensure 'permissions' is an array before accessing .length or .map */}
+                            {Object.entries(groupedPermissions).map(([groupName, permissions]) => Array.isArray(permissions) && permissions.length > 0 && (
                                 <div key={groupName}>
                                     <h3 className="font-semibold text-lg text-gray-700 dark:text-gray-200 mb-3 border-r-4 border-primary pr-2">{groupName}</h3>
                                     <div className="space-y-3">

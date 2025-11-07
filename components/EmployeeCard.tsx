@@ -1,8 +1,9 @@
 
 
+
 import React from 'react';
 import { Employee } from '../types';
-import { IdentificationIcon, PaperAirplaneIcon, EmailIcon, MapPinIcon, GlobeAltIcon } from '../icons/Icons';
+import { IdentificationIcon, ShareIcon, EmailIcon, MapPinIcon, GlobeAltIcon, CheckCircleIcon, ExclamationTriangleIcon } from '../icons/Icons';
 import { useToast } from '../contexts/ToastContext';
 
 interface EmployeeCardProps {
@@ -38,6 +39,21 @@ const formatTimestamp = (isoString?: string): string | null => {
 const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
     const { addToast } = useToast();
     const lastUpdate = formatTimestamp(employee.updated_at || employee.created_at);
+
+    const isComplete =
+        !!employee.full_name_ar?.trim() &&
+        !!employee.full_name_en?.trim() &&
+        !!employee.employee_id?.trim() &&
+        !!employee.job_title?.trim() &&
+        !!employee.department?.trim() &&
+        !!employee.phone_direct?.trim() &&
+        !!employee.email?.trim() &&
+        !!employee.center?.trim() &&
+        !!employee.national_id?.trim() &&
+        !!employee.nationality?.trim() &&
+        !!employee.gender?.trim() &&
+        !!employee.date_of_birth &&
+        !!employee.classification_id?.trim();
 
 
     const handleShare = async (e: React.MouseEvent) => {
@@ -100,7 +116,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
                     aria-label="مشاركة بيانات الموظف"
                     title="مشاركة"
                 >
-                    <PaperAirplaneIcon className="w-5 h-5" />
+                    <ShareIcon className="w-5 h-5" />
                 </button>
             </div>
 
@@ -109,7 +125,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
             </div>
             <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-base sm:text-lg text-gray-800 dark:text-white truncate" title={employee.full_name_ar}>{employee.full_name_ar}</h3>
-                <p className="mt-1 text-xs font-semibold inline-block py-1 px-2.5 rounded-full bg-accent-dark text-gray-800 truncate" title={employee.job_title}>{employee.job_title}</p>
+                <p className="mt-1 text-xs font-semibold inline-block py-1 px-2.5 rounded-full bg-brand/10 text-brand-dark dark:bg-brand/20 dark:text-brand-light truncate" title={employee.job_title}>{employee.job_title}</p>
                 
                 <div className="text-xs text-gray-500 mt-2 space-y-2 dark:text-gray-400">
                     {/* Row 1: Employee ID and Center */}
@@ -160,6 +176,13 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
                     Last Update: {lastUpdate}
                 </p>
             )}
+            <div className="absolute bottom-2 right-4" title={isComplete ? "البيانات مكتملة" : "بيانات غير مكتملة"}>
+                {isComplete ? (
+                    <CheckCircleIcon className="w-5 h-5 text-green-500" />
+                ) : (
+                    <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />
+                )}
+            </div>
         </div>
     );
 };

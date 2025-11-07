@@ -1,8 +1,17 @@
 
 
+
 import React, { useState } from 'react';
 import { OfficeContact } from '../types';
-import { PhoneIcon, BuildingOfficeIcon, PencilIcon, EmailIcon, TrashIcon, Bars3Icon, PaperAirplaneIcon } from '../icons/Icons';
+import { 
+    PhoneIcon, 
+    BuildingOfficeIcon, 
+    PencilIcon, 
+    EmailIcon, 
+    TrashIcon, 
+    Bars3Icon, 
+    ShareIcon
+} from '../icons/Icons';
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -128,7 +137,7 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
                 <div className="flex items-center gap-1 flex-shrink-0">
                     {/* Desktop Buttons */}
                     <div className="hidden md:flex items-center gap-1">
-                        <button onClick={handleShare} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 transition-all" title="مشاركة"><PaperAirplaneIcon className="w-5 h-5" /></button>
+                        <button onClick={handleShare} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 transition-all" title="مشاركة"><ShareIcon className="w-5 h-5" /></button>
                         {hasPermission('edit_contacts') && <button onClick={handleEdit} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 transition-all" title="تعديل"><PencilIcon className="w-5 h-5" /></button>}
                         {hasPermission('delete_contacts') && <button onClick={handleDelete} className="p-2 rounded-lg text-gray-500 hover:bg-danger/10 hover:text-danger dark:text-gray-400 dark:hover:bg-danger/20 dark:hover:text-red-400 transition-all" title="حذف"><TrashIcon className="w-5 h-5" /></button>}
                         {isValidEmail && <button onClick={() => handleEmailAction('copy')} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 transition-all" title={`نسخ ${contact.email}`}><EmailIcon className="w-5 h-5" /></button>}
@@ -159,7 +168,7 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
                         <span className="text-xs">{contact.extension}</span>
                     </ActionButton>
                      <ActionButton onClick={handleShare} title="مشاركة" className="text-purple-600 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/50">
-                        <PaperAirplaneIcon className="w-6 h-6" />
+                        <ShareIcon className="w-6 h-6" />
                         <span className="text-xs">مشاركة</span>
                     </ActionButton>
                     {hasPermission('edit_contacts') && (
