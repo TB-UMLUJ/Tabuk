@@ -81,11 +81,11 @@ CREATE TABLE IF NOT EXISTS policies (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   title text NOT NULL,
   description text,
-  file_name text, /* To store the file path for deletion from storage */
-  file_url text NOT NULL
+  file_name text NULL, /* To store the file path for deletion from storage */
+  file_url text NULL
 );
 DO $$ BEGIN
-  ALTER TABLE policies ADD COLUMN IF NOT EXISTS display_file_name text; /* To store the original user-friendly file name */
+  ALTER TABLE policies ADD COLUMN IF NOT EXISTS display_file_name text NULL; /* To store the original user-friendly file name */
 END $$;
 
 /* =========================================== */

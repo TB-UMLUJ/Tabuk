@@ -63,16 +63,12 @@ const AddPolicyModal: React.FC<AddPolicyModalProps> = ({ isOpen, onClose, onSave
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!isEditMode && !file) {
-            addToast('مطلوب', 'الرجاء اختيار ملف لرفعه.', 'error');
-            return;
-        }
-
+        
         setIsSaving(true);
         try {
-            let file_url = policyToEdit?.file_url || '';
-            let file_name = policyToEdit?.file_name || '';
-            let display_file_name = policyToEdit?.display_file_name || '';
+            let file_url: string | null = policyToEdit?.file_url || null;
+            let file_name: string | null = policyToEdit?.file_name || null;
+            let display_file_name: string | null = policyToEdit?.display_file_name || null;
 
             // If a new file is uploaded (in add or edit mode)
             if (file) {
@@ -160,7 +156,7 @@ const AddPolicyModal: React.FC<AddPolicyModalProps> = ({ isOpen, onClose, onSave
                             <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="input-style" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ملف السياسة (PDF)</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ملف السياسة (PDF - اختياري)</label>
                             <div className="mt-2 flex items-center justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md">
                                 <div className="space-y-1 text-center">
                                     <CloudArrowUpIcon className="mx-auto h-12 w-12 text-gray-400" />

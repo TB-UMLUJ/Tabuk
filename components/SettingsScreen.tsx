@@ -177,16 +177,18 @@ const GovernanceCenterContent: React.FC = () => {
                         <button onClick={onDelete} className="p-2 rounded-lg text-danger hover:bg-danger/10 transition-colors" title="حذف"><TrashIcon className="w-5 h-5"/></button>
                     </>
                  )}
-                <a
-                    href={policy.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download={policy.display_file_name || policy.title}
-                    className="flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 bg-primary/10 text-primary-dark dark:bg-primary/20 dark:text-primary-light font-semibold py-2 px-4 rounded-lg hover:bg-primary/20 dark:hover:bg-primary/30 transition-all"
-                >
-                    <ArrowDownTrayIcon className="w-5 h-5"/>
-                    <span>تحميل</span>
-                </a>
+                {policy.file_url && (
+                    <a
+                        href={policy.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download={policy.display_file_name || policy.title}
+                        className="flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 bg-primary/10 text-primary-dark dark:bg-primary/20 dark:text-primary-light font-semibold py-2 px-4 rounded-lg hover:bg-primary/20 dark:hover:bg-primary/30 transition-all"
+                    >
+                        <ArrowDownTrayIcon className="w-5 h-5"/>
+                        <span>تحميل</span>
+                    </a>
+                )}
             </div>
         </div>
     );

@@ -121,9 +121,9 @@ export interface Policy {
   created_at: string;
   title: string;
   description?: string;
-  file_name: string; // The path in storage
-  file_url: string;
-  display_file_name?: string; // The original filename
+  file_name?: string | null; // The path in storage
+  file_url?: string | null;
+  display_file_name?: string | null; // The original filename
 }
 
 // --- New Activity Log Actions ---
