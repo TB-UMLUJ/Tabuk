@@ -1,6 +1,3 @@
-
-
-
 import React, { useState } from 'react';
 import { OfficeContact } from '../types';
 import { 
@@ -55,7 +52,7 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
         if (contact.email) {
             if (action === 'copy') {
                 navigator.clipboard.writeText(contact.email)
-                    .then(() => addToast('تم نسخ البريد', 'تم نسخ البريد الإلكتروني بنجاح.', 'info'))
+                    .then(() => addToast('تم نسخ البريد الإلكتروني', '', 'info'))
                     .catch(err => {
                         console.error('Failed to copy email:', err);
                         addToast('خطأ', 'فشل نسخ البريد الإلكتروني', 'error');
@@ -92,7 +89,7 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
         } else {
             try {
                 await navigator.clipboard.writeText(shareText);
-                addToast('تم النسخ', 'تم نسخ بيانات جهة الاتصال إلى الحافظة.', 'info');
+                addToast('تم نسخ بيانات جهة الاتصال', '', 'info');
             } catch (err) {
                 console.error('Failed to copy: ', err);
                 addToast('خطأ', 'فشل نسخ البيانات', 'error');
@@ -124,10 +121,10 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
     );
 
     return (
-        <div className="bg-white rounded-xl shadow-md p-4 pb-8 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all relative">
-            <div className="flex items-center gap-4">
+        <div className="bg-white rounded-xl shadow-md p-3 pb-8 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all relative">
+            <div className="flex items-center gap-3">
                 <div className="p-3 bg-gray-200 rounded-lg flex-shrink-0 dark:bg-gray-700">
-                    <BuildingOfficeIcon className="w-6 h-6 text-brand dark:text-brand-light" />
+                    <BuildingOfficeIcon className="w-5 h-5 text-brand dark:text-brand-light" />
                 </div>
                 <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-base text-gray-800 truncate dark:text-white">{contact.name}</h3>

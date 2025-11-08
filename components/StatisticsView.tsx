@@ -1,25 +1,20 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { Employee, Transaction, OfficeContact, Task, User, Notification, NotificationCategory } from '../types';
+import { Employee, Transaction, OfficeContact, Task, User } from '../types';
 import EmployeeCountGauge from './EmployeeCountGauge';
 import { 
     UserGroupIcon, 
     BuildingOfficeIcon, 
-    ArrowPathIcon, 
     CheckCircleIcon,
     BellIcon,
     ExclamationTriangleIcon,
     StarIcon,
     ArrowTrendingUpIcon,
-    WrenchScrewdriverIcon,
     DocumentArrowDownIcon,
     UsersIcon,
     ClockIcon,
-    XCircleIcon,
     InformationCircleIcon,
     PhoneIcon,
     ShieldCheckIcon,
-    Cog6ToothIcon,
-    DocumentDuplicateIcon,
     UserIcon,
 } from '../icons/Icons';
 import { supabase } from '../lib/supabaseClient'; // To get office contacts count
@@ -34,7 +29,6 @@ interface StatisticsViewProps {
     transactions: Transaction[];
     officeContacts: OfficeContact[];
     tasks: Task[];
-    notifications: Notification[];
 }
 
 // --- Helper Functions ---
@@ -55,39 +49,6 @@ const groupAndAggregate = (data: any[], key: string, limit?: number) => {
     return sorted;
 };
 
-const timeSince = (date: Date): string => {
-    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-    if (isNaN(seconds) || seconds < 0) return 'الآن';
-
-    let interval = seconds / 31536000;
-    if (interval > 1) {
-        const years = Math.floor(interval);
-        return `منذ ${years} ${years === 2 ? 'سنتين' : years > 2 && years < 11 ? 'سنوات' : 'سنة'}`;
-    }
-    interval = seconds / 2592000;
-    if (interval > 1) {
-        const months = Math.floor(interval);
-        return `منذ ${months} ${months === 2 ? 'شهرين' : months > 2 && months < 11 ? 'أشهر' : 'شهر'}`;
-    }
-    interval = seconds / 86400;
-    if (interval > 1) {
-        const days = Math.floor(interval);
-        if (days === 1) return 'بالأمس';
-        return `منذ ${days} ${days === 2 ? 'يومين' : days > 2 && days < 11 ? 'أيام' : 'يوم'}`;
-    }
-    interval = seconds / 3600;
-    if (interval > 1) {
-        const hours = Math.floor(interval);
-        return `منذ ${hours} ${hours === 2 ? 'ساعتين' : hours > 2 && hours < 11 ? 'ساعات' : 'ساعة'}`;
-    }
-    interval = seconds / 60;
-    if (interval > 1) {
-        const minutes = Math.floor(interval);
-        return `منذ ${minutes} ${minutes === 2 ? 'دقيقتين' : minutes > 2 && minutes < 11 ? 'دقائق' : 'دقيقة'}`;
-    }
-    return 'الآن';
-};
-
 // --- Sub-Components ---
 const gradients = {
     facilities: { id: 'grad-facilities', colors: ['#008755', '#009ACE'] }, // Green to Blue
@@ -99,7 +60,7 @@ const gradients = {
 };
 
 const StatCard: React.FC<{ title: string; value: string | number; icon: React.ReactElement<React.SVGProps<SVGSVGElement>>; gradientId: string; gradientColors: [string, string] }> = ({ title, value, icon, gradientId, gradientColors }) => (
-    <div className="relative bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden h-24">
+    <div className="relative bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden h-20">
         <svg width="0" height="0" style={{ position: 'absolute' }}>
             <defs>
                 <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -110,12 +71,12 @@ const StatCard: React.FC<{ title: string; value: string | number; icon: React.Re
         </svg>
 
         <div className="relative z-10">
-            <p className="text-gray-500 font-medium text-sm dark:text-gray-400 truncate">{title}</p>
-            <p className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{value}</p>
+            <p className="text-gray-500 font-medium text-xs sm:text-sm dark:text-gray-400 truncate">{title}</p>
+            <p className="text-2xl font-bold text-gray-800 dark:text-white mt-1">{value}</p>
         </div>
         <div className="absolute -bottom-1 -left-1 z-0 opacity-50 dark:opacity-30">
              {React.cloneElement(icon, { 
-                 className: 'w-12 h-12',
+                 className: 'w-10 h-10',
                  stroke: `url(#${gradientId})`
              })}
         </div>
@@ -230,36 +191,6 @@ const LineChartCard: React.FC<{ title: string, data: { label: string, value: num
     );
 };
 
-type Activity = {
-    type: NotificationCategory;
-    date: Date;
-    description: string;
-    icon: React.ReactElement;
-};
-
-const RecentActivitiesCard: React.FC<{ activities: Activity[] }> = ({ activities }) => (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 h-full">
-        <h3 className="font-bold text-lg text-gray-800 mb-4 dark:text-white">أحدث النشاطات</h3>
-        {activities.length > 0 ? (
-            <ul className="space-y-4">
-                {activities.map((activity, index) => (
-                    <li key={index} className="flex items-start gap-4 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                        <div className="bg-gray-100 dark:bg-gray-700 rounded-full p-2 mt-1">
-                            {activity.icon}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{activity.description}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{timeSince(activity.date)}</p>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        ) : (
-            <p className="text-center text-gray-500 dark:text-gray-400 py-8">لا توجد نشاطات حديثة.</p>
-        )}
-    </div>
-);
-
 interface UsageStatCardProps {
     icon: React.ReactNode;
     title: string;
@@ -284,7 +215,7 @@ const UsageStatCard: React.FC<UsageStatCardProps> = ({ icon, title, value, bgCol
 );
 
 
-const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees, transactions, officeContacts, tasks, notifications }) => {
+const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees, transactions, officeContacts, tasks }) => {
     const [isReportMenuOpen, setIsReportMenuOpen] = useState(false);
     const exportMenuRef = useRef<HTMLDivElement>(null);
     const { addToast } = useToast();
@@ -355,28 +286,6 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
 
         return { employeesByCenter, employeesByDepartment, employeesByJobTitle, employeesByGender, employeesByNationality, transactionsLast7Days };
     }, [employees, transactions]);
-
-    const recentActivities = useMemo(() => {
-        const categoryIcons: Record<NotificationCategory, React.ReactElement> = {
-            employee: <UserIcon className="w-5 h-5 text-green-500" />,
-            contact: <PhoneIcon className="w-5 h-5 text-brand" />,
-            task: <BellIcon className="w-5 h-5 text-yellow-500" />,
-            transaction: <DocumentDuplicateIcon className="w-5 h-5 text-purple-500" />,
-            system: <Cog6ToothIcon className="w-5 h-5 text-blue-500" />,
-        };
-
-        if (!notifications) return [];
-
-        return notifications
-            .map(notification => ({
-                type: notification.category,
-                date: new Date(notification.created_at),
-                description: notification.message, // The message already contains "User did X"
-                icon: categoryIcons[notification.category] || <InformationCircleIcon className="w-5 h-5 text-gray-500" />
-            }))
-            .sort((a, b) => b.date.getTime() - a.date.getTime())
-            .slice(0, 7);
-    }, [notifications]);
 
     const handleExport = () => {
          const dataToExport = [
@@ -524,11 +433,6 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                     <LineChartCard title="نشاط المعاملات (آخر 7 أيام)" data={chartData.transactionsLast7Days} />
                 </div>
 
-                 {/* Recent Activities */}
-                <div className="lg:col-span-4">
-                    <RecentActivitiesCard activities={recentActivities} />
-                </div>
-
                 {/* 3. User Activity Analytics */}
                 <div className="lg:col-span-4">
                     <hr className="my-6 border-gray-200 dark:border-gray-700" />
@@ -584,7 +488,7 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                                     </button>
                                 </li>
                                 <li>
-                                    <button onClick={() => { addToast('قريباً', 'سيتم توفير تصدير PDF في التحديثات القادمة.', 'info'); setIsReportMenuOpen(false); }} className="w-full flex items-center gap-3 text-right p-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                    <button onClick={() => { addToast('تصدير PDF غير متوفر حالياً', '', 'info'); setIsReportMenuOpen(false); }} className="w-full flex items-center gap-3 text-right p-3 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                         <DocumentArrowDownIcon className="w-5 h-5 text-red-600" />
                                         <span className="font-semibold">تصدير PDF (قريباً)</span>
                                     </button>

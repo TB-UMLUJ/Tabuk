@@ -75,7 +75,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
         setIsSaving(false);
 
         if (success) {
-            addToast('نجاح', 'تم تغيير كلمة المرور بنجاح.', 'success');
+            addToast('تم تغيير كلمة المرور بنجاح', '', 'success');
             handleClose();
         } else {
             setError('كلمة المرور الحالية غير صحيحة.');

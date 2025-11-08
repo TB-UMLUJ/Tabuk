@@ -1,6 +1,3 @@
-
-
-
 import React from 'react';
 import { Employee } from '../types';
 import { IdentificationIcon, ShareIcon, EmailIcon, MapPinIcon, GlobeAltIcon, CheckCircleIcon, ExclamationTriangleIcon } from '../icons/Icons';
@@ -96,7 +93,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
             // Fallback for browsers that don't support the Web Share API
             try {
                 await navigator.clipboard.writeText(shareText);
-                addToast('تم النسخ', 'تم نسخ بيانات الموظف إلى الحافظة.', 'info');
+                addToast('تم نسخ بيانات الموظف', '', 'info');
             } catch (err) {
                 console.error('Failed to copy: ', err);
                 addToast('خطأ', 'فشل نسخ البيانات', 'error');
@@ -107,7 +104,9 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
     return (
         <div 
             onClick={onSelect} 
-            className="bg-white rounded-xl shadow-md p-4 pb-10 flex items-start gap-4 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative group dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+            className={`bg-white rounded-xl shadow-md p-3 pb-10 flex items-start gap-3 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative group dark:bg-gray-800 border ${
+                isComplete ? 'border-gray-200 dark:border-gray-700' : 'border-yellow-400 dark:border-yellow-500'
+            }`}
         >
              <div className="absolute top-3 left-3">
                  <button
@@ -120,11 +119,11 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
                 </button>
             </div>
 
-            <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center border-4 border-gray-100 dark:border-gray-700">
-                <span className="text-2xl font-bold text-brand dark:text-brand-light">{getInitials(employee.full_name_ar || '')}</span>
+            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center border-4 border-gray-100 dark:border-gray-700">
+                <span className="text-xl sm:text-2xl font-bold text-brand dark:text-brand-light">{getInitials(employee.full_name_ar || '')}</span>
             </div>
             <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-base sm:text-lg text-gray-800 dark:text-white truncate" title={employee.full_name_ar}>{employee.full_name_ar}</h3>
+                <h3 className="font-bold text-base text-gray-800 dark:text-white truncate" title={employee.full_name_ar}>{employee.full_name_ar}</h3>
                 <p className="mt-1 text-xs font-semibold inline-block py-1 px-2.5 rounded-full bg-brand/10 text-brand-dark dark:bg-brand/20 dark:text-brand-light truncate" title={employee.job_title}>{employee.job_title}</p>
                 
                 <div className="text-xs text-gray-500 mt-2 space-y-2 dark:text-gray-400">

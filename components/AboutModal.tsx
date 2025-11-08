@@ -28,7 +28,6 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
-            setIsClosing(false);
         } else {
             document.body.style.overflow = 'auto';
         }
@@ -37,7 +36,10 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
 
     const handleClose = () => {
         setIsClosing(true);
-        setTimeout(onClose, 300);
+        setTimeout(() => {
+            onClose();
+            setIsClosing(false);
+        }, 300);
     };
 
     const handleShare = async () => {
@@ -56,7 +58,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
         } else {
             try {
                 await navigator.clipboard.writeText(shareData.url);
-                addToast('تم نسخ الرابط', 'تم نسخ رابط الموقع إلى الحافظة.', 'info');
+                addToast('تم نسخ رابط الموقع', '', 'info');
             } catch (err) {
                 console.error('Failed to copy: ', err);
                 addToast('خطأ', 'فشل نسخ الرابط.', 'error');
@@ -64,14 +66,14 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
         }
     };
 
-    if (!isOpen && !isClosing) return null;
+    if (!isOpen) return null;
 
     const modalRoot = document.getElementById('modal-root');
     if (!modalRoot) return null;
 
     return ReactDOM.createPortal(
         <div 
-            className={`fixed inset-0 z-50 bg-gray-50 dark:bg-gray-900 overflow-y-auto ${isOpen ? 'animate-slide-in-left' : 'animate-slide-out-left'}`}
+            className={`fixed inset-0 z-50 bg-gray-50 dark:bg-gray-900 overflow-y-auto ${isClosing ? 'animate-slide-out-left' : 'animate-slide-in-left'}`}
             role="dialog"
             aria-modal="true"
         >
@@ -105,7 +107,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                         <h3 className="text-xl font-bold text-gray-800 dark:text-white text-center">
                             ما الجديد في هذا الإصدار
                             <span className="mr-2 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light text-xs font-semibold px-3 py-1 rounded-full align-middle">
-                                1.0.3
+                                1.9.4
                             </span>
                         </h3>
                     </div>
@@ -113,15 +115,23 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                         <ul className="space-y-3">
                             <li className="flex items-start gap-3">
                                 <CheckCircleIcon className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                                <p className="text-gray-700 dark:text-gray-300">تصميم عصري وجذاب لواجهة "حول التطبيق".</p>
+                                <p className="text-gray-700 dark:text-gray-300">إضافة ميزة تغيير الخط: يمكن للمسؤولين الآن تغيير خط التطبيق بالكامل من الإعدادات.</p>
                             </li>
                             <li className="flex items-start gap-3">
                                 <CheckCircleIcon className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                                <p className="text-gray-700 dark:text-gray-300">تحسين سرعة تحميل قائمة الموظفين عند التمرير.</p>
+                                <p className="text-gray-700 dark:text-gray-300">إعادة تنظيم الإعدادات: تم تجميع بطاقات الإعدادات في أقسام منطقية لتسهيل الوصول.</p>
                             </li>
                              <li className="flex items-start gap-3">
                                 <CheckCircleIcon className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                                <p className="text-gray-700 dark:text-gray-300">إصلاحات أخطاء وتحسينات عامة في أداء التطبيق.</p>
+                                <p className="text-gray-700 dark:text-gray-300">تصميم جديد لسجل النشاطات: تم تحويل عرض سجل النشاطات إلى بطاقات عصرية بدلًا من الخط الزمني.</p>
+                            </li>
+                             <li className="flex items-start gap-3">
+                                <CheckCircleIcon className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                                <p className="text-gray-700 dark:text-gray-300">تحسين الإشعارات: أصبحت تظهر في الأسفل على الهاتف مع رسائل أوضح وأكثر اختصارًا.</p>
+                            </li>
+                             <li className="flex items-start gap-3">
+                                <CheckCircleIcon className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                                <p className="text-gray-700 dark:text-gray-300">تحسينات على واجهة الهاتف: تم تصغير العديد من العناصر وتحسين التنسيق لتجربة أفضل.</p>
                             </li>
                         </ul>
                     </div>

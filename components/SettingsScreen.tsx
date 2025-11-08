@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -154,7 +151,7 @@ const GovernanceCenterContent: React.FC = () => {
             if (dbError) throw dbError;
 
             logActivity(currentUser, 'DELETE_POLICY', { policyId: policyToDelete.id, policyTitle: policyToDelete.title });
-            addToast('تم الحذف', `تم حذف السياسة "${policyToDelete.title}" بنجاح.`, 'deleted');
+            addToast('تم حذف السياسة بنجاح', '', 'deleted');
             setPolicies(prev => prev.filter(p => p.id !== policyToDelete.id));
 
         } catch (error: any) {
@@ -184,6 +181,7 @@ const GovernanceCenterContent: React.FC = () => {
                     href={policy.file_url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    download={policy.display_file_name || policy.title}
                     className="flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 bg-primary/10 text-primary-dark dark:bg-primary/20 dark:text-primary-light font-semibold py-2 px-4 rounded-lg hover:bg-primary/20 dark:hover:bg-primary/30 transition-all"
                 >
                     <ArrowDownTrayIcon className="w-5 h-5"/>
@@ -388,16 +386,16 @@ const SettingsCard: React.FC<{
     return (
         <button
             onClick={onClick}
-            className="w-full text-right p-5 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary-light hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-5"
+            className="w-full text-right p-3 sm:p-5 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary-light hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 sm:gap-5"
         >
-            <div className={`p-4 rounded-lg ${colorClass}`}>
+            <div className={`p-3 sm:p-4 rounded-lg ${colorClass}`}>
                 {icon}
             </div>
-            <div className="flex-1">
-                <h3 className="font-bold text-lg text-gray-800 dark:text-white">{title}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>
+            <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-base sm:text-lg text-gray-800 dark:text-white">{title}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 truncate">{description}</p>
             </div>
-            <ChevronLeftIcon className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+            <ChevronLeftIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 dark:text-gray-500 flex-shrink-0" />
         </button>
     );
 };
@@ -410,113 +408,140 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
     const [currentView, setCurrentView] = useState<SettingsView>('main');
 
-    // Reset view to 'main' when the modal is reopened
     useEffect(() => {
         if (isOpen) {
             setCurrentView('main');
-        }
-    }, [isOpen]);
-
-    useEffect(() => {
-        if (isOpen) {
             document.body.style.overflow = 'hidden';
-            setIsClosing(false);
         } else {
             document.body.style.overflow = 'auto';
         }
         return () => { document.body.style.overflow = 'auto'; };
     }, [isOpen]);
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         setIsClosing(true);
-        setTimeout(onClose, 300);
-    };
+        setTimeout(() => {
+            onClose();
+            setIsClosing(false);
+        }, 300);
+    }, [onClose]);
 
-    if (!isOpen && !isClosing) return null;
+    if (!isOpen) {
+        return null;
+    }
 
     const modalRoot = document.getElementById('modal-root');
     if (!modalRoot) return null;
 
     const mainSettingsContent = (
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <SettingsCard
-                icon={<KeyIcon className="w-7 h-7" />}
-                title="تغيير كلمة المرور"
-                description="تحديث كلمة المرور لزيادة أمان حسابك."
-                onClick={() => setShowChangePasswordModal(true)}
-            />
-            {hasPermission('manage_users') && (
-                <SettingsCard
-                    icon={<UsersIcon className="w-7 h-7" />}
-                    title="إدارة المستخدمين والأدوار"
-                    description="إضافة وتعديل المستخدمين وتحديد صلاحياتهم."
-                    onClick={() => setCurrentView('userRoleManagement')}
-                />
+         <div className="space-y-8">
+            {/* Account Section */}
+            <div>
+                <h2 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2 mb-3">الحساب</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <SettingsCard
+                        icon={<KeyIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                        title="تغيير كلمة المرور"
+                        description="تحديث كلمة المرور لزيادة أمان حسابك."
+                        onClick={() => setShowChangePasswordModal(true)}
+                    />
+                    <SettingsCard
+                        icon={<ArrowRightOnRectangleIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                        title="تسجيل الخروج"
+                        description="إنهاء الجلسة الحالية والخروج من حسابك."
+                        onClick={logout}
+                        colorClass="text-danger dark:text-red-400 bg-danger/10 dark:bg-danger/20"
+                    />
+                </div>
+            </div>
+
+            {/* Administration Section */}
+            {(hasPermission('manage_users') || hasPermission('view_activity_log')) && (
+                <div>
+                    <h2 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2 mb-3">الإدارة</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        {hasPermission('manage_users') && (
+                            <SettingsCard
+                                icon={<UsersIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                                title="إدارة المستخدمين والأدوار"
+                                description="إضافة وتعديل المستخدمين وتحديد صلاحياتهم."
+                                onClick={() => setCurrentView('userRoleManagement')}
+                            />
+                        )}
+                        {hasPermission('view_activity_log') && (
+                            <SettingsCard
+                                icon={<ListBulletIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                                title="سجل النشاطات"
+                                description="عرض سجل بجميع الإجراءات التي تمت في النظام."
+                                onClick={() => setCurrentView('activityLog')}
+                                colorClass="text-yellow-600 dark:text-yellow-400 bg-yellow-100/70 dark:bg-yellow-500/20"
+                            />
+                        )}
+                    </div>
+                </div>
             )}
-             {hasPermission('view_activity_log') && (
-                <SettingsCard
-                    icon={<ListBulletIcon className="w-7 h-7" />}
-                    title="سجل النشاطات"
-                    description="عرض سجل بجميع الإجراءات التي تمت في النظام."
-                    onClick={() => setCurrentView('activityLog')}
-                    colorClass="text-yellow-600 dark:text-yellow-400 bg-yellow-100/70 dark:bg-yellow-500/20"
-                />
-            )}
-             <SettingsCard
-                icon={<ExclamationCircleIcon className="w-7 h-7" />}
-                title="إخلاء المسؤولية"
-                description="إشعار قانوني بخصوص البيانات التحليلية."
-                onClick={() => setCurrentView('disclaimer')}
-                colorClass="text-amber-600 dark:text-amber-400 bg-amber-100/70 dark:bg-amber-500/20"
-            />
-            <SettingsCard
-                icon={<ShieldCheckIcon className="w-7 h-7" />}
-                title="الامتثال والمعايير"
-                description="بيان التوافق مع معايير وزارة الصحة."
-                onClick={() => setCurrentView('compliance')}
-                colorClass="text-sky-600 dark:text-sky-400 bg-sky-100/70 dark:bg-sky-500/20"
-            />
-            <SettingsCard
-                icon={<BookOpenIcon className="w-7 h-7" />}
-                title="مركز الحوكمة والسياسات"
-                description="تصفح وتحميل السياسات واللوائح الداخلية."
-                onClick={() => setCurrentView('governance')}
-                colorClass="text-violet-600 dark:text-violet-400 bg-violet-100/70 dark:bg-violet-500/20"
-            />
-            <SettingsCard
-                icon={<ShieldCheckIcon className="w-7 h-7" />}
-                title="سياسة الخصوصية"
-                description="كيف نتعامل مع بياناتك وخصوصيتك."
-                onClick={() => setCurrentView('privacyPolicy')}
-                colorClass="text-blue-600 dark:text-blue-400 bg-blue-100/70 dark:bg-blue-500/20"
-            />
-            <SettingsCard
-                icon={<ClipboardDocumentListIcon className="w-7 h-7" />}
-                title="شروط الاستخدام"
-                description="القواعد والإرشادات لاستخدام التطبيق."
-                onClick={() => setCurrentView('termsOfUse')}
-                colorClass="text-indigo-600 dark:text-indigo-400 bg-indigo-100/70 dark:bg-indigo-500/20"
-            />
-            <SettingsCard
-                icon={<EmailIcon className="w-7 h-7" />}
-                title="اتصل بنا"
-                description="للمساعدة، الدعم، أو تقديم الملاحظات."
-                onClick={() => setCurrentView('contactUs')}
-                colorClass="text-teal-600 dark:text-teal-400 bg-teal-100/70 dark:bg-teal-500/20"
-            />
-            <SettingsCard
-                icon={<InformationCircleIcon className="w-7 h-7" />}
-                title="حول التطبيق"
-                description="معلومات الإصدار، الميزات الجديدة، وتفاصيل التطبيق."
-                onClick={() => setShowAboutModal(true)}
-            />
-            <SettingsCard
-                icon={<ArrowRightOnRectangleIcon className="w-7 h-7" />}
-                title="تسجيل الخروج"
-                description="إنهاء الجلسة الحالية والخروج من حسابك."
-                onClick={logout}
-                colorClass="text-danger dark:text-red-400 bg-danger/10 dark:bg-danger/20"
-            />
+
+            {/* Legal & Policies Section */}
+            <div>
+                <h2 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2 mb-3">السياسات والجوانب القانونية</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                     <SettingsCard
+                        icon={<BookOpenIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                        title="مركز الحوكمة والسياسات"
+                        description="تصفح وتحميل السياسات واللوائح الداخلية."
+                        onClick={() => setCurrentView('governance')}
+                        colorClass="text-violet-600 dark:text-violet-400 bg-violet-100/70 dark:bg-violet-500/20"
+                    />
+                    <SettingsCard
+                        icon={<ShieldCheckIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                        title="سياسة الخصوصية"
+                        description="كيف نتعامل مع بياناتك وخصوصيتك."
+                        onClick={() => setCurrentView('privacyPolicy')}
+                        colorClass="text-blue-600 dark:text-blue-400 bg-blue-100/70 dark:bg-blue-500/20"
+                    />
+                    <SettingsCard
+                        icon={<ClipboardDocumentListIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                        title="شروط الاستخدام"
+                        description="القواعد والإرشادات لاستخدام التطبيق."
+                        onClick={() => setCurrentView('termsOfUse')}
+                        colorClass="text-indigo-600 dark:text-indigo-400 bg-indigo-100/70 dark:bg-indigo-500/20"
+                    />
+                     <SettingsCard
+                        icon={<ExclamationCircleIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                        title="إخلاء المسؤولية"
+                        description="إشعار قانوني بخصوص البيانات التحليلية."
+                        onClick={() => setCurrentView('disclaimer')}
+                        colorClass="text-amber-600 dark:text-amber-400 bg-amber-100/70 dark:bg-amber-500/20"
+                    />
+                    <SettingsCard
+                        icon={<ShieldCheckIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                        title="الامتثال والمعايير"
+                        description="بيان التوافق مع معايير وزارة الصحة."
+                        onClick={() => setCurrentView('compliance')}
+                        colorClass="text-sky-600 dark:text-sky-400 bg-sky-100/70 dark:bg-sky-500/20"
+                    />
+                </div>
+            </div>
+            
+            {/* App & Support Section */}
+            <div>
+                <h2 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2 mb-3">حول التطبيق والدعم</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <SettingsCard
+                        icon={<InformationCircleIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                        title="حول التطبيق"
+                        description="معلومات الإصدار، الميزات الجديدة، وتفاصيل التطبيق."
+                        onClick={() => setShowAboutModal(true)}
+                    />
+                    <SettingsCard
+                        icon={<EmailIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                        title="اتصل بنا"
+                        description="للمساعدة، الدعم، أو تقديم الملاحظات."
+                        onClick={() => setCurrentView('contactUs')}
+                        colorClass="text-teal-600 dark:text-teal-400 bg-teal-100/70 dark:bg-teal-500/20"
+                    />
+                </div>
+            </div>
         </div>
     );
     
@@ -534,7 +559,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
 
     return ReactDOM.createPortal(
         <div 
-            className={`fixed inset-0 z-50 bg-gray-50 dark:bg-gray-900 overflow-y-auto ${isOpen ? 'animate-slide-in-left' : 'animate-slide-out-left'}`}
+            className={`fixed inset-0 z-50 bg-gray-50 dark:bg-gray-900 overflow-y-auto ${isClosing ? 'animate-slide-out-left' : 'animate-slide-in-left'}`}
             role="dialog"
             aria-modal="true"
         >

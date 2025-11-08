@@ -72,6 +72,7 @@ const AddPolicyModal: React.FC<AddPolicyModalProps> = ({ isOpen, onClose, onSave
         try {
             let file_url = policyToEdit?.file_url || '';
             let file_name = policyToEdit?.file_name || '';
+            let display_file_name = policyToEdit?.display_file_name || '';
 
             // If a new file is uploaded (in add or edit mode)
             if (file) {
@@ -81,27 +82,45 @@ const AddPolicyModal: React.FC<AddPolicyModalProps> = ({ isOpen, onClose, onSave
                     if (deleteError) console.error("Could not delete old file:", deleteError.message);
                 }
 
-                file_name = `${currentUser?.user_id || 'user'}_${Date.now()}_${file.name}`;
-                const { data: uploadData, error: uploadError } = await supabase.storage.from('policies').upload(file_name, file);
+                // Generate a safe, unique filename using UUID
+                const fileExt = file.name.split('.').pop();
+                const randomName = `${crypto.randomUUID()}.${fileExt}`;
+                const filePath = `${currentUser?.user_id || 'user'}/${Date.now()}/${randomName}`;
+                
+                const { data: uploadData, error: uploadError } = await supabase.storage.from('policies').upload(filePath, file);
                 if (uploadError) throw uploadError;
 
                 const { data: urlData } = supabase.storage.from('policies').getPublicUrl(uploadData.path);
                 file_url = urlData.publicUrl;
+                file_name = filePath; // Store the full path for deletion
+                display_file_name = file.name; // Store original filename for display
             }
 
-            const policyData = {
+            const policyData: { [key: string]: any } = {
                 title,
                 description,
                 file_url,
                 file_name,
-                id: policyToEdit?.id,
+                display_file_name,
             };
+            if (isEditMode && policyToEdit) {
+                policyData.id = policyToEdit.id;
+            }
 
-            const { error: upsertError } = await supabase.from('policies').upsert(policyData);
+            const { data, error: upsertError } = await supabase
+                .from('policies')
+                .upsert(policyData)
+                .select()
+                .single();
+
             if (upsertError) throw upsertError;
-            
-            logActivity(currentUser, isEditMode ? 'UPDATE_POLICY' : 'CREATE_POLICY', { policyId: policyData.id, policyTitle: policyData.title });
-            addToast('نجاح', `تم ${isEditMode ? 'تحديث' : 'إضافة'} السياسة بنجاح.`, 'success');
+            if (!data) throw new Error("لم يتم إرجاع بيانات بعد الحفظ.");
+
+            const savedPolicy = data as Policy;
+            const action = isEditMode ? 'UPDATE_POLICY' : 'CREATE_POLICY';
+            logActivity(currentUser, action, { policyId: savedPolicy.id, policyTitle: savedPolicy.title });
+
+            addToast(`تم ${isEditMode ? 'تحديث' : 'إضافة'} السياسة بنجاح`, '', 'success');
             onSaveSuccess();
             handleClose();
 
@@ -161,7 +180,7 @@ const AddPolicyModal: React.FC<AddPolicyModalProps> = ({ isOpen, onClose, onSave
                                 </div>
                             ) : isEditMode && policyToEdit?.file_name && (
                                 <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                                    <PaperClipIcon className="w-4 h-4" /> <span>الملف الحالي: {policyToEdit.file_name}</span>
+                                    <PaperClipIcon className="w-4 h-4" /> <span>الملف الحالي: {policyToEdit.display_file_name || decodeURIComponent(policyToEdit.file_name.split('/').pop() || '')}</span>
                                 </div>
                             )}
                         </div>

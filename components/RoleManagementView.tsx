@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Role, Permission } from '../types';
@@ -63,7 +64,7 @@ const RoleManagementView: React.FC = () => {
         try {
             const { error } = await supabase.from('roles').upsert(roleData);
             if (error) throw error;
-            addToast('نجاح', `تم ${roleData.role_id ? 'تحديث' : 'إنشاء'} الدور بنجاح.`, 'success');
+            addToast(`تم ${roleData.role_id ? 'تحديث' : 'إنشاء'} الدور بنجاح`, '', 'success');
             setIsAddEditModalOpen(false);
             fetchData();
         } catch (error: any) {

@@ -1,6 +1,3 @@
-
-
-
 export interface Employee {
   id: number;
   created_at?: string;
@@ -69,6 +66,20 @@ export interface Transaction {
   linked_office_contact?: { id: number; name: string; } | null;
 }
 
+// FIX: Add Notification and NotificationCategory types to resolve import errors.
+// --- New Notification Types ---
+export type NotificationCategory = 'task' | 'transaction' | 'system' | 'employee' | 'contact';
+
+export interface Notification {
+  id: number;
+  created_at: string;
+  title: string;
+  message: string;
+  category: NotificationCategory;
+  is_read: boolean;
+  link_id?: number;
+}
+
 // --- New RBAC Types ---
 export interface Permission {
   permission_id: number;
@@ -93,19 +104,6 @@ export interface User {
   permissions: string[];
 }
 
-// --- New Notification Types ---
-export type NotificationCategory = 'task' | 'transaction' | 'system' | 'employee' | 'contact';
-
-export interface Notification {
-  id: number;
-  created_at: string;
-  title: string;
-  message: string;
-  category: NotificationCategory;
-  is_read: boolean;
-  link_id?: number; // e.g., task id or transaction id
-}
-
 // --- New Activity Log Type ---
 export interface ActivityLog {
   id: number;
@@ -123,8 +121,9 @@ export interface Policy {
   created_at: string;
   title: string;
   description?: string;
-  file_name: string;
+  file_name: string; // The path in storage
   file_url: string;
+  display_file_name?: string; // The original filename
 }
 
 // --- New Activity Log Actions ---

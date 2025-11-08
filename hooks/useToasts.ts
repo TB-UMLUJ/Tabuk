@@ -17,13 +17,10 @@ export const useToasts = () => {
   }, []);
 
   const addToast = useCallback((title: string, message: string, type: ToastType = 'info') => {
-    const id = Date.now();
-    setToasts(currentToasts => [...currentToasts, { id, title, message, type }]);
-    
-    setTimeout(() => {
-      removeToast(id);
-    }, 5000); // Auto-dismiss after 5 seconds
-  }, [removeToast]);
+    const id = Date.now() + Math.random();
+    // Add new toasts to the beginning of the array to show them on top
+    setToasts(currentToasts => [{ id, title, message, type }, ...currentToasts]);
+  }, []);
 
   return { toasts, addToast, removeToast };
 };

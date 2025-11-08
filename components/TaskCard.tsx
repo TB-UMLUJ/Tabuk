@@ -42,7 +42,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggleComplete, onSelect })
     return (
         <div 
             onClick={onSelect}
-            className={`bg-white rounded-xl shadow-md p-4 pb-8 flex items-start gap-4 transition-all duration-300 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-lg hover:border-primary/50 dark:hover:border-primary-light/50 relative ${task.is_completed ? 'opacity-60' : ''}`}
+            className={`bg-white rounded-xl shadow-md p-3 pb-8 flex items-start gap-3 transition-all duration-300 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 cursor-pointer hover:shadow-lg hover:border-primary/50 dark:hover:border-primary-light/50 relative ${task.is_completed ? 'opacity-60' : ''}`}
         >
             <button
                 onClick={handleToggle}

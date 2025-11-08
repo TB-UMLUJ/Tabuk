@@ -93,7 +93,7 @@ const EmployeeCountGauge: React.FC<GaugeProps> = ({ value, maxValue = 250 }) => 
                 </g>
                 
                 {/* Text in the middle */}
-                <text x="100" y="80" textAnchor="middle" className="text-5xl font-bold fill-gray-900 dark:fill-white">
+                <text x="100" y="80" textAnchor="middle" className="text-4xl sm:text-5xl font-bold fill-gray-900 dark:fill-white">
                     {Math.round(animatedValue)}
                 </text>
                 <text x="100" y="102" textAnchor="middle" className={`text-xl font-semibold fill-primary`}>

@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
@@ -33,7 +29,6 @@ import StatisticsView from './components/StatisticsView';
 import { useAuth } from './contexts/AuthContext';
 import { tabukHealthClusterLogoMain } from './components/Logo';
 import TaskDetailModal from './components/TaskDetailModal';
-import { useNotifications } from './contexts/NotificationContext';
 import { logActivity } from './lib/activityLogger';
 import SkeletonLoader from './components/SkeletonLoader';
 
@@ -43,7 +38,6 @@ declare const XLSX: any;
 const App: React.FC = () => {
     const { addToast } = useToast();
     const { currentUser, isAuthenticating, justLoggedIn, clearJustLoggedIn } = useAuth();
-    const { addNotification, notifications } = useNotifications();
     const [showSettings, setShowSettings] = useState(false);
     
     // Data State
@@ -155,7 +149,7 @@ const App: React.FC = () => {
                     errorMessage = error;
                 }
                 
-                addToast('خطأ في الشبكة', `فشل في جلب البيانات: ${errorMessage}`, 'error');
+                addToast('فشل جلب البيانات', `يرجى التحقق من اتصالك بالشبكة.`, 'error');
             } finally {
                 setLoading(false);
             }
@@ -214,20 +208,17 @@ const App: React.FC = () => {
         const { data, error } = await supabase.from('employees').upsert(dataWithTimestamp).select();
 
         if (error) {
-            addToast('خطأ', `فشل حفظ الموظف: ${error.message}`, 'error');
+            addToast('فشل حفظ الموظف', error.message, 'error');
         } else if (data) {
             const savedEmployee = data[0];
-            const userName = currentUser?.full_name || 'مستخدم';
             if (isEditing) {
                 setEmployees(prev => prev.map(emp => (emp.id === savedEmployee.id ? savedEmployee : emp)));
-                addNotification('تحديث موظف', `قام ${userName} بتحديث بيانات: "${savedEmployee.full_name_ar}"`, 'employee', savedEmployee.id);
                 logActivity(currentUser, 'UPDATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
             } else {
                 setEmployees(prev => [...prev, savedEmployee]);
-                 addNotification('إضافة موظف', `أضاف ${userName} موظفًا جديدًا: "${savedEmployee.full_name_ar}"`, 'employee', savedEmployee.id);
                  logActivity(currentUser, 'CREATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
             }
-            addToast('نجاح', `تم ${isEditing ? 'تحديث' : 'إضافة'} الموظف بنجاح.`, 'success');
+            addToast(`تم ${isEditing ? 'تحديث' : 'إضافة'} الموظف بنجاح`, '', 'success');
             setShowAddEmployeeModal(false);
             setEmployeeToEdit(null);
         }
@@ -240,13 +231,11 @@ const App: React.FC = () => {
             async () => {
                 const { error } = await supabase.from('employees').delete().eq('id', employee.id);
                 if (error) {
-                    addToast('خطأ', `فشل حذف الموظف: ${error.message}`, 'error');
+                    addToast('فشل حذف الموظف', error.message, 'error');
                 } else {
-                    const userName = currentUser?.full_name || 'مستخدم';
-                    addNotification('حذف موظف', `قام ${userName} بحذف الموظف: "${employee.full_name_ar}"`, 'employee', employee.id);
                     logActivity(currentUser, 'DELETE_EMPLOYEE', { employeeId: employee.id, employeeName: employee.full_name_ar });
                     setEmployees(prev => prev.filter(emp => emp.id !== employee.id));
-                    addToast('تم الحذف', 'تم حذف الموظف بنجاح.', 'deleted');
+                    addToast('تم حذف الموظف بنجاح', '', 'deleted');
                 }
                 setSelectedEmployee(null); // Close profile modal after deletion
             }
@@ -314,7 +303,7 @@ const App: React.FC = () => {
                     .filter(emp => emp.employee_id && emp.full_name_ar);
 
                 if (newEmployees.length === 0) {
-                    addToast('لا توجد بيانات', 'لم يتم العثور على موظفين صالحين في الملف.', 'warning');
+                    addToast('لا توجد بيانات صالحة', 'لم يتم العثور على موظفين في الملف.', 'warning');
                     setIsImporting(false);
                     return;
                 }
@@ -331,14 +320,12 @@ const App: React.FC = () => {
                     return [...updated, ...trulyNew];
                 });
                 
-                const userName = currentUser?.full_name || 'مستخدم';
-                addNotification('استيراد موظفين', `قام ${userName} باستيراد وتحديث ${upsertedData.length} موظف.`, 'employee');
                 logActivity(currentUser, 'IMPORT_EMPLOYEES', { count: upsertedData.length });
-                addToast('نجاح', `تم استيراد وتحديث ${upsertedData.length} موظف بنجاح.`, 'success');
+                addToast(`تم استيراد ${upsertedData.length} موظف بنجاح`, '', 'success');
 
             } catch (err: any) {
                 console.error("Import error:", err);
-                addToast('خطأ في الاستيراد', 'فشل استيراد الملف. تأكد من أن التنسيق صحيح.', 'error');
+                addToast('فشل استيراد الملف', 'تأكد من صحة التنسيق.', 'error');
             } finally {
                 setIsImporting(false);
             }
@@ -367,7 +354,7 @@ const App: React.FC = () => {
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'الموظفين');
         XLSX.writeFile(workbook, 'employees_export.xlsx');
-        addToast('تم التصدير', 'تم تصدير بيانات الموظفين بنجاح.', 'success');
+        addToast('تم تصدير الموظفين بنجاح', '', 'success');
     };
 
 
@@ -377,20 +364,17 @@ const App: React.FC = () => {
         const { data, error } = await supabase.from('office_contacts').upsert(dataWithTimestamp).select();
         
         if (error) {
-            addToast('خطأ', `فشل حفظ جهة الاتصال: ${error.message}`, 'error');
+            addToast('فشل حفظ جهة الاتصال', error.message, 'error');
         } else if (data) {
              const savedContact = data[0];
-             const userName = currentUser?.full_name || 'مستخدم';
              if (isEditing) {
                 setOfficeContacts(prev => prev.map(c => c.id === savedContact.id ? savedContact : c));
-                addNotification('تحديث جهة اتصال', `قام ${userName} بتحديث بيانات: "${savedContact.name}"`, 'contact', savedContact.id);
                 logActivity(currentUser, 'UPDATE_CONTACT', { contactId: savedContact.id, contactName: savedContact.name });
             } else {
                 setOfficeContacts(prev => [...prev, savedContact]);
-                addNotification('إضافة جهة اتصال', `أضاف ${userName} جهة اتصال جديدة: "${savedContact.name}"`, 'contact', savedContact.id);
                 logActivity(currentUser, 'CREATE_CONTACT', { contactId: savedContact.id, contactName: savedContact.name });
             }
-            addToast('نجاح', `تم ${isEditing ? 'تحديث' : 'إضافة'} جهة الاتصال بنجاح.`, 'success');
+            addToast(`تم ${isEditing ? 'تحديث' : 'إضافة'} جهة الاتصال بنجاح`, '', 'success');
             setShowAddOfficeContactModal(false);
             setContactToEdit(null);
         }
@@ -400,13 +384,11 @@ const App: React.FC = () => {
         requestConfirmation('تأكيد الحذف', `هل أنت متأكد من رغبتك في حذف "${contact.name}"؟`, async () => {
             const { error } = await supabase.from('office_contacts').delete().eq('id', contact.id);
             if (error) {
-                addToast('خطأ', `فشل الحذف: ${error.message}`, 'error');
+                addToast('فشل الحذف', error.message, 'error');
             } else {
-                const userName = currentUser?.full_name || 'مستخدم';
-                addNotification('حذف جهة اتصال', `قام ${userName} بحذف جهة الاتصال: "${contact.name}"`, 'contact', contact.id);
                 logActivity(currentUser, 'DELETE_CONTACT', { contactId: contact.id, contactName: contact.name });
                 setOfficeContacts(prev => prev.filter(c => c.id !== contact.id));
-                addToast('تم الحذف', 'تم حذف جهة الاتصال بنجاح.', 'deleted');
+                addToast('تم حذف جهة الاتصال بنجاح', '', 'deleted');
             }
         });
     };
@@ -430,7 +412,7 @@ const App: React.FC = () => {
                 })).filter(c => c.name);
 
                 if (newContacts.length === 0) {
-                    addToast('لا توجد بيانات', 'لم يتم العثور على جهات اتصال صالحة في الملف.', 'warning');
+                    addToast('لا توجد بيانات صالحة', 'لم يتم العثور على جهات اتصال في الملف.', 'warning');
                     setIsImporting(false);
                     return;
                 }
@@ -446,13 +428,11 @@ const App: React.FC = () => {
                     return [...updated, ...trulyNew];
                 });
                 
-                const userName = currentUser?.full_name || 'مستخدم';
-                addNotification('استيراد جهات اتصال', `قام ${userName} باستيراد وتحديث ${upsertedData.length} جهة اتصال.`, 'contact');
                 logActivity(currentUser, 'IMPORT_CONTACTS', { count: upsertedData.length });
-                addToast('نجاح', `تم استيراد وتحديث ${upsertedData.length} جهة اتصال بنجاح.`, 'success');
+                addToast(`تم استيراد ${upsertedData.length} جهة اتصال بنجاح`, '', 'success');
             } catch (err) {
                 console.error("Import error:", err);
-                addToast('خطأ في الاستيراد', 'فشل استيراد الملف. تأكد من أن التنسيق صحيح.', 'error');
+                addToast('فشل استيراد الملف', 'تأكد من صحة التنسيق.', 'error');
             } finally {
                 setIsImporting(false);
             }
@@ -471,7 +451,7 @@ const App: React.FC = () => {
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'تحويلات المكاتب');
         XLSX.writeFile(workbook, 'office_contacts_export.xlsx');
-        addToast('تم التصدير', 'تم تصدير تحويلات المكاتب بنجاح.', 'success');
+        addToast('تم تصدير التحويلات بنجاح', '', 'success');
     };
 
     const handleSaveTask = async (taskData: Omit<Task, 'id'> & { id?: number }) => {
@@ -479,20 +459,17 @@ const App: React.FC = () => {
         const dataWithTimestamp = { ...taskData, updated_at: new Date().toISOString() };
         const { data, error } = await supabase.from('tasks').upsert(dataWithTimestamp).select();
         if (error) {
-            addToast('خطأ', `فشل حفظ المهمة: ${error.message}`, 'error');
+            addToast('فشل حفظ المهمة', error.message, 'error');
         } else if (data) {
             const savedTask = data[0];
-            const userName = currentUser?.full_name || 'مستخدم';
             if (isEditing) {
                 setTasks(prev => prev.map(t => (t.id === savedTask.id ? savedTask : t)));
-                addNotification('تحديث مهمة', `قام ${userName} بتحديث مهمة: "${savedTask.title}"`, 'task', savedTask.id);
                 logActivity(currentUser, 'UPDATE_TASK', { taskId: savedTask.id, taskTitle: savedTask.title });
             } else {
                 setTasks(prev => [...prev, savedTask]);
-                addNotification('مهمة جديدة', `أضاف ${userName} مهمة: "${savedTask.title}"`, 'task', savedTask.id);
                 logActivity(currentUser, 'CREATE_TASK', { taskId: savedTask.id, taskTitle: savedTask.title });
             }
-            addToast('نجاح', `تم ${isEditing ? 'تحديث' : 'إضافة'} المهمة بنجاح.`, 'success');
+            addToast(`تم ${isEditing ? 'تحديث' : 'إضافة'} المهمة بنجاح`, '', 'success');
             setShowAddTaskModal(false);
             setTaskToEdit(null);
         }
@@ -502,13 +479,11 @@ const App: React.FC = () => {
         requestConfirmation('تأكيد الحذف', `هل أنت متأكد من رغبتك في حذف مهمة "${task.title}"؟`, async () => {
             const { error } = await supabase.from('tasks').delete().eq('id', task.id);
             if (error) {
-                addToast('خطأ', `فشل الحذف: ${error.message}`, 'error');
+                addToast('فشل الحذف', error.message, 'error');
             } else {
-                const userName = currentUser?.full_name || 'مستخدم';
-                addNotification('حذف مهمة', `قام ${userName} بحذف مهمة: "${task.title}"`, 'task', task.id);
                 logActivity(currentUser, 'DELETE_TASK', { taskId: task.id, taskTitle: task.title });
                 setTasks(prev => prev.filter(t => t.id !== task.id));
-                addToast('تم الحذف', 'تم حذف المهمة بنجاح.', 'deleted');
+                addToast('تم حذف المهمة بنجاح', '', 'deleted');
                 setSelectedTask(null); // Close detail modal on successful delete
             }
         });
@@ -523,10 +498,9 @@ const App: React.FC = () => {
                 updated_at: new Date().toISOString()
             }).eq('id', taskId).select();
             if (error) {
-                addToast('خطأ', `فشل تحديث حالة المهمة: ${error.message}`, 'error');
+                addToast('فشل تحديث حالة المهمة', error.message, 'error');
             } else if (data) {
                 const updatedTask = data[0];
-                const userName = currentUser?.full_name || 'مستخدم';
                 setTasks(prev => prev.map(t => t.id === taskId ? updatedTask : t));
 
                 if(selectedTask && selectedTask.id === taskId) {
@@ -534,13 +508,11 @@ const App: React.FC = () => {
                 }
 
                 if (newStatus) {
-                    addNotification('إكمال مهمة', `أكمل ${userName} مهمة: "${task.title}"`, 'task', task.id);
                     logActivity(currentUser, 'COMPLETE_TASK', { taskId: task.id, taskTitle: task.title, status: 'completed' });
-                    addToast('اكتملت المهمة', `"${task.title}" تم إكمالها.`, 'success');
+                    addToast('اكتملت المهمة بنجاح', '', 'success');
                 } else {
-                    addNotification('إعادة فتح مهمة', `أعاد ${userName} فتح مهمة: "${task.title}"`, 'task', task.id);
                     logActivity(currentUser, 'UPDATE_TASK', { taskId: task.id, taskTitle: task.title, status: 're-opened' });
-                    addToast('أعيد فتح المهمة', `"${task.title}" أعيدت إلى المهام القادمة.`, 'info');
+                    addToast('أعيد فتح المهمة', '', 'info');
                 }
             }
         }
@@ -570,7 +542,7 @@ const App: React.FC = () => {
         const { data, error } = await supabase.from('transactions').upsert(payload).select('*');
         
         if (error) {
-            addToast('خطأ', `فشل حفظ المعاملة: ${error.message}`, 'error');
+            addToast('فشل حفظ المعاملة', error.message, 'error');
         } else if (data) {
             const savedTransaction = data[0];
             const emp = savedTransaction.linked_employee_id ? employees.find(e => e.id === savedTransaction.linked_employee_id) : null;
@@ -582,17 +554,14 @@ const App: React.FC = () => {
                 linked_office_contact: contact ? { id: contact.id, name: contact.name } : null,
             };
 
-            const userName = currentUser?.full_name || 'مستخدم';
             if (isEditing) {
                 setTransactions(prev => prev.map(t => (t.id === enrichedTransaction.id ? enrichedTransaction : t)));
-                addNotification('تحديث معاملة', `قام ${userName} بتحديث معاملة: "${savedTransaction.subject}"`, 'transaction', savedTransaction.id);
                 logActivity(currentUser, 'UPDATE_TRANSACTION', { transactionId: savedTransaction.id, transactionSubject: savedTransaction.subject });
             } else {
                 setTransactions(prev => [enrichedTransaction, ...prev]);
-                 addNotification('معاملة جديدة', `أضاف ${userName} معاملة: "${savedTransaction.subject}"`, 'transaction', savedTransaction.id);
                  logActivity(currentUser, 'CREATE_TRANSACTION', { transactionId: savedTransaction.id, transactionSubject: savedTransaction.subject });
             }
-            addToast('نجاح', `تم ${isEditing ? 'تحديث' : 'إضافة'} المعاملة بنجاح.`, 'success');
+            addToast(`تم ${isEditing ? 'تحديث' : 'إضافة'} المعاملة بنجاح`, '', 'success');
             setShowAddTransactionModal(false);
             setTransactionToEdit(null);
         }
@@ -602,13 +571,11 @@ const App: React.FC = () => {
         requestConfirmation('تأكيد الحذف', `هل أنت متأكد من رغبتك في حذف المعاملة رقم "${transaction.transaction_number}"؟`, async () => {
             const { error } = await supabase.from('transactions').delete().eq('id', transaction.id);
             if (error) {
-                addToast('خطأ', `فشل حذف المعاملة: ${error.message}`, 'error');
+                addToast('فشل حذف المعاملة', error.message, 'error');
             } else {
-                const userName = currentUser?.full_name || 'مستخدم';
-                addNotification('حذف معاملة', `قام ${userName} بحذف معاملة رقم "${transaction.transaction_number}"`, 'transaction', transaction.id);
                 logActivity(currentUser, 'DELETE_TRANSACTION', { transactionId: transaction.id, transactionNumber: transaction.transaction_number });
                 setTransactions(prev => prev.filter(t => t.id !== transaction.id));
-                addToast('تم الحذف', 'تم حذف المعاملة بنجاح.', 'deleted');
+                addToast('تم حذف المعاملة بنجاح', '', 'deleted');
             }
              setSelectedTransaction(null); // Close detail modal
         });
@@ -648,14 +615,12 @@ const App: React.FC = () => {
         const { error } = await supabase.from('transactions').update({ status: nextStatus, updated_at: newTimestamp }).eq('id', transactionId);
 
         if (error) {
-            addToast('خطأ', `فشل تحديث حالة المعاملة: ${error.message}`, 'error');
+            addToast('فشل تحديث حالة المعاملة', error.message, 'error');
             setTransactions(originalTransactions); // Revert on error
         } else {
             const nextStatusText = statusTextMap[nextStatus as keyof typeof statusTextMap];
-            const userName = currentUser?.full_name || 'مستخدم';
-            addNotification('تحديث حالة معاملة', `قام ${userName} بتغيير حالة معاملة "${transaction.subject}" إلى "${nextStatusText}".`, 'transaction', transaction.id);
             logActivity(currentUser, 'UPDATE_TRANSACTION_STATUS', { transactionId: transaction.id, transactionSubject: transaction.subject, newStatus: nextStatus });
-            addToast('تم التحديث', `تم نقل المعاملة إلى حالة "${nextStatusText}".`, 'info');
+            addToast(`تم تحديث الحالة إلى "${nextStatusText}"`, '', 'info');
         }
     };
 
@@ -663,8 +628,8 @@ const App: React.FC = () => {
         const handlerMap = {
             directory: handleImportEmployees,
             officeDirectory: handleImportOfficeContacts,
-            tasks: () => addToast('معلومة', 'استيراد المهام غير مدعوم حالياً.', 'info'),
-            transactions: () => addToast('معلومة', 'استيراد المعاملات غير مدعوم حالياً.', 'info'),
+            tasks: () => addToast('استيراد المهام غير مدعوم', '', 'info'),
+            transactions: () => addToast('استيراد المعاملات غير مدعوم', '', 'info'),
             orgChart: () => {},
             statistics: () => {},
         };
@@ -701,7 +666,7 @@ const App: React.FC = () => {
         <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
             <Header onOpenSettings={() => setShowSettings(true)} />
             
-            <main className="container mx-auto px-4 md:px-6 flex-grow pb-24 md:pb-6">
+            <main className="container mx-auto px-3 md:px-6 flex-grow pb-24 md:pb-6">
                  <Tabs activeTab={activeTab} setActiveTab={(tab) => {
                     setActiveTab(tab);
                     setSearchTerm(''); 
@@ -747,8 +712,8 @@ const App: React.FC = () => {
                                 onAddTask={() => { setTaskToEdit(null); setShowAddTaskModal(true); }}
                                 onToggleComplete={handleToggleTaskComplete}
                                 onSelectTask={setSelectedTask}
-                                onImportClick={() => addToast('غير متوفر', 'استيراد المهام غير مدعوم حاليًا.', 'info')}
-                                onExportClick={() => addToast('غير متوفر', 'تصدير المهام غير مدعوم حاليًا.', 'info')}
+                                onImportClick={() => addToast('استيراد المهام غير مدعوم', '', 'info')}
+                                onExportClick={() => addToast('تصدير المهام غير مدعوم', '', 'info')}
                             />
                          )}
                          {activeTab === 'transactions' && (
@@ -759,11 +724,11 @@ const App: React.FC = () => {
                                 onDeleteTransaction={handleDeleteTransaction}
                                 onSelectTransaction={setSelectedTransaction}
                                 onCycleStatus={handleCycleTransactionStatus}
-                                onImportClick={() => addToast('غير متوفر', 'استيراد المعاملات غير مدعوم حاليًا.', 'info')}
-                                onExportClick={() => addToast('غير متوفر', 'تصدير المعاملات غير مدعوم حاليًا.', 'info')}
+                                onImportClick={() => addToast('استيراد المعاملات غير مدعوم', '', 'info')}
+                                onExportClick={() => addToast('تصدير المعاملات غير مدعوم', '', 'info')}
                             />
                          )}
-                         {activeTab === 'statistics' && <StatisticsView currentUser={currentUser} employees={employees} transactions={transactions} officeContacts={officeContacts} tasks={tasks} notifications={notifications} />}
+                         {activeTab === 'statistics' && <StatisticsView currentUser={currentUser} employees={employees} transactions={transactions} officeContacts={officeContacts} tasks={tasks} />}
                     </div>
                  )}
             </main>

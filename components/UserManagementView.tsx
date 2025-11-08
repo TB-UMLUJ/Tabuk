@@ -91,7 +91,7 @@ const UserManagementView: React.FC = () => {
             
             if (error) throw error;
             
-            addToast('نجاح', `تم ${userData.user_id ? 'تحديث' : 'إضافة'} المستخدم بنجاح.`, 'success');
+            addToast(`تم ${userData.user_id ? 'تحديث' : 'إضافة'} المستخدم بنجاح`, '', 'success');
             setIsModalOpen(false);
             fetchData(); // Refresh data
         } catch (error: any) {
@@ -113,7 +113,7 @@ const UserManagementView: React.FC = () => {
         try {
             const { error } = await supabase.from('users').delete().eq('user_id', userToDelete.user_id);
             if (error) throw error;
-            addToast('تم الحذف', `تم حذف المستخدم ${userToDelete.full_name} بنجاح.`, 'deleted');
+            addToast('تم حذف المستخدم بنجاح', '', 'deleted');
             setUsers(prev => prev.filter(u => u.user_id !== userToDelete.user_id));
         } catch (error: any) {
             addToast('خطأ', `فشل حذف المستخدم: ${error.message}`, 'error');
@@ -134,7 +134,7 @@ const UserManagementView: React.FC = () => {
         try {
             const { error } = await supabase.from('users').update({ is_active: !user.is_active }).eq('user_id', user.user_id);
             if (error) throw error;
-            addToast('تم التحديث', `تم تحديث حالة المستخدم ${user.full_name}.`, 'success');
+            addToast('تم تحديث حالة المستخدم', '', 'success');
         } catch (error: any) {
             addToast('خطأ', 'فشل تحديث حالة المستخدم.', 'error');
             setUsers(originalUsers); // Revert on error

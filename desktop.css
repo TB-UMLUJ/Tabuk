@@ -1,0 +1,25 @@
+/* ==========================================================================
+   3. Tablet & Desktop Styles (min-width: 768px)
+   ========================================================================== */
+@media (min-width: 768px) { /* Tailwind's 'md' breakpoint */
+  /* Restore placeholder font size for larger screens */
+  input::placeholder,
+  textarea::placeholder {
+    font-size: 16px;
+  }
+
+  /* --- Toast Notifications (Desktop Overrides) --- */
+  .toast-container {
+    top: 1.5rem;
+    left: auto;
+    right: 1.5rem;
+    align-items: flex-end;
+  }
+  
+  .animate-toast-in {
+    animation: toast-in-right 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+  }
+  .animate-toast-out {
+    animation: toast-out-right 0.5s ease-in-out forwards;
+  }
+}

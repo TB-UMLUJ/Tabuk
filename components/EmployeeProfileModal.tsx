@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { Employee } from '../types';
@@ -79,8 +77,8 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
         );
 
         return (
-            <div className="flex items-start gap-4 py-3">
-                <div className="bg-primary/10 p-2.5 rounded-lg text-primary dark:bg-primary/20 dark:text-primary mt-1">{icon}</div>
+            <div className="flex items-start gap-3 py-2.5">
+                <div className="bg-primary/10 p-2 rounded-lg text-primary dark:bg-primary/20 dark:text-primary mt-1">{icon}</div>
                 <div>
                     <p className="text-sm text-gray-500 font-medium dark:text-gray-400">{label}</p>
                     <p className="text-base font-bold text-gray-800 dark:text-white break-all">{valueContent}</p>
@@ -103,14 +101,14 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
             aria-modal="true"
         >
             <div
-                className={`fixed inset-0 bg-black ${isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'}`}
+                className={`fixed inset-0 bg-black/60 ${isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'}`}
                 onClick={handleClose}
                 aria-hidden="true"
             />
             <div
                 className={`relative bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform ${isClosing ? 'animate-modal-out' : 'animate-modal-in'} dark:bg-gray-800`}
             >
-                 <div className="p-6 md:p-8">
+                 <div className="p-4 sm:p-6 md:p-8">
                     <button
                         onClick={handleClose}
                         className="absolute top-4 left-4 text-gray-400 hover:text-gray-800 transition-all duration-300 z-10 p-2 bg-gray-100/50 rounded-full dark:bg-gray-700/50 dark:text-gray-300 dark:hover:text-white hover:bg-gray-200/80 transform hover:rotate-90"
@@ -120,13 +118,13 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
 
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8 mb-6">
                         <div className="text-center flex-shrink-0">
-                             <div className="w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center mx-auto border-4 border-gray-200 dark:border-gray-600">
-                                <span className="text-5xl font-bold text-brand dark:text-brand-light">{getInitials(employee.full_name_ar || '')}</span>
+                             <div className="w-20 h-20 md:w-32 md:h-32 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center mx-auto border-4 border-gray-200 dark:border-gray-600">
+                                <span className="text-4xl md:text-5xl font-bold text-brand dark:text-brand-light">{getInitials(employee.full_name_ar || '')}</span>
                             </div>
                         </div>
                         <div className="flex-1 text-center md:text-right w-full">
-                            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{employee.full_name_ar}</h2>
-                            <p className="text-base md:text-lg text-gray-500 font-semibold dark:text-gray-400">{employee.job_title}</p>
+                            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{employee.full_name_ar}</h2>
+                            <p className="text-base text-gray-500 font-semibold dark:text-gray-400">{employee.job_title}</p>
                             <p className="text-sm md:text-base text-gray-400 dark:text-gray-500">{employee.full_name_en}</p>
                             
                             <div className="mt-6 flex items-center justify-center md:justify-end gap-2">

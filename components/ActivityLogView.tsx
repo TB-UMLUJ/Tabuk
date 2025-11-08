@@ -186,52 +186,41 @@ const ActivityLogView: React.FC = () => {
             {loading ? (
                 <div className="flex justify-center items-center py-20"><div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-primary dark:border-gray-700 dark:border-t-primary"></div></div>
             ) : (
-                <div className="relative pr-8">
-                    {logs.length > 0 && <div className="absolute top-0 bottom-0 right-8 w-0.5 bg-gray-200 dark:bg-gray-700"></div>}
-                    <div className="space-y-6">
-                        {logs.length > 0 ? logs.map(log => {
-                             const { icon, className } = getActionAppearance(log.action);
-                             return (
-                                <div key={log.id} className="relative flex items-start">
-                                    <div className="absolute top-5 right-8 transform -translate-x-1/2 -translate-y-1/2">
-                                        <div className="h-4 w-4 rounded-full bg-gray-200 dark:bg-gray-700 ring-4 ring-gray-50 dark:ring-gray-900"></div>
-                                    </div>
-
-                                    <div className="min-w-0 flex-1 mr-8">
-                                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-4 flex items-start gap-4 hover:border-primary/50 dark:hover:border-primary-light/50 transition-colors">
-                                            <span className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${className}`}>
-                                                {icon}
-                                            </span>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm text-gray-900 dark:text-white break-words">
-                                                    <button
-                                                        onClick={() => setSelectedUserId(log.user_id)}
-                                                        className="font-bold hover:underline focus:outline-none text-primary dark:text-primary-light"
-                                                    >
-                                                        {log.user_full_name}
-                                                    </button>
-                                                    {' '}
-                                                    {actionTranslations[log.action] || log.action}
-                                                    <span className="text-gray-600 dark:text-gray-300">{formatLogDetails(log.action, log.details)}</span>
-                                                </p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 flex items-center gap-1.5">
-                                                    <ClockIcon className="w-4 h-4"/>
-                                                    {new Date(log.created_at).toLocaleString('ar-SA', { dateStyle: 'medium', timeStyle: 'short' })}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {logs.length > 0 ? logs.map(log => {
+                        const { icon, className } = getActionAppearance(log.action);
+                        return (
+                            <div key={log.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-4 flex items-start gap-4 hover:border-primary/50 dark:hover:border-primary-light/50 transition-colors">
+                                <span className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${className}`}>
+                                    {icon}
+                                </span>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm text-gray-900 dark:text-white break-words">
+                                        <button
+                                            onClick={() => setSelectedUserId(log.user_id)}
+                                            className="font-bold hover:underline focus:outline-none text-primary dark:text-primary-light"
+                                        >
+                                            {log.user_full_name}
+                                        </button>
+                                        {' '}
+                                        {actionTranslations[log.action] || log.action}
+                                        <span className="text-gray-600 dark:text-gray-300">{formatLogDetails(log.action, log.details)}</span>
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 flex items-center gap-1.5">
+                                        <ClockIcon className="w-4 h-4"/>
+                                        {new Date(log.created_at).toLocaleString('ar-SA', { dateStyle: 'medium', timeStyle: 'short' })}
+                                    </p>
                                 </div>
-                             );
-                        }) : (
-                             <div className="py-8 text-center text-gray-500 dark:text-gray-400">
-                                {selectedFilterUserId === 'all' ? 'لا توجد نشاطات مسجلة بعد.' : 'لا توجد نشاطات مسجلة لهذا المستخدم.'}
                             </div>
-                        )}
-                    </div>
+                        );
+                    }) : (
+                        <div className="md:col-span-2 py-8 text-center text-gray-500 dark:text-gray-400">
+                            {selectedFilterUserId === 'all' ? 'لا توجد نشاطات مسجلة بعد.' : 'لا توجد نشاطات مسجلة لهذا المستخدم.'}
+                        </div>
+                    )}
                 </div>
             )}
-             {selectedUserId && (
+            {selectedUserId && (
                 <UserDetailModal userId={selectedUserId} onClose={() => setSelectedUserId(null)} />
             )}
         </div>

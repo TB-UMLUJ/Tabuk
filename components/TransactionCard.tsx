@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { Transaction, TransactionStatus, TransactionPlatform } from '../types';
 import { PaperClipIcon, CalendarDaysIcon, UserIcon, BuildingOfficeIcon, ArrowRightIcon } from '../icons/Icons';
@@ -75,7 +73,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction, onSelect
     return (
         <div 
             onClick={onSelect}
-            className="bg-white rounded-xl shadow-md p-4 pb-10 flex items-center gap-4 transition-all duration-300 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary-light/50 cursor-pointer relative"
+            className="bg-white rounded-xl shadow-md p-3 pb-10 flex items-center gap-3 transition-all duration-300 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-primary/50 dark:hover:border-primary-light/50 cursor-pointer relative"
         >
             {hasPermission('edit_transactions') && transaction.status !== 'completed' && (
                 <div className="absolute top-3 left-3 z-10">

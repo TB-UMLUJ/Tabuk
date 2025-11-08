@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { CloseIcon, ExclamationTriangleIcon } from '../icons/Icons';
@@ -61,7 +62,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             aria-labelledby="confirmation-title"
         >
             <div
-                className={`fixed inset-0 bg-black ${isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'}`}
+                className={`fixed inset-0 bg-black/60 ${isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'}`}
                 onClick={handleClose}
                 aria-hidden="true"
             />

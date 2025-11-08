@@ -109,7 +109,7 @@ const RolePermissionsModal: React.FC<RolePermissionsModalProps> = ({ isOpen, onC
                 const { error: insertError } = await supabase.from('role_permissions').insert(newPermissions);
                 if (insertError) throw insertError;
             }
-            addToast('نجاح', 'تم تحديث الصلاحيات بنجاح.', 'success');
+            addToast('تم تحديث الصلاحيات بنجاح', '', 'success');
             onSaveSuccess();
             handleClose();
         } catch (error: any) {

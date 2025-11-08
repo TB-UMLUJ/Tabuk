@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Employee } from '../types';
@@ -151,7 +152,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
     return ReactDOM.createPortal(
         <div className="fixed inset-0 z-50 flex justify-center items-center p-4" role="dialog" aria-modal="true">
             <div
-                className={`fixed inset-0 bg-black ${isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'}`}
+                className={`fixed inset-0 bg-black/60 ${isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'}`}
                 onClick={handleClose}
                 aria-hidden="true"
             />

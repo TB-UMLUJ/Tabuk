@@ -1,69 +1,8 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>HEALTH</title>
-    <link rel="icon" href="https://i.ibb.co/zWXjmsRP/2e0622ca-655f-4fdd-99bd43691398.png" type="image/png">
-    <link rel="apple-touch-icon" href="https://i.ibb.co/zWXjmsRP/2e0622ca-655f-4fdd-99bd43691398.png">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#008755">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=El+Messiri:wght@400;500;600;700&family=Tajawal:wght@400;700&family=Zain:wght@400;700&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Zain', 'sans-serif'],
-              cairo: ['Cairo', 'sans-serif'],
-              tajawal: ['Tajawal', 'sans-serif'],
-              el_messiri: ['El Messiri', 'sans-serif'],
-              zain: ['Zain', 'sans-serif'],
-            },
-            colors: {
-              primary: { // Green from Ministry of Health brand guide
-                DEFAULT: '#008755',
-                light: '#E6F3EE',
-                dark: '#006640'
-              },
-              accent: { // Khaki from Ministry of Health brand guide
-                light: '#E2E1D2',   // Lighter tint (30%)
-                DEFAULT: '#9b945f', // Main Khaki color
-                dark: '#B5B197'     // Darker tint (75%)
-              },
-              brand: { // Blue from Ministry of Health brand guide secondary palette
-                DEFAULT: '#009ACE',
-                light: '#E5F5FF',
-                dark: '#0076A2'
-              },
-              danger: '#C8102E', // Red from Ministry of Health brand guide secondary palette
-              gray: {
-                50: '#F7F9FA',
-                100: '#EFF2F3',
-                200: '#DEE3E6',
-                300: '#BDCBD3',
-                400: '#9CB7C7',
-                500: '#7E8F99',
-                600: '#5A7381',
-                700: '#454F5B',
-                800: '#212B36', // Card and modal background
-                900: '#161C24'  // Main dark background
-              }
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      /* ==========================================================================
+/* ==========================================================================
    1. Base, Mobile & General Styles
    ========================================================================== */
 body {
-  font-family: 'Zain', 'sans-serif';
+  font-family: 'El Messiri', 'sans-serif';
 }
 
 .dark {
@@ -87,11 +26,10 @@ textarea::placeholder {
   font-size: 13px;
 }
 
-/* --- Toast Notifications (Mobile First) --- */
+/* --- Toast Notifications (NEW STYLES) --- */
 .toast-container {
   position: fixed;
-  bottom: 5rem; /* Positioned above the bottom nav bar */
-  top: auto;
+  top: 1.5rem;
   left: 1rem;
   right: 1rem;
   z-index: 100;
@@ -203,8 +141,8 @@ textarea::placeholder {
 .animate-fade-in-out { animation: fade-in-out 2s ease-in-out forwards; }
 .animate-step-text-fade { animation: step-text-fade 800ms ease-in-out forwards; }
 .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-.animate-toast-in { animation: toast-in-bottom 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards; }
-.animate-toast-out { animation: toast-out-bottom 0.5s ease-in-out forwards; }
+.animate-toast-in { animation: toast-in-top 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards; }
+.animate-toast-out { animation: toast-out-top 0.5s ease-in-out forwards; }
 
 /* ==========================================================================
    2. Keyframe Animations
@@ -224,58 +162,10 @@ textarea::placeholder {
 @keyframes step-text-fade { 0%, 100% { opacity: 0; transform: translateY(8px); } 15%, 85% { opacity: 1; transform: translateY(0); } }
 @keyframes pulse { 50% { opacity: .5; } }
 
-/* Toast Mobile Bottom Animations */
-@keyframes toast-in-bottom { from { transform: translateY(150%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-@keyframes toast-out-bottom { from { transform: translateY(0); opacity: 1; } to { transform: translateY(150%); opacity: 0; } }
+/* Toast Mobile Animations */
+@keyframes toast-in-top { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes toast-out-top { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-100%); opacity: 0; } }
 
 /* Toast Desktop Animations */
 @keyframes toast-in-right { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes toast-out-right { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
-/* ==========================================================================
-   3. Tablet & Desktop Styles (min-width: 768px)
-   ========================================================================== */
-@media (min-width: 768px) { /* Tailwind's 'md' breakpoint */
-  /* Restore placeholder font size for larger screens */
-  input::placeholder,
-  textarea::placeholder {
-    font-size: 16px;
-  }
-
-  /* --- Toast Notifications (Desktop Overrides) --- */
-  .toast-container {
-    top: 1.5rem;
-    bottom: auto;
-    left: auto;
-    right: 1.5rem;
-    align-items: flex-end;
-  }
-  
-  .animate-toast-in {
-    animation: toast-in-right 0.5s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
-  }
-  .animate-toast-out {
-    animation: toast-out-right 0.5s ease-in-out forwards;
-  }
-}
-    </style>
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-  <script type="importmap">
-{
-  "imports": {
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.25.0",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
-    "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-</head>
-  <body>
-    <div id="root"></div>
-    <div id="modal-root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
-</html>

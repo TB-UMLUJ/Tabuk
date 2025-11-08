@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { UserIcon, KeyIcon, ArrowRightOnRectangleIcon, CheckCircleIcon, XCircleIcon, InformationCircleIcon } from '../icons/Icons';
 import { tabukHealthClusterLogoMain } from './Logo';
@@ -81,10 +80,10 @@ const LoginScreen: React.FC = () => {
                     alt="شعار تجمع تبوك الصحي"
                     className="w-56 h-auto mx-auto mb-10"
                 />
-                <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 dark:bg-gray-800">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 dark:bg-gray-800">
                     <div className="text-center mb-8">
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">أهلاً بك</h1>
-                        <p className="text-sm sm:text-base text-gray-500 mt-2 dark:text-gray-400">سجّل الدخول لتجربة إدارة أسرع وأذكى</p>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">أهلاً بك</h1>
+                        <p className="text-sm text-gray-500 mt-2 dark:text-gray-400">سجّل الدخول لتجربة إدارة أسرع وأذكى</p>
                     </div>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
@@ -102,7 +101,7 @@ const LoginScreen: React.FC = () => {
                                         setInlineErrorMessage(null);
                                     }}
                                     placeholder="اسم المستخدم"
-                                    className={`w-full pr-10 pl-4 py-3 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition dark:focus:bg-gray-900 dark:focus:text-white bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white`}
+                                    className={`w-full pr-10 pl-4 py-2.5 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition dark:focus:bg-gray-900 dark:focus:text-white bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white`}
                                     required
                                     autoComplete="username"
                                 />
@@ -123,7 +122,7 @@ const LoginScreen: React.FC = () => {
                                         setInlineErrorMessage(null);
                                     }}
                                     placeholder="كلمة المرور"
-                                    className={`w-full pr-10 pl-4 py-3 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition dark:focus:bg-gray-900 dark:focus:text-white bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white`}
+                                    className={`w-full pr-10 pl-4 py-2.5 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition dark:focus:bg-gray-900 dark:focus:text-white bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white`}
                                     required
                                     autoComplete="current-password"
                                 />
@@ -154,7 +153,7 @@ const LoginScreen: React.FC = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-primary-dark text-white font-bold py-3 px-4 rounded-lg hover:from-primary-dark hover:to-primary transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="w-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-primary-dark text-white font-bold py-2.5 px-4 rounded-lg hover:from-primary-dark hover:to-primary transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? 'جاري الدخول...' : 'تسجيل الدخول'}
                             {!isSubmitting && <ArrowRightOnRectangleIcon className="h-5 w-5" />}

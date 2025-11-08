@@ -1,12 +1,9 @@
-
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ToastProvider } from './contexts/ToastContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
-import { NotificationProvider } from './contexts/NotificationContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -19,9 +16,7 @@ root.render(
     <ThemeProvider>
       <ToastProvider>
         <AuthProvider>
-          <NotificationProvider>
             <App />
-          </NotificationProvider>
         </AuthProvider>
       </ToastProvider>
     </ThemeProvider>
