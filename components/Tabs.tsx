@@ -14,8 +14,8 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
     
     const allTabs = [
         { id: 'statistics', name: 'الإحصائيات', icon: ChartBarIcon },
-        { id: 'directory', name: 'الدليل', icon: BookOpenIcon },
-        { id: 'officeDirectory', name: 'تحويلات المكاتب', icon: PhoneIcon },
+        { id: 'directory', name: 'الموظفين', icon: BookOpenIcon },
+        { id: 'officeDirectory', name: 'المكاتب', icon: PhoneIcon },
         { id: 'tasks', name: 'المهام والتذكيرات', icon: BellIcon },
         { id: 'transactions', name: 'إدارة المعاملات', icon: DocumentDuplicateIcon },
         { id: 'orgChart', name: 'الهيكل التنظيمي', icon: UserGroupIcon },

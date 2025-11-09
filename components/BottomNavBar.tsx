@@ -12,8 +12,8 @@ interface BottomNavBarProps {
 
 const allTabs: { id: TabId; label: string; icon: React.ElementType; requiredPermission?: string }[] = [
     { id: 'statistics', label: 'إحصائيات', icon: ChartBarIcon },
-    { id: 'directory', label: 'الدليل', icon: BookOpenIcon },
-    { id: 'officeDirectory', label: 'تحويلات', icon: PhoneIcon },
+    { id: 'directory', label: 'الموظفين', icon: BookOpenIcon },
+    { id: 'officeDirectory', label: 'المكاتب', icon: PhoneIcon },
     { id: 'tasks', label: 'المهام', icon: BellIcon },
     { id: 'transactions', label: 'المعاملات', icon: DocumentDuplicateIcon },
     { id: 'orgChart', label: 'الهيكلة', icon: UserGroupIcon },
