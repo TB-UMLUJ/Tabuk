@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
+// FIX: Corrected import path for types
 import { OfficeContact } from '../types';
+// FIX: Corrected import path for icons
 import { CloseIcon, PencilIcon } from '../icons/Icons';
 
 interface EditOfficeContactModalProps {

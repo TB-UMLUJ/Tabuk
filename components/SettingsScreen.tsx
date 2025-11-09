@@ -8,7 +8,7 @@ import {
     ArrowRightOnRectangleIcon, 
     KeyIcon, 
     InformationCircleIcon, 
-    UsersIcon, 
+    UsersRolesIcon,
     ListBulletIcon,
     ShieldCheckIcon,
     ClipboardDocumentListIcon,
@@ -37,6 +37,114 @@ interface SettingsScreenProps {
 }
 
 type SettingsView = 'main' | 'userRoleManagement' | 'activityLog' | 'privacyPolicy' | 'termsOfUse' | 'contactUs' | 'disclaimer' | 'compliance' | 'governance';
+
+
+// --- New Policy Detail Modal Component ---
+interface PolicyDetailModalProps {
+    isOpen: boolean;
+    policy: Policy | null;
+    onClose: () => void;
+    onEdit: (policy: Policy) => void;
+    onDelete: (policy: Policy) => void;
+}
+
+const PolicyDetailModal: React.FC<PolicyDetailModalProps> = ({ isOpen, policy, onClose, onEdit, onDelete }) => {
+    const [isClosing, setIsClosing] = useState(false);
+    const { hasPermission } = useAuth();
+
+    useEffect(() => {
+        if (isOpen) document.body.style.overflow = 'hidden';
+        else document.body.style.overflow = 'auto';
+        return () => { document.body.style.overflow = 'auto'; };
+    }, [isOpen]);
+
+    const handleClose = useCallback(() => {
+        setIsClosing(true);
+        setTimeout(() => {
+            onClose();
+            setIsClosing(false);
+        }, 300);
+    }, [onClose]);
+
+    const handleEdit = useCallback(() => {
+        if (policy) onEdit(policy);
+    }, [policy, onEdit]);
+
+    const handleDelete = () => {
+        if (policy) onDelete(policy);
+    };
+
+    const InfoRow: React.FC<{ label: string; value?: string; children?: React.ReactNode }> = ({ label, value, children }) => {
+        if (!value && !children) return null;
+        return (
+            <div className="py-3">
+                <p className="text-sm text-gray-500 font-medium dark:text-gray-400">{label}</p>
+                {value && <p className="text-base font-semibold text-gray-800 dark:text-white break-words whitespace-pre-wrap">{value}</p>}
+                {children}
+            </div>
+        );
+    };
+
+    if (!isOpen) return null;
+    const modalRoot = document.getElementById('modal-root');
+    if (!policy || !modalRoot) return null;
+
+    return ReactDOM.createPortal(
+        <div className="fixed inset-0 z-50 flex justify-center items-center p-4" role="dialog" aria-modal="true">
+            <div className={`fixed inset-0 bg-black/60 ${isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'}`} onClick={handleClose} aria-hidden="true" />
+            <div className={`relative bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform ${isClosing ? 'animate-modal-out' : 'animate-modal-in'} dark:bg-gray-800`}>
+                 <div className="p-6 md:p-8">
+                    <button onClick={handleClose} className="absolute top-4 left-4 text-gray-400 hover:text-gray-800 transition-all duration-300 z-10 p-2 bg-gray-100/50 rounded-full dark:bg-gray-700/50 dark:text-gray-300 dark:hover:text-white hover:bg-gray-200/80 transform hover:rotate-90">
+                       <CloseIcon className="w-6 h-6" />
+                    </button>
+
+                    <div className="flex items-start gap-4 mb-4">
+                        <div className="bg-primary-light p-3 rounded-lg text-primary dark:bg-primary/20 dark:text-primary-light mt-1">
+                            <BookOpenIcon className="w-8 h-8"/>
+                        </div>
+                        <div className="flex-1">
+                            <h2 className="text-xl md:text-2xl font-bold text-primary dark:text-white">{policy.title}</h2>
+                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                تاريخ الإنشاء: {new Date(policy.created_at).toLocaleDateString('ar-SA')}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-2 grid grid-cols-1 gap-x-6 dark:border-gray-700">
+                        <InfoRow label="الوصف" value={policy.description || 'لا يوجد وصف.'} />
+                        <InfoRow label="المرفق">
+                            {policy.file_url ? (
+                                <a
+                                    href={policy.file_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    download={policy.display_file_name || policy.title}
+                                    className="inline-flex items-center gap-2 text-primary dark:text-primary-light font-bold hover:underline"
+                                >
+                                    <ArrowDownTrayIcon className="w-5 h-5"/>
+                                    <span>تحميل: {policy.display_file_name || 'الملف'}</span>
+                                </a>
+                            ) : <span className="text-base font-semibold text-gray-400 dark:text-gray-500">لا يوجد</span>}
+                        </InfoRow>
+                    </div>
+
+                    {hasPermission('manage_policies') && (
+                        <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4 flex justify-end gap-2">
+                            <button onClick={handleEdit} className="text-center bg-gray-100 text-gray-700 p-2.5 rounded-lg hover:bg-gray-200 transition-all duration-200 transform hover:scale-105 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600" aria-label="تعديل" title="تعديل">
+                                <PencilIcon className="w-5 h-5" />
+                            </button>
+                            <button onClick={handleDelete} className="text-center bg-danger/10 text-danger p-2.5 rounded-lg hover:bg-danger/20 transition-all duration-200 transform hover:scale-105 dark:bg-danger/20 dark:text-red-400 dark:hover:bg-danger/30" aria-label="حذف" title="حذف">
+                                <TrashIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>,
+        modalRoot
+    );
+};
+
 
 // --- Static Content Components ---
 
@@ -111,9 +219,10 @@ const GovernanceCenterContent: React.FC = () => {
     const { currentUser, hasPermission } = useAuth();
     const [policies, setPolicies] = useState<Policy[]>([]);
     const [loading, setLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
     const [policyToEdit, setPolicyToEdit] = useState<Policy | null>(null);
     const [policyToDelete, setPolicyToDelete] = useState<Policy | null>(null);
+    const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
 
     const fetchPolicies = useCallback(async () => {
         setLoading(true);
@@ -134,26 +243,21 @@ const GovernanceCenterContent: React.FC = () => {
 
     const handleConfirmDelete = async () => {
         if (!policyToDelete) return;
-
         try {
-            // 1. Delete the file from storage
             if (policyToDelete.file_name) {
                 const { error: storageError } = await supabase.storage.from('policies').remove([policyToDelete.file_name]);
                 if (storageError) {
-                    // Log error but proceed to delete DB record anyway
                     console.error('Storage deletion failed:', storageError);
                     addToast('تحذير', 'فشل حذف الملف من المخزن، لكن سيتم حذف السجل.', 'warning');
                 }
             }
             
-            // 2. Delete the record from the database
             const { error: dbError } = await supabase.from('policies').delete().eq('id', policyToDelete.id);
             if (dbError) throw dbError;
 
             logActivity(currentUser, 'DELETE_POLICY', { policyId: policyToDelete.id, policyTitle: policyToDelete.title });
             addToast('تم حذف السياسة بنجاح', '', 'deleted');
-            setPolicies(prev => prev.filter(p => p.id !== policyToDelete.id));
-
+            fetchPolicies(); // Refetch policies after deletion
         } catch (error: any) {
             addToast('خطأ', `فشل حذف السياسة: ${error.message}`, 'error');
         } finally {
@@ -161,36 +265,17 @@ const GovernanceCenterContent: React.FC = () => {
         }
     };
     
-    const PolicyCard: React.FC<{ policy: Policy; onEdit: () => void; onDelete: () => void; }> = ({ policy, onEdit, onDelete }) => (
-        <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-start justify-between gap-4">
-            <div className="flex items-start gap-4 flex-1 min-w-0">
-                <BookOpenIcon className="w-8 h-8 text-primary dark:text-primary-light flex-shrink-0 mt-1"/>
-                <div>
-                    <h4 className="font-bold text-gray-800 dark:text-white">{policy.title}</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{policy.description}</p>
-                </div>
+    const PolicyCard: React.FC<{ policy: Policy; onSelect: () => void; }> = ({ policy, onSelect }) => (
+         <button 
+            onClick={onSelect} 
+            className="w-full text-right bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 flex items-start gap-4 hover:border-primary dark:hover:border-primary-light transition-colors"
+        >
+            <BookOpenIcon className="w-8 h-8 text-primary dark:text-primary-light flex-shrink-0 mt-1"/>
+            <div>
+                <h4 className="font-bold text-gray-800 dark:text-white">{policy.title}</h4>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{policy.description}</p>
             </div>
-            <div className="w-full sm:w-auto flex-shrink-0 flex items-center gap-2 self-start sm:self-center">
-                 {hasPermission('manage_policies') && (
-                    <>
-                        <button onClick={onEdit} className="p-2 rounded-lg text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors" title="تعديل"><PencilIcon className="w-5 h-5"/></button>
-                        <button onClick={onDelete} className="p-2 rounded-lg text-danger hover:bg-danger/10 transition-colors" title="حذف"><TrashIcon className="w-5 h-5"/></button>
-                    </>
-                 )}
-                {policy.file_url && (
-                    <a
-                        href={policy.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download={policy.display_file_name || policy.title}
-                        className="flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 bg-primary/10 text-primary-dark dark:bg-primary/20 dark:text-primary-light font-semibold py-2 px-4 rounded-lg hover:bg-primary/20 dark:hover:bg-primary/30 transition-all"
-                    >
-                        <ArrowDownTrayIcon className="w-5 h-5"/>
-                        <span>تحميل</span>
-                    </a>
-                )}
-            </div>
-        </div>
+        </button>
     );
 
     return (
@@ -202,9 +287,9 @@ const GovernanceCenterContent: React.FC = () => {
             </div>
 
             {hasPermission('manage_policies') && (
-                <div className="mb-6 text-left">
+                <div className="mb-6 text-center">
                     <button
-                        onClick={() => { setPolicyToEdit(null); setIsModalOpen(true); }}
+                        onClick={() => { setPolicyToEdit(null); setIsAddEditModalOpen(true); }}
                         className="inline-flex items-center gap-2 bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-primary-dark transition-all duration-300 transform hover:-translate-y-0.5"
                     >
                         <PlusIcon className="w-5 h-5"/>
@@ -221,8 +306,7 @@ const GovernanceCenterContent: React.FC = () => {
                         <PolicyCard 
                             key={policy.id}
                             policy={policy}
-                            onEdit={() => { setPolicyToEdit(policy); setIsModalOpen(true); }}
-                            onDelete={() => setPolicyToDelete(policy)}
+                            onSelect={() => setSelectedPolicy(policy)}
                         />
                     ))}
                 </div>
@@ -231,10 +315,10 @@ const GovernanceCenterContent: React.FC = () => {
                     <p className="text-gray-500 dark:text-gray-400">لا توجد سياسات متاحة حاليًا.</p>
                 </div>
             )}
-
+            
             <AddPolicyModal 
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isOpen={isAddEditModalOpen}
+                onClose={() => setIsAddEditModalOpen(false)}
                 onSaveSuccess={fetchPolicies}
                 policyToEdit={policyToEdit}
             />
@@ -245,6 +329,23 @@ const GovernanceCenterContent: React.FC = () => {
                 onConfirm={handleConfirmDelete}
                 title="تأكيد الحذف"
                 message={`هل أنت متأكد من رغبتك في حذف السياسة "${policyToDelete?.title}"؟ سيتم حذف الملف بشكل دائم.`}
+            />
+
+            <PolicyDetailModal 
+                isOpen={!!selectedPolicy}
+                policy={selectedPolicy}
+                onClose={() => setSelectedPolicy(null)}
+                onEdit={(policy) => {
+                    setSelectedPolicy(null);
+                    setTimeout(() => {
+                        setPolicyToEdit(policy);
+                        setIsAddEditModalOpen(true);
+                    }, 150);
+                }}
+                onDelete={(policy) => {
+                    setSelectedPolicy(null); // Close detail modal first
+                    setPolicyToDelete(policy);
+                }}
             />
         </div>
     );
@@ -464,7 +565,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         {hasPermission('manage_users') && (
                             <SettingsCard
-                                icon={<UsersIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                                icon={<UsersRolesIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
                                 title="إدارة المستخدمين والأدوار"
                                 description="إضافة وتعديل المستخدمين وتحديد صلاحياتهم."
                                 onClick={() => setCurrentView('userRoleManagement')}
