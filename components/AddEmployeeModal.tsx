@@ -183,17 +183,17 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">المعلومات الأساسية</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <FormInput label="الاسم باللغة العربية" name="full_name_ar" required value={employeeData.full_name_ar} onChange={handleChange} />
+                                    <FormInput label="الاسم باللغة العربية" name="full_name_ar" value={employeeData.full_name_ar} onChange={handleChange} />
                                     <FormInput label="الاسم باللغة الإنجليزية" name="full_name_en" value={employeeData.full_name_en} onChange={handleChange} />
-                                    <FormInput label="الرقم الوظيفي" name="employee_id" required value={employeeData.employee_id} onChange={handleChange} />
+                                    <FormInput label="الرقم الوظيفي" name="employee_id" value={employeeData.employee_id} onChange={handleChange} />
                                 </div>
                             </div>
                             
                             <div className="border-t border-gray-200 dark:border-gray-700 pt-5">
                                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">المعلومات الوظيفية</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <FormInput label="المسمى الوظيفي" name="job_title" required value={employeeData.job_title} onChange={handleChange} />
-                                    <FormInput label="القطاع" name="department" required value={employeeData.department} onChange={handleChange} disabled />
+                                    <FormInput label="المسمى الوظيفي" name="job_title" value={employeeData.job_title} onChange={handleChange} />
+                                    <FormInput label="القطاع" name="department" value={employeeData.department} onChange={handleChange} disabled />
                                     <FormInput label="المركز" name="center" value={employeeData.center || ''} onChange={handleChange} />
                                 </div>
                             </div>
@@ -201,9 +201,9 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                              <div className="border-t border-gray-200 dark:border-gray-700 pt-5">
                                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">معلومات الاتصال</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <FormInput label="رقم الجوال" name="phone_direct" type="tel" required value={employeeData.phone_direct} onChange={handleChange} />
+                                    <FormInput label="رقم الجوال" name="phone_direct" type="tel" value={employeeData.phone_direct} onChange={handleChange} />
                                     <div>
-                                        <FormInput label="البريد الإلكتروني" name="email" type="email" required value={employeeData.email} onChange={handleChange} />
+                                        <FormInput label="البريد الإلكتروني" name="email" type="email" value={employeeData.email} onChange={handleChange} />
                                         {emailError && <p className="text-danger text-xs mt-1">{emailError}</p>}
                                     </div>
                                 </div>

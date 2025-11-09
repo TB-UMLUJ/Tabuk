@@ -1,3 +1,5 @@
+
+
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
@@ -299,16 +301,22 @@ const App: React.FC = () => {
                         gender: String(row['الجنس'] || '').trim(),
                         date_of_birth: parseExcelDate(row['تاريخ الميلاد']),
                         classification_id: String(row['رقم التصنيف'] || '').trim(),
-                    }))
-                    .filter(emp => emp.employee_id && emp.full_name_ar);
+                    }));
 
-                if (newEmployees.length === 0) {
+                // De-duplicate employees based on employee_id, keeping the last occurrence.
+                const uniqueEmployeesMap = new Map<string, Omit<Employee, 'id'>>();
+                newEmployees.forEach(employee => {
+                    uniqueEmployeesMap.set(employee.employee_id, employee);
+                });
+                const uniqueEmployees = Array.from(uniqueEmployeesMap.values());
+
+                if (uniqueEmployees.length === 0) {
                     addToast('لا توجد بيانات صالحة', 'لم يتم العثور على موظفين في الملف.', 'warning');
                     setIsImporting(false);
                     return;
                 }
                 
-                const { data: upsertedData, error } = await supabase.from('employees').upsert(newEmployees, { onConflict: 'employee_id' }).select();
+                const { data: upsertedData, error } = await supabase.from('employees').upsert(uniqueEmployees, { onConflict: 'employee_id' }).select();
 
                 if (error) throw error;
                 
@@ -325,7 +333,7 @@ const App: React.FC = () => {
 
             } catch (err: any) {
                 console.error("Import error:", err);
-                addToast('فشل استيراد الملف', 'تأكد من صحة التنسيق.', 'error');
+                addToast('فشل استيراد الملف', 'تأكد من صحة التنسيق وعدم وجود تكرار.', 'error');
             } finally {
                 setIsImporting(false);
             }
@@ -409,15 +417,25 @@ const App: React.FC = () => {
                     extension: String(row['التحويلة'] || '').trim(),
                     location: String(row['الموقع'] || '').trim(),
                     email: String(row['البريد الإلكتروني'] || '').trim(),
-                })).filter(c => c.name);
+                }));
 
-                if (newContacts.length === 0) {
+                // De-duplicate contacts based on name, keeping the last occurrence.
+                const uniqueContactsMap = new Map<string, typeof newContacts[0]>();
+                newContacts.forEach(contact => {
+                    if (contact.name) {
+                        uniqueContactsMap.set(contact.name, contact);
+                    }
+                });
+                const uniqueContacts = Array.from(uniqueContactsMap.values());
+
+
+                if (uniqueContacts.length === 0) {
                     addToast('لا توجد بيانات صالحة', 'لم يتم العثور على جهات اتصال في الملف.', 'warning');
                     setIsImporting(false);
                     return;
                 }
 
-                const { data: upsertedData, error } = await supabase.from('office_contacts').upsert(newContacts, { onConflict: 'name' }).select();
+                const { data: upsertedData, error } = await supabase.from('office_contacts').upsert(uniqueContacts, { onConflict: 'name' }).select();
 
                 if (error) throw error;
 
@@ -432,7 +450,7 @@ const App: React.FC = () => {
                 addToast(`تم استيراد ${upsertedData.length} جهة اتصال بنجاح`, '', 'success');
             } catch (err) {
                 console.error("Import error:", err);
-                addToast('فشل استيراد الملف', 'تأكد من صحة التنسيق.', 'error');
+                addToast('فشل استيراد الملف', 'تأكد من صحة التنسيق وعدم وجود تكرار.', 'error');
             } finally {
                 setIsImporting(false);
             }
