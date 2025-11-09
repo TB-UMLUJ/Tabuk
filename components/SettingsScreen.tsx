@@ -19,7 +19,8 @@ import {
     ArrowDownTrayIcon,
     PlusIcon,
     PencilIcon,
-    TrashIcon
+    TrashIcon,
+    BellIcon,
 } from '../icons/Icons';
 import AboutModal from './AboutModal';
 import { useAuth } from '../contexts/AuthContext';
@@ -510,6 +511,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
     const [showAboutModal, setShowAboutModal] = useState(false);
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
     const [currentView, setCurrentView] = useState<SettingsView>('main');
+    const { addToast } = useToast();
 
     useEffect(() => {
         if (isOpen) {
@@ -528,6 +530,28 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
             setIsClosing(false);
         }, 300);
     }, [onClose]);
+
+    const handleRequestNotificationPermission = () => {
+        if (!("Notification" in window)) {
+            addToast('غير مدعوم', 'متصفحك لا يدعم الإشعارات.', 'error');
+            return;
+        }
+
+        if (Notification.permission === "granted") {
+            addToast('مفعلة بالفعل', 'الإشعارات مفعلة بالفعل لهذا الموقع.', 'info');
+        } else if (Notification.permission === "denied") {
+            addToast('محظورة', 'تم حظر الإشعارات. يرجى تفعيلها من إعدادات المتصفح.', 'warning');
+        } else {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    addToast('تم التفعيل', 'تم تفعيل الإشعارات بنجاح!', 'success');
+                    new Notification("أهلاً بك!", { body: "ستتلقى الآن آخر التحديثات." });
+                } else {
+                    addToast('تم الرفض', 'لم يتم منح إذن الإشعارات.', 'info');
+                }
+            });
+        }
+    };
 
     if (!isOpen) {
         return null;
@@ -554,6 +578,20 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
                         description="إنهاء الجلسة الحالية والخروج من حسابك."
                         onClick={logout}
                         colorClass="text-danger dark:text-red-400 bg-danger/10 dark:bg-danger/20"
+                    />
+                </div>
+            </div>
+
+            {/* Notifications Section */}
+            <div>
+                <h2 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-2 mb-3">الإشعارات</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                     <SettingsCard
+                        icon={<BellIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                        title="تفعيل الإشعارات"
+                        description="احصل على تنبيهات للمهام والمعاملات الجديدة."
+                        onClick={handleRequestNotificationPermission}
+                        colorClass="text-orange-600 dark:text-orange-400 bg-orange-100/70 dark:bg-orange-500/20"
                     />
                 </div>
             </div>

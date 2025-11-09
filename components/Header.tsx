@@ -1,13 +1,14 @@
 import React from 'react';
-import { AdjustmentsVerticalIcon } from '../icons/Icons';
+import { AdjustmentsVerticalIcon, SearchIcon } from '../icons/Icons';
 import { tabukHealthClusterLogoHeader } from './Logo';
 import ThemeToggle from './ThemeToggle';
 
 interface HeaderProps {
     onOpenSettings: () => void;
+    onOpenGlobalSearch: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenSettings, onOpenGlobalSearch }) => {
     return (
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-sm border-b border-gray-200 dark:bg-gray-900/80 dark:border-gray-700">
             <div className="container mx-auto px-3 py-2.5 md:px-6 flex justify-between items-center">
@@ -18,6 +19,14 @@ const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
+                     <button
+                        onClick={onOpenGlobalSearch}
+                        className="p-2.5 rounded-lg text-gray-500 hover:bg-primary/10 hover:text-primary transition-all duration-200 transform hover:-translate-y-0.5 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                        title="بحث شامل"
+                        aria-label="بحث شامل"
+                    >
+                        <SearchIcon className="h-6 w-6" />
+                    </button>
                     <ThemeToggle />
                     <button
                         onClick={onOpenSettings}

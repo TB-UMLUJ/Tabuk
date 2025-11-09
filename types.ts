@@ -135,3 +135,11 @@ export type ActivityAction =
   | 'CREATE_TASK' | 'UPDATE_TASK' | 'DELETE_TASK' | 'COMPLETE_TASK'
   | 'CREATE_TRANSACTION' | 'UPDATE_TRANSACTION' | 'DELETE_TRANSACTION' | 'UPDATE_TRANSACTION_STATUS'
   | 'CREATE_POLICY' | 'UPDATE_POLICY' | 'DELETE_POLICY';
+
+// --- New Global Search Types ---
+export interface GlobalSearchResults {
+  employees: Employee[];
+  officeContacts: OfficeContact[];
+  tasks: Task[];
+  transactions: Transaction[];
+}
