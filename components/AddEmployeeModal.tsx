@@ -1,9 +1,7 @@
-
-
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Employee } from '../types';
-import { CloseIcon, UserPlusIcon } from '../icons/Icons';
+import { Employee, Certificate, CertificateTypes } from '../types';
+import { CloseIcon, UserPlusIcon, AcademicCapIcon, TrashIcon, PlusIcon, ArrowsUpDownIcon } from '../icons/Icons';
 
 interface AddEmployeeModalProps {
     isOpen: boolean;
@@ -12,7 +10,7 @@ interface AddEmployeeModalProps {
     employeeToEdit: Employee | null;
 }
 
-const initialEmployeeState: Omit<Employee, 'id' | 'date_of_birth'> & { date_of_birth: string } = {
+const initialEmployeeState: Omit<Employee, 'id' | 'date_of_birth' | 'certificates'> & { date_of_birth: string } = {
     full_name_ar: '',
     full_name_en: '',
     employee_id: '',
@@ -42,7 +40,7 @@ const FormInput: React.FC<FormInputProps> = ({ label, name, required = false, ty
             name={name}
             type={type}
             required={required}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 disabled:bg-gray-200 disabled:text-gray-500 dark:disabled:bg-gray-600 dark:disabled:text-gray-400 disabled:cursor-not-allowed"
+            className={`w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 disabled:bg-gray-200 disabled:text-gray-500 dark:disabled:bg-gray-600 dark:disabled:text-gray-400 disabled:cursor-not-allowed ${type === 'date' ? 'text-center' : ''}`}
             {...props}
         />
     </div>
@@ -51,6 +49,7 @@ const FormInput: React.FC<FormInputProps> = ({ label, name, required = false, ty
 const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, onSave, employeeToEdit }) => {
     const [isClosing, setIsClosing] = useState(false);
     const [employeeData, setEmployeeData] = useState(initialEmployeeState);
+    const [certificates, setCertificates] = useState<Certificate[]>([]);
     const [emailError, setEmailError] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
@@ -65,17 +64,20 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
 
     useEffect(() => {
         if (employeeToEdit) {
+            const { certificates: certs, ...rest } = employeeToEdit;
             setEmployeeData({
                 ...initialEmployeeState,
-                ...employeeToEdit,
+                ...rest,
                 date_of_birth: employeeToEdit.date_of_birth ? new Date(employeeToEdit.date_of_birth).toISOString().split('T')[0] : '',
             });
+            setCertificates(certs?.map(c => ({ ...c, id: c.id || crypto.randomUUID() })) || []);
             setEmailError(validateEmail(employeeToEdit.email || ''));
         } else {
             setEmployeeData(initialEmployeeState);
+            setCertificates([]);
             setEmailError('');
         }
-    }, [employeeToEdit]);
+    }, [employeeToEdit, isOpen]);
 
     useEffect(() => {
         if (isOpen) {
@@ -104,6 +106,45 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
             setEmailError(validateEmail(value));
         }
         setEmployeeData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleAddCertificate = () => {
+        setCertificates(prev => [...prev, {
+            id: crypto.randomUUID(),
+            type: 'BLS',
+            custom_name: '',
+            expiry_date: '',
+        }]);
+    };
+    
+    const handleCertificateChange = (id: string, field: keyof Certificate, value: any) => {
+        setCertificates(prev => prev.map(cert => {
+            if (cert.id === id) {
+                const updatedCert = { ...cert, [field]: value };
+                if (field === 'type' && value !== 'Other') {
+                    updatedCert.custom_name = '';
+                }
+                return updatedCert;
+            }
+            return cert;
+        }));
+    };
+    
+    const handleCertificateFileChange = (id: string, file: File | null) => {
+         setCertificates(prev => prev.map(cert => {
+            if (cert.id === id) {
+                return {
+                    ...cert,
+                    file: file || undefined,
+                    display_file_name: file ? file.name : cert.display_file_name,
+                };
+            }
+            return cert;
+        }));
+    };
+    
+    const handleRemoveCertificate = (id: string) => {
+        setCertificates(prev => prev.filter(cert => cert.id !== id));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -136,13 +177,13 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
             nationality: dataToSave.nationality || undefined,
             gender: dataToSave.gender || undefined,
             classification_id: dataToSave.classification_id || undefined,
+            certificates: certificates,
         };
 
         try {
             await onSave(finalData);
         } catch (error) {
             console.error("Save failed:", error);
-            // Error toast is handled by the parent component (App.tsx)
         } finally {
             setIsSaving(false);
         }
@@ -238,6 +279,94 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                     
                                     <FormInput label="رقم التصنيف" name="classification_id" value={employeeData.classification_id || ''} onChange={handleChange} />
                                 </div>
+                            </div>
+
+                            <div className="border-t border-gray-200 dark:border-gray-700 pt-5">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <AcademicCapIcon className="w-6 h-6 text-primary" />
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white">الشهادات والتراخيص</h3>
+                                </div>
+                                <div className="space-y-4">
+                                    {certificates.map((cert) => {
+                                        const fileInputId = `cert-file-${cert.id}`;
+                                        return (
+                                            <div key={cert.id} className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 border dark:border-gray-600 relative group">
+                                                <div className="absolute top-3 left-3 flex items-center gap-1">
+                                                     <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveCertificate(cert.id)}
+                                                        className="p-1 text-gray-400 hover:text-danger rounded-full hover:bg-danger/10 transition-colors"
+                                                        title="إزالة الشهادة"
+                                                    >
+                                                        <TrashIcon className="w-5 h-5"/>
+                                                    </button>
+                                                    <button type="button" className="p-1 text-gray-400 cursor-grab" title="إعادة ترتيب">
+                                                        <ArrowsUpDownIcon className="w-5 h-5"/>
+                                                    </button>
+                                                </div>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">نوع الشهادة</label>
+                                                        <select
+                                                            value={cert.type}
+                                                            onChange={(e) => handleCertificateChange(cert.id, 'type', e.target.value)}
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white dark:bg-gray-700 dark:border-gray-500 focus:outline-none focus:ring-1 focus:ring-primary"
+                                                        >
+                                                            {CertificateTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                                                        </select>
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">تاريخ الانتهاء</label>
+                                                        <input
+                                                            type="date"
+                                                            value={cert.expiry_date || ''}
+                                                            onChange={(e) => handleCertificateChange(cert.id, 'expiry_date', e.target.value)}
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white dark:bg-gray-700 dark:border-gray-500 focus:outline-none focus:ring-1 focus:ring-primary text-center"
+                                                        />
+                                                    </div>
+
+                                                    <div className={`sm:col-span-2 ${cert.type === 'Other' ? 'block' : 'hidden'}`}>
+                                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">الاسم المخصص (عند اختيار "Other")</label>
+                                                        <input
+                                                            type="text"
+                                                            value={cert.custom_name || ''}
+                                                            required={cert.type === 'Other'}
+                                                            onChange={(e) => handleCertificateChange(cert.id, 'custom_name', e.target.value)}
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white dark:bg-gray-700 dark:border-gray-500 focus:outline-none focus:ring-1 focus:ring-primary"
+                                                        />
+                                                    </div>
+
+                                                    <div className="sm:col-span-2">
+                                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">ملف الشهادة (اختياري)</label>
+                                                        <div className="flex items-center gap-4">
+                                                            <label htmlFor={fileInputId} className="cursor-pointer bg-primary/10 text-primary font-semibold py-2 px-4 rounded-lg hover:bg-primary/20 transition-all duration-200 dark:bg-primary/20 dark:text-primary-light dark:hover:bg-primary/30 whitespace-nowrap text-sm">
+                                                                اختر ملف
+                                                            </label>
+                                                            <input id={fileInputId} type="file" className="hidden" onChange={(e) => handleCertificateFileChange(cert.id, e.target.files ? e.target.files[0] : null)} />
+                                                            <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                                                                {cert.file ? cert.file.name : (cert.display_file_name || 'لم يتم تحديد أي ملف')}
+                                                            </span>
+                                                        </div>
+                                                        {cert.display_file_name && !cert.file && (
+                                                            <a href={cert.file_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline truncate mt-1 inline-block">
+                                                                عرض الملف الحالي: {cert.display_file_name}
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleAddCertificate}
+                                    className="mt-4 flex items-center gap-2 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light font-semibold py-2 px-4 rounded-lg hover:bg-primary/20 transition-all duration-200"
+                                >
+                                    <PlusIcon className="w-5 h-5" />
+                                    إضافة شهادة
+                                </button>
                             </div>
                         </div>
                         

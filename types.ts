@@ -15,7 +15,26 @@ export interface Employee {
   gender?: string;
   date_of_birth?: string;
   classification_id?: string;
+  certificates?: Certificate[];
 }
+
+export const CertificateTypes = [
+  'BLS', 'ACLS', 'PALS', 'NALS', 'ATLS', 'CPR', 'PEARS', 'FALS', 'ATCN', 'Other'
+] as const;
+
+export type CertificateType = typeof CertificateTypes[number];
+
+export interface Certificate {
+  id: string; // Using a UUID for local state management before saving
+  type: CertificateType;
+  custom_name?: string;
+  expiry_date?: string; // 'YYYY-MM-DD'
+  file_url?: string;
+  file_name?: string; // path in storage for deletion
+  display_file_name?: string; // original user-facing filename
+  file?: File; // For handling new file uploads in forms
+}
+
 
 export interface OfficeContact {
   id: number;

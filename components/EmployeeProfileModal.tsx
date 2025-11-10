@@ -1,7 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Employee } from '../types';
-import { EmailIcon, PhoneIcon, CloseIcon, IdentificationIcon, BuildingOfficeIcon, BriefcaseIcon, UserIcon, GlobeAltIcon, UsersIcon, CakeIcon, DocumentCheckIcon, PencilIcon, TrashIcon } from '../icons/Icons';
+import { Employee, Certificate } from '../types';
+import { 
+    EmailIcon, 
+    PhoneIcon, 
+    CloseIcon, 
+    IdentificationIcon, 
+    BuildingOfficeIcon, 
+    BriefcaseIcon, 
+    UserIcon, 
+    GlobeAltIcon, 
+    UsersIcon, 
+    CakeIcon, 
+    DocumentCheckIcon, 
+    PencilIcon, 
+    TrashIcon,
+    AcademicCapIcon,
+    DocumentArrowDownIcon,
+    CalendarDaysIcon,
+    ExclamationTriangleIcon
+} from '../icons/Icons';
 import { useAuth } from '../contexts/AuthContext';
 
 interface EmployeeProfileModalProps {
@@ -66,6 +84,36 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
             onDelete(employee);
         }
     };
+    
+    const { completionPercentage, progressBarColorClass } = useMemo(() => {
+        if (!employee) return { completionPercentage: 0, progressBarColorClass: 'bg-danger' };
+
+        const requiredFields: (keyof Employee)[] = [
+            'full_name_ar', 'full_name_en', 'employee_id', 'job_title', 'department',
+            'phone_direct', 'email', 'center', 'national_id', 'nationality',
+            'gender', 'date_of_birth', 'classification_id'
+        ];
+        
+        const completedCount = requiredFields.reduce((count, field) => {
+            const value = employee[field];
+            if (value !== null && value !== undefined && String(value).trim() !== '') {
+                return count + 1;
+            }
+            return count;
+        }, 0);
+
+        const percentage = Math.round((completedCount / requiredFields.length) * 100);
+        
+        let colorClass = 'bg-danger';
+        if (percentage > 80) {
+            colorClass = 'bg-primary';
+        } else if (percentage > 40) {
+            colorClass = 'bg-yellow-500';
+        }
+
+        return { completionPercentage: percentage, progressBarColorClass: colorClass };
+    }, [employee]);
+
 
     const InfoRow: React.FC<{ label: string; value: string | undefined; icon: React.ReactNode; href?: string }> = ({ label, value, icon, href }) => {
         if (!value) return null;
@@ -115,6 +163,19 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
                     >
                        <CloseIcon className="w-6 h-6" />
                     </button>
+
+                     <div className="mb-6">
+                        <div className="flex justify-between items-center mb-1">
+                            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">اكتمل الملف بنسبة:</h4>
+                            <span className={`text-sm font-bold ${progressBarColorClass.replace('bg-', 'text-')}`}>{completionPercentage}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                            <div 
+                                className={`h-2.5 rounded-full transition-all duration-500 ease-out ${progressBarColorClass}`} 
+                                style={{ width: `${completionPercentage}%` }}
+                            ></div>
+                        </div>
+                    </div>
 
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8 mb-6">
                         <div className="text-center flex-shrink-0">
@@ -180,6 +241,57 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
                         <InfoRow label="الجنس" value={employee.gender} icon={<UsersIcon className="w-5 h-5"/>}/>
                         <InfoRow label="تاريخ الميلاد" value={employee.date_of_birth ? new Date(employee.date_of_birth).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' }) : undefined} icon={<CakeIcon className="w-5 h-5"/>}/>
                         <InfoRow label="رقم التصنيف" value={employee.classification_id} icon={<DocumentCheckIcon className="w-5 h-5"/>}/>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-4 mt-4 dark:border-gray-700">
+                        <h3 className="text-base font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-3">
+                            <AcademicCapIcon className="w-6 h-6 text-primary" />
+                            الشهادات والتراخيص
+                        </h3>
+                        {employee.certificates && employee.certificates.length > 0 ? (
+                            <ul className="space-y-3">
+                                {employee.certificates.map((cert: Certificate) => {
+                                    const isExpired = cert.expiry_date && new Date(cert.expiry_date) < new Date();
+                                    return (
+                                        <li key={cert.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                            <div className="flex items-center gap-3">
+                                                {isExpired ? (
+                                                    <ExclamationTriangleIcon className="w-6 h-6 text-red-500 flex-shrink-0" title="منتهية الصلاحية" />
+                                                ) : (
+                                                    <AcademicCapIcon className="w-6 h-6 text-green-500 flex-shrink-0" title="سارية" />
+                                                )}
+                                                <div>
+                                                    <p className="font-bold text-gray-800 dark:text-white">
+                                                        {cert.type === 'Other' ? cert.custom_name : cert.type}
+                                                    </p>
+                                                    {cert.expiry_date && (
+                                                        <p className={`text-sm flex items-center gap-1 ${isExpired ? 'text-red-500 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                            <CalendarDaysIcon className="w-4 h-4" />
+                                                            تنتهي في: {new Date(cert.expiry_date).toLocaleDateString('ar-SA')}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {cert.file_url && (
+                                                <a 
+                                                    href={cert.file_url} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors"
+                                                    title={`تحميل ملف: ${cert.display_file_name || cert.type}`}
+                                                >
+                                                    <DocumentArrowDownIcon className="w-6 h-6" />
+                                                </a>
+                                            )}
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        ) : (
+                            <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                                لا توجد شهادات مسجلة لهذا الموظف.
+                            </p>
+                        )}
                     </div>
                 </div>
             </div>

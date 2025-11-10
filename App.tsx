@@ -1,18 +1,7 @@
-
-
-
-
-
-
-
-
-
-
-
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
-import { Employee, OfficeContact, Task, Transaction, User, TransactionStatus, ImportSummary, ValidationIssue, UpdatePreview, UpdateSelection } from './types';
+import { Employee, OfficeContact, Task, Transaction, User, TransactionStatus, ImportSummary, ValidationIssue, UpdatePreview, UpdateSelection, Certificate } from './types';
 import Header from './components/Header';
 import SearchAndFilter, { SearchAndFilterRef } from './components/SearchAndFilter';
 import EmployeeList from './components/EmployeeList';
@@ -327,32 +316,116 @@ const App: React.FC = () => {
     // --- Handlers ---
     const handleSaveEmployee = async (employeeData: Omit<Employee, 'id'> & { id?: number }) => {
         const isEditing = !!employeeData.id;
-        const dataWithTimestamp = { ...employeeData, updated_at: new Date().toISOString() };
-        const { data, error } = await supabase.from('employees').upsert(dataWithTimestamp).select();
-
-        if (error) {
-            addToast('فشل حفظ الموظف', error.message, 'error');
-        } else if (data) {
-            const savedEmployee = data[0];
-            if (!isEditing) {
-                // Real-time will handle the update for other users.
-                // This local update is for instant feedback for the current user.
-                setEmployees(prev => [...prev, savedEmployee]);
-                 logActivity(currentUser, 'CREATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
-            } else {
-                 logActivity(currentUser, 'UPDATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
+        
+        try {
+            const { certificates, ...restOfEmployeeData } = employeeData;
+            
+            let processedCertificates: Omit<Certificate, 'file'>[] = [];
+            const filesToDelete: string[] = [];
+    
+            if (isEditing && employeeToEdit?.certificates) {
+                const newCertIds = new Set(certificates?.map(c => c.id));
+                employeeToEdit.certificates.forEach(oldCert => {
+                    if (oldCert.id && !newCertIds.has(oldCert.id) && oldCert.file_name) {
+                        filesToDelete.push(oldCert.file_name);
+                    }
+                });
             }
-            addToast(`تم ${isEditing ? 'تحديث' : 'إضافة'} الموظف بنجاح`, '', 'success');
-            setShowAddEmployeeModal(false);
-            setEmployeeToEdit(null);
+    
+            if (certificates && certificates.length > 0) {
+                processedCertificates = await Promise.all(certificates.map(async (cert) => {
+                    const { file, ...certData } = cert;
+                    if (file instanceof File) {
+                        if (isEditing && cert.id && employeeToEdit?.certificates) {
+                            const oldCert = employeeToEdit.certificates.find(c => c.id === cert.id);
+                            if (oldCert?.file_name) {
+                                filesToDelete.push(oldCert.file_name);
+                            }
+                        }
+    
+                        const fileExt = file.name.split('.').pop();
+                        const randomName = `${crypto.randomUUID()}.${fileExt}`;
+                        const filePath = `${currentUser?.user_id || 'public'}/${restOfEmployeeData.employee_id || 'new'}/${randomName}`;
+    
+                        const { data: uploadData, error: uploadError } = await supabase.storage
+                            .from('certificates')
+                            .upload(filePath, file);
+    
+                        if (uploadError) {
+                            throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
+                        }
+    
+                        const { data: urlData } = supabase.storage.from('certificates').getPublicUrl(uploadData.path);
+    
+                        return {
+                            ...certData,
+                            file_url: urlData.publicUrl,
+                            file_name: filePath,
+                            display_file_name: file.name,
+                        };
+                    }
+                    return certData;
+                }));
+            }
+    
+            if (filesToDelete.length > 0) {
+                const { error: deleteError } = await supabase.storage.from('certificates').remove(filesToDelete);
+                if (deleteError) {
+                    console.error('Failed to delete old certificate files:', deleteError);
+                    addToast('فشل حذف المرفقات القديمة', 'قد تبقى بعض الملفات القديمة في المخزن.', 'warning');
+                }
+            }
+    
+            const dataWithTimestamp = {
+                ...restOfEmployeeData,
+                certificates: processedCertificates,
+                updated_at: new Date().toISOString()
+            };
+            
+            const { data, error } = await supabase.from('employees').upsert(dataWithTimestamp).select();
+    
+            if (error) {
+                addToast('فشل حفظ الموظف', error.message, 'error');
+            } else if (data) {
+                const savedEmployee = data[0];
+                if (!isEditing) {
+                    setEmployees(prev => [...prev, savedEmployee]);
+                    logActivity(currentUser, 'CREATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
+                } else {
+                    logActivity(currentUser, 'UPDATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
+                    setEmployees(prev => prev.map(e => e.id === savedEmployee.id ? savedEmployee : e));
+                }
+                addToast(`تم ${isEditing ? 'تحديث' : 'إضافة'} الموظف بنجاح`, '', 'success');
+                setShowAddEmployeeModal(false);
+                setEmployeeToEdit(null);
+            }
+        } catch(e: any) {
+            console.error('Error during employee save process:', e);
+            addToast('خطأ فادح', e.message || 'حدث خطأ غير متوقع أثناء حفظ بيانات الموظف.', 'error');
         }
     };
 
     const handleDeleteEmployee = async (employee: Employee) => {
         requestConfirmation(
             'تأكيد الحذف',
-            `هل أنت متأكد من رغبتك في حذف الموظف "${employee.full_name_ar}"؟ لا يمكن التراجع عن هذا الإجراء.`,
+            `هل أنت متأكد من رغبتك في حذف الموظف "${employee.full_name_ar}"؟ سيتم حذف جميع شهاداته المرتبطة. لا يمكن التراجع عن هذا الإجراء.`,
             async () => {
+                // First, delete associated certificate files from storage
+                if (employee.certificates && employee.certificates.length > 0) {
+                    const filePaths = employee.certificates
+                        .map(cert => cert.file_name)
+                        .filter((fileName): fileName is string => !!fileName);
+                    
+                    if (filePaths.length > 0) {
+                        const { error: storageError } = await supabase.storage.from('certificates').remove(filePaths);
+                        if (storageError) {
+                            console.error("Error deleting certificate files:", storageError);
+                            addToast('فشل حذف المرفقات', 'لم نتمكن من حذف ملفات الشهادات المرتبطة.', 'warning');
+                        }
+                    }
+                }
+
+                // Then, delete the employee record
                 const { error } = await supabase.from('employees').delete().eq('id', employee.id);
                 if (error) {
                     addToast('فشل حذف الموظف', error.message, 'error');

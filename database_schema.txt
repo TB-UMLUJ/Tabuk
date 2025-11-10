@@ -28,6 +28,7 @@ DO $$ BEGIN
   ALTER TABLE employees ADD COLUMN IF NOT EXISTS date_of_birth date;
   ALTER TABLE employees ADD COLUMN IF NOT EXISTS classification_id varchar(50);
   ALTER TABLE employees ADD COLUMN IF NOT EXISTS updated_at timestamp with time zone;
+  ALTER TABLE employees ADD COLUMN IF NOT EXISTS certificates jsonb;
 END $$;
 
 /* Office contacts table */
@@ -158,6 +159,11 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('policies', 'policies', true)
 ON CONFLICT (id) DO NOTHING;
 
+/* Create the 'certificates' bucket for employee certificate files. */
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('certificates', 'certificates', true)
+ON CONFLICT (id) DO NOTHING;
+
 
 /* =========================================== */
 /*          FOREIGN KEY CONSTRAINTS            */
@@ -268,6 +274,7 @@ DROP POLICY IF EXISTS "Allow authenticated users to manage policies" ON policies
 DROP POLICY IF EXISTS "Allow all for any user on policies" ON policies;
 
 DROP POLICY IF EXISTS "Allow all access to policies bucket" ON storage.objects;
+DROP POLICY IF EXISTS "Allow all access to certificates bucket" ON storage.objects;
 
 /*
   FIX: The original policies used `auth.role() = 'authenticated'`, which fails with the app's custom authentication.
@@ -298,6 +305,11 @@ CREATE POLICY "Allow all access to policies bucket" ON storage.objects
   FOR ALL
   USING (bucket_id = 'policies')
   WITH CHECK (bucket_id = 'policies');
+
+CREATE POLICY "Allow all access to certificates bucket" ON storage.objects
+  FOR ALL
+  USING (bucket_id = 'certificates')
+  WITH CHECK (bucket_id = 'certificates');
 
 
 /* =========================================== */
