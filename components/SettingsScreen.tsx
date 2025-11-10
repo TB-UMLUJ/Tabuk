@@ -497,7 +497,7 @@ const SettingsCard: React.FC<{
             </div>
             <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-base sm:text-lg text-gray-800 dark:text-white">{title}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 truncate">{description}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-0.5">{description}</p>
             </div>
             <ChevronLeftIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 dark:text-gray-500 flex-shrink-0" />
         </button>

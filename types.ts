@@ -143,3 +143,24 @@ export interface GlobalSearchResults {
   tasks: Task[];
   transactions: Transaction[];
 }
+
+// --- New Import System Types ---
+export interface ImportSummary {
+  create: number;
+  update: number;
+  ignored: number;
+}
+
+export interface ValidationIssue {
+  rowIndex: number; // Excel row number
+  message: string;
+}
+
+// New type to hold the comparison data for an update
+export interface UpdatePreview<T> {
+    old: T;
+    new: Partial<T>; // The incoming data from Excel
+}
+
+// New type to manage user selections for updates
+export type UpdateSelection = Record<number | string, Set<string>>; // Key is employee/contact ID or name, value is a set of field names to update

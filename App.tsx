@@ -1,10 +1,18 @@
 
 
 
+
+
+
+
+
+
+
+
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
-import { Employee, OfficeContact, Task, Transaction, User, TransactionStatus } from './types';
+import { Employee, OfficeContact, Task, Transaction, User, TransactionStatus, ImportSummary, ValidationIssue, UpdatePreview, UpdateSelection } from './types';
 import Header from './components/Header';
 import SearchAndFilter, { SearchAndFilterRef } from './components/SearchAndFilter';
 import EmployeeList from './components/EmployeeList';
@@ -15,7 +23,7 @@ import { useToast } from './contexts/ToastContext';
 import Tabs from './components/Tabs';
 import OrganizationalChartView from './components/OrganizationalChartView';
 import AddEmployeeModal from './components/AddEmployeeModal';
-import ImportLoadingModal from './ImportLoadingModal';
+import ImportProgressModal from './components/ImportProgressModal';
 import BottomNavBar from './components/BottomNavBar';
 import OfficeDirectory from './components/OfficeDirectory';
 import AddOfficeContactModal from './components/AddOfficeContactModal';
@@ -36,6 +44,7 @@ import { logActivity } from './lib/activityLogger';
 import SkeletonLoader from './components/SkeletonLoader';
 import SortModal, { SortConfig } from './components/SortModal';
 import GlobalSearch from './components/GlobalSearch';
+import ImportPreviewModal from './components/ImportPreviewModal';
 
 
 declare const XLSX: any;
@@ -57,7 +66,12 @@ const App: React.FC = () => {
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'full_name_ar', direction: 'asc' });
     const [activeFilters, setActiveFilters] = useState<{ center: string; jobTitle: string }>({ center: 'all', jobTitle: 'all' });
     const [activeTab, setActiveTab] = useState<'directory' | 'orgChart' | 'officeDirectory' | 'tasks' | 'transactions' | 'statistics'>('statistics');
-    const [isImporting, setIsImporting] = useState<boolean>(false);
+    const [importProgress, setImportProgress] = useState<{
+        isOpen: boolean;
+        fileName: string;
+        fileSize: number;
+        progress: number;
+    }>({ isOpen: false, fileName: '', fileSize: 0, progress: 0 });
     const [visibleEmployeeCount, setVisibleEmployeeCount] = useState(20);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     
@@ -86,6 +100,14 @@ const App: React.FC = () => {
         message: '',
         onConfirm: () => {},
     });
+    
+    const [importPreview, setImportPreview] = useState<{
+        summary: ImportSummary;
+        data: { toCreate: any[]; toUpdate: UpdatePreview<any>[] };
+        validationIssues: ValidationIssue[];
+        dataType: 'employees' | 'contacts';
+        fileInfo: { name: string; size: number };
+    } | null>(null);
     
     const searchAndFilterRef = useRef<SearchAndFilterRef>(null);
     const genericFileInputRef = useRef<HTMLInputElement>(null);
@@ -344,7 +366,6 @@ const App: React.FC = () => {
     };
 
     const handleImportEmployees = (file: File) => {
-        setIsImporting(true);
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
@@ -352,10 +373,10 @@ const App: React.FC = () => {
                 const workbook = XLSX.read(data, { type: 'array', cellDates: true });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
-                const json: any[] = XLSX.utils.sheet_to_json(worksheet);
+                const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: null });
 
                 const parseExcelDate = (excelDate: any): string | undefined => {
-                    if (!excelDate) return undefined;
+                    if (excelDate === null || excelDate === undefined) return undefined;
     
                     let date: Date;
                     let isLikelyUtc = false;
@@ -387,55 +408,118 @@ const App: React.FC = () => {
 
                 const newEmployees = json
                     .map((row): Omit<Employee, 'id'> => ({
-                        employee_id: String(row['الرقم الوظيفي'] || '').trim(),
-                        full_name_ar: String(row['الاسم باللغة العربية'] || '').trim(),
-                        full_name_en: String(row['الاسم باللغة الإنجليزية'] || '').trim(),
-                        job_title: String(row['المسمى الوظيفي'] || '').trim(),
-                        department: String(row['القطاع'] || '').trim(),
-                        center: String(row['المركز'] || '').trim(),
-                        phone_direct: String(row['رقم الجوال'] || '').trim(),
-                        email: String(row['البريد الإلكتروني'] || '').trim(),
-                        national_id: String(row['السجل المدني / الإقامة'] || '').trim(),
-                        nationality: String(row['الجنسية'] || '').trim(),
-                        gender: String(row['الجنس'] || '').trim(),
+                        employee_id: String(row['الرقم الوظيفي'] ?? '').trim(),
+                        full_name_ar: String(row['الاسم باللغة العربية'] ?? '').trim(),
+                        full_name_en: String(row['الاسم باللغة الإنجليزية'] ?? '').trim(),
+                        job_title: String(row['المسمى الوظيفي'] ?? '').trim(),
+                        department: String(row['القطاع'] ?? '').trim(),
+                        center: String(row['المركز'] ?? '').trim(),
+                        phone_direct: String(row['رقم الجوال'] ?? '').trim(),
+                        email: String(row['البريد الإلكتروني'] ?? '').trim(),
+                        national_id: String(row['السجل المدني / الإقامة'] ?? '').trim(),
+                        nationality: String(row['الجنسية'] ?? '').trim(),
+                        gender: String(row['الجنس'] ?? '').trim(),
                         date_of_birth: parseExcelDate(row['تاريخ الميلاد']),
-                        classification_id: String(row['رقم التصنيف'] || '').trim(),
+                        classification_id: String(row['رقم التصنيف'] ?? '').trim(),
                     }));
 
-                // De-duplicate employees based on employee_id, keeping the last occurrence.
                 const uniqueEmployeesMap = new Map<string, Omit<Employee, 'id'>>();
                 newEmployees.forEach(employee => {
-                    uniqueEmployeesMap.set(employee.employee_id, employee);
+                     if (employee.employee_id) {
+                       uniqueEmployeesMap.set(employee.employee_id, employee);
+                    }
                 });
                 const uniqueEmployees = Array.from(uniqueEmployeesMap.values());
 
                 if (uniqueEmployees.length === 0) {
-                    addToast('لا توجد بيانات صالحة', 'لم يتم العثور على موظفين في الملف.', 'warning');
-                    setIsImporting(false);
+                    addToast('لا توجد بيانات صالحة', 'لم يتم العثور على موظفين في الملف أو أن عمود الرقم الوظيفي فارغ.', 'warning');
                     return;
                 }
-                
-                const { data: upsertedData, error } = await supabase.from('employees').upsert(uniqueEmployees, { onConflict: 'employee_id' }).select();
 
-                if (error) throw error;
-                
-                // Instead of manually merging, we rely on the realtime subscription to update the state.
-                // However, for a better UX on large imports, a refetch or manual merge is better.
-                // For now, let's do a manual merge for immediate feedback.
-                setEmployees(prev => {
-                    const updatedMap = new Map(prev.map(e => [e.id, e]));
-                    upsertedData.forEach(e => updatedMap.set(e.id, e));
-                    return Array.from(updatedMap.values());
+                const excelEmployeeIds = uniqueEmployees.map(emp => emp.employee_id);
+                const { data: existingEmployeesData, error: fetchError } = await supabase
+                    .from('employees')
+                    .select('*')
+                    .in('employee_id', excelEmployeeIds);
+
+                if (fetchError) throw fetchError;
+
+                const existingEmployeesMap = new Map<string, Employee>();
+                existingEmployeesData.forEach(e => {
+                    if (e.employee_id) {
+                        existingEmployeesMap.set(e.employee_id.trim(), e);
+                    }
                 });
-                
-                logActivity(currentUser, 'IMPORT_EMPLOYEES', { count: upsertedData.length });
-                addToast(`تم استيراد ${upsertedData.length} موظف بنجاح`, '', 'success');
+
+                const recordsToCreate: Omit<Employee, 'id'>[] = [];
+                const recordsToUpdate: UpdatePreview<Employee>[] = [];
+                let ignoredCount = 0;
+                const validationIssues: ValidationIssue[] = [];
+
+                const areEmployeesEqual = (excelEmp: Omit<Employee, 'id'>, dbEmp: Employee): boolean => {
+                    const normalize = (val: any) => {
+                        if (val === null || val === undefined || String(val).trim() === '') return null;
+                        return String(val).trim();
+                    };
+                    const getComparableDate = (dateStr: string | undefined) => {
+                        if (!dateStr) return null;
+                        try {
+                            const date = new Date(dateStr);
+                            if (isNaN(date.getTime())) return null;
+                            return date.toISOString().split('T')[0];
+                        } catch (e) {
+                            return null;
+                        }
+                    };
+                    return normalize(excelEmp.employee_id) === normalize(dbEmp.employee_id) &&
+                           normalize(excelEmp.full_name_ar) === normalize(dbEmp.full_name_ar) &&
+                           normalize(excelEmp.full_name_en) === normalize(dbEmp.full_name_en) &&
+                           normalize(excelEmp.job_title) === normalize(dbEmp.job_title) &&
+                           normalize(excelEmp.department) === normalize(dbEmp.department) &&
+                           normalize(excelEmp.center) === normalize(dbEmp.center) &&
+                           normalize(excelEmp.phone_direct) === normalize(dbEmp.phone_direct) &&
+                           normalize(excelEmp.email) === normalize(dbEmp.email) &&
+                           normalize(excelEmp.national_id) === normalize(dbEmp.national_id) &&
+                           normalize(excelEmp.nationality) === normalize(dbEmp.nationality) &&
+                           normalize(excelEmp.gender) === normalize(dbEmp.gender) &&
+                           getComparableDate(excelEmp.date_of_birth) === getComparableDate(dbEmp.date_of_birth) &&
+                           normalize(excelEmp.classification_id) === normalize(dbEmp.classification_id);
+                };
+
+                uniqueEmployees.forEach((excelEmp, index) => {
+                    const rowIndex = index + 2; // Excel row number
+                    if (!excelEmp.full_name_ar) validationIssues.push({ rowIndex, message: "حقل 'الاسم باللغة العربية' فارغ." });
+                    
+                    const existingEmp = existingEmployeesMap.get(excelEmp.employee_id.trim());
+                    if (!existingEmp) {
+                        recordsToCreate.push(excelEmp);
+                    } else {
+                        if (areEmployeesEqual(excelEmp, existingEmp)) {
+                            ignoredCount++;
+                        } else {
+                            recordsToUpdate.push({ old: existingEmp, new: excelEmp });
+                        }
+                    }
+                });
+
+                setImportPreview({
+                    summary: {
+                        create: recordsToCreate.length,
+                        update: recordsToUpdate.length,
+                        ignored: ignoredCount,
+                    },
+                    data: {
+                        toCreate: recordsToCreate,
+                        toUpdate: recordsToUpdate,
+                    },
+                    validationIssues,
+                    dataType: 'employees',
+                    fileInfo: { name: file.name, size: file.size },
+                });
 
             } catch (err: any) {
                 console.error("Import error:", err);
                 addToast('فشل استيراد الملف', 'تأكد من صحة التنسيق وعدم وجود تكرار.', 'error');
-            } finally {
-                setIsImporting(false);
             }
         };
         reader.readAsArrayBuffer(file);
@@ -463,6 +547,91 @@ const App: React.FC = () => {
         XLSX.utils.book_append_sheet(workbook, worksheet, 'الموظفين');
         XLSX.writeFile(workbook, 'employees_export.xlsx');
         addToast('تم تصدير الموظفين بنجاح', '', 'success');
+    };
+
+    const handleConfirmImport = async (selections: UpdateSelection) => {
+        if (!importPreview) return;
+
+        setImportProgress({
+            isOpen: true,
+            fileName: importPreview.fileInfo.name,
+            fileSize: importPreview.fileInfo.size,
+            progress: 0,
+        });
+        setImportPreview(null);
+
+        try {
+            const { toCreate, toUpdate } = importPreview.data;
+            const idKey = importPreview.dataType === 'employees' ? 'employee_id' : 'name';
+    
+            const updatedRecords = toUpdate.map(item => {
+                const id = item.old[idKey as keyof typeof item.old];
+                const selectedFields = selections[id as any];
+                if (!selectedFields || selectedFields.size === 0) return null;
+    
+                const finalRecord = { ...item.old };
+                selectedFields.forEach(field => {
+                    if (field in item.new) {
+                        (finalRecord as any)[field] = (item.new as any)[field];
+                    }
+                });
+                return finalRecord;
+            }).filter(Boolean) as (Employee[] | OfficeContact[]);
+    
+            const dataToUpsert = [...toCreate, ...updatedRecords];
+            
+            if (dataToUpsert.length === 0) {
+                addToast('لا توجد تغييرات', 'لم يتم اختيار أي سجلات جديدة أو محدثة للاستيراد.', 'info');
+                setImportProgress(prev => ({...prev, isOpen: false}));
+                return;
+            }
+
+            const tableName = importPreview.dataType === 'employees' ? 'employees' : 'office_contacts';
+            const onConflict = importPreview.dataType === 'employees' ? 'employee_id' : 'name';
+
+            const CHUNK_SIZE = 50;
+            const totalRecords = dataToUpsert.length;
+            let processedRecords = 0;
+
+            for (let i = 0; i < totalRecords; i += CHUNK_SIZE) {
+                const chunk = dataToUpsert.slice(i, i + CHUNK_SIZE);
+                const { error } = await supabase.from(tableName).upsert(chunk, { onConflict });
+                if (error) throw error;
+                
+                processedRecords += chunk.length;
+                const currentProgress = (processedRecords / totalRecords) * 100;
+                setImportProgress(prev => ({ ...prev, progress: currentProgress }));
+            }
+            
+            setImportProgress(prev => ({ ...prev, progress: 100 }));
+            
+            if(importPreview.dataType === 'employees') {
+                const { data } = await supabase.from('employees').select('*');
+                setEmployees(data || []);
+            } else {
+                 const { data } = await supabase.from('office_contacts').select('*');
+                setOfficeContacts(data || []);
+            }
+
+            const totalImportedCount = toCreate.length + updatedRecords.length;
+            logActivity(currentUser, importPreview.dataType === 'employees' ? 'IMPORT_EMPLOYEES' : 'IMPORT_CONTACTS', {
+                count: totalImportedCount,
+                created: toCreate.length,
+                updated: updatedRecords.length,
+                ignored: importPreview.summary.ignored + (toUpdate.length - updatedRecords.length),
+            });
+
+            const summaryMsg = `جديد: ${toCreate.length} | تحديث: ${updatedRecords.length} | تجاهل: ${importPreview.summary.ignored + (toUpdate.length - updatedRecords.length)}`;
+            addToast('اكتمل الاستيراد بنجاح', summaryMsg, 'success');
+
+        } catch (err: any) {
+            console.error("Confirm Import error:", err);
+            addToast('فشل الاستيراد', 'حدث خطأ أثناء حفظ البيانات.', 'error');
+        } finally {
+            setTimeout(() => {
+                setImportProgress({ isOpen: false, fileName: '', fileSize: 0, progress: 0 });
+            }, 1000);
+        }
     };
 
 
@@ -500,7 +669,6 @@ const App: React.FC = () => {
     };
     
     const handleImportOfficeContacts = (file: File) => {
-        setIsImporting(true);
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
@@ -508,48 +676,81 @@ const App: React.FC = () => {
                 const workbook = XLSX.read(data, { type: 'array' });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
-                const json: any[] = XLSX.utils.sheet_to_json(worksheet);
+                const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: null });
 
                 const newContacts = json.map(row => ({
-                    name: String(row['اسم المكتب'] || '').trim(),
-                    extension: String(row['التحويلة'] || '').trim(),
-                    location: String(row['الموقع'] || '').trim(),
-                    email: String(row['البريد الإلكتروني'] || '').trim(),
+                    name: String(row['اسم المكتب'] ?? '').trim(),
+                    extension: String(row['التحويلة'] ?? '').trim(),
+                    location: String(row['الموقع'] ?? '').trim(),
+                    email: String(row['البريد الإلكتروني'] ?? '').trim(),
                 }));
 
-                // De-duplicate contacts based on name, keeping the last occurrence.
                 const uniqueContactsMap = new Map<string, typeof newContacts[0]>();
                 newContacts.forEach(contact => {
                     if (contact.name) {
-                        uniqueContactsMap.set(contact.name, contact);
+                        uniqueContactsMap.set(contact.name.trim(), contact);
                     }
                 });
                 const uniqueContacts = Array.from(uniqueContactsMap.values());
 
-
                 if (uniqueContacts.length === 0) {
                     addToast('لا توجد بيانات صالحة', 'لم يتم العثور على جهات اتصال في الملف.', 'warning');
-                    setIsImporting(false);
                     return;
                 }
 
-                const { data: upsertedData, error } = await supabase.from('office_contacts').upsert(uniqueContacts, { onConflict: 'name' }).select();
-
-                if (error) throw error;
-
-                setOfficeContacts(prev => {
-                    const updatedMap = new Map(prev.map(c => [c.id, c]));
-                    upsertedData.forEach(c => updatedMap.set(c.id, c));
-                    return Array.from(updatedMap.values());
-                });
+                const excelContactNames = uniqueContacts.map(c => c.name);
+                const { data: existingContactsData, error: fetchError } = await supabase
+                    .from('office_contacts')
+                    .select('*')
+                    .in('name', excelContactNames);
+                if (fetchError) throw fetchError;
                 
-                logActivity(currentUser, 'IMPORT_CONTACTS', { count: upsertedData.length });
-                addToast(`تم استيراد ${upsertedData.length} جهة اتصال بنجاح`, '', 'success');
+                const existingContactsMap = new Map<string, OfficeContact>(existingContactsData.map(c => [c.name.trim(), c]));
+
+                const recordsToCreate: Omit<OfficeContact, 'id'>[] = [];
+                const recordsToUpdate: UpdatePreview<OfficeContact>[] = [];
+                let ignoredCount = 0;
+                const validationIssues: ValidationIssue[] = [];
+                
+                const areContactsEqual = (excelContact: typeof newContacts[0], dbContact: OfficeContact) => {
+                     const normalize = (val: any) => {
+                        if (val === null || val === undefined || String(val).trim() === '') return null;
+                        return String(val).trim();
+                    };
+                     return normalize(excelContact.name) === normalize(dbContact.name) &&
+                            normalize(excelContact.extension) === normalize(dbContact.extension) &&
+                            normalize(excelContact.location) === normalize(dbContact.location) &&
+                            normalize(excelContact.email) === normalize(dbContact.email);
+                };
+
+                uniqueContacts.forEach((excelContact, index) => {
+                    const rowIndex = index + 2;
+                    if (!excelContact.name) validationIssues.push({ rowIndex, message: "حقل 'اسم المكتب' فارغ." });
+                    if (!excelContact.extension) validationIssues.push({ rowIndex, message: "حقل 'التحويلة' فارغ." });
+
+                    const existingContact = existingContactsMap.get(excelContact.name);
+                    if (!existingContact) {
+                        recordsToCreate.push(excelContact);
+                    } else {
+                        if (areContactsEqual(excelContact, existingContact)) {
+                            ignoredCount++;
+                        } else {
+                            recordsToUpdate.push({ old: existingContact, new: excelContact });
+                        }
+                    }
+                });
+
+                setImportPreview({
+                    summary: { create: recordsToCreate.length, update: recordsToUpdate.length, ignored: ignoredCount },
+                    data: { toCreate: recordsToCreate, toUpdate: recordsToUpdate },
+                    validationIssues,
+                    dataType: 'contacts',
+                    fileInfo: { name: file.name, size: file.size },
+                });
+
             } catch (err) {
                 console.error("Import error:", err);
                 addToast('فشل استيراد الملف', 'تأكد من صحة التنسيق وعدم وجود تكرار.', 'error');
-            } finally {
-                setIsImporting(false);
             }
         };
         reader.readAsArrayBuffer(file);
@@ -843,7 +1044,25 @@ const App: React.FC = () => {
                 className="hidden"
             />
             
-            <ImportLoadingModal isOpen={isImporting} />
+            <ImportProgressModal
+                isOpen={importProgress.isOpen}
+                fileName={importProgress.fileName}
+                fileSize={importProgress.fileSize}
+                progress={importProgress.progress}
+            />
+
+            {importPreview && (
+                <ImportPreviewModal
+                    isOpen={!!importPreview}
+                    onClose={() => setImportPreview(null)}
+                    onConfirm={handleConfirmImport}
+                    summary={importPreview.summary}
+                    data={importPreview.data}
+                    validationIssues={importPreview.validationIssues}
+                    isProcessing={importProgress.isOpen}
+                    dataType={importPreview.dataType}
+                />
+            )}
 
             <GlobalSearch 
                 isOpen={isGlobalSearchOpen}
