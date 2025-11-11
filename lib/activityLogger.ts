@@ -1,5 +1,4 @@
 import { supabase } from './supabaseClient';
-// FIX: Import ActivityAction from the central types file to remove duplication and fix type errors.
 import { User, ActivityAction } from '../types';
 
 export const logActivity = async (

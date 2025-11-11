@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { UserIcon, KeyIcon, ArrowRightOnRectangleIcon, CheckCircleIcon, XCircleIcon, InformationCircleIcon } from '../icons/Icons';
-import { tabukHealthClusterLogoMain } from './Logo';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { User } from '../types';
+import InactiveAccountModal from './InactiveAccountModal';
 
 type NotificationType = 'success' | 'error' | 'info';
 
 const LoginScreen: React.FC = () => {
     const { verifyCredentials, performLogin } = useAuth();
+    const { logos } = useTheme();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [notification, setNotification] = useState<{ message: string; type: NotificationType } | null>(null);
     const [forgotPasswordMessage, setForgotPasswordMessage] = useState<string | null>(null);
-    const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
+    const [showInactiveAccountModal, setShowInactiveAccountModal] = useState(false);
     
     useEffect(() => {
         const logoutMessage = sessionStorage.getItem('logoutMessage');
@@ -34,18 +37,17 @@ const LoginScreen: React.FC = () => {
         e.preventDefault();
         setNotification(null);
         setForgotPasswordMessage(null);
-        setInlineErrorMessage(null);
         setIsSubmitting(true);
 
         const result = await verifyCredentials(username, password);
         
         if (result === 'INACTIVE_ACCOUNT') {
-            setInlineErrorMessage('الحساب غير مفعل الرجاء التواصل مع الدعم التقني');
+            setShowInactiveAccountModal(true);
             setIsSubmitting(false);
         } else if (result) {
             showNotification('تم تسجيل الدخول بنجاح!', 'success', 2000);
             setTimeout(() => {
-                performLogin(result);
+                performLogin(result as User);
             }, 2000); // Delay redirect to show message
         } else {
             showNotification('اسم المستخدم أو كلمة المرور غير صحيحة.', 'error', 3000);
@@ -56,7 +58,6 @@ const LoginScreen: React.FC = () => {
 
     const handleForgotPassword = (e: React.MouseEvent) => {
         e.preventDefault();
-        setInlineErrorMessage(null);
         setForgotPasswordMessage('يرجى التواصل مع قسم الدعم الفني للمساعدة.');
         setTimeout(() => {
             setForgotPasswordMessage(null);
@@ -76,7 +77,7 @@ const LoginScreen: React.FC = () => {
             </div>
             <div className="w-full max-w-md mx-auto">
                 <img
-                    src={tabukHealthClusterLogoMain}
+                    src={logos.mainLogoUrl}
                     alt="شعار تجمع تبوك الصحي"
                     className="w-56 h-auto mx-auto mb-10"
                 />
@@ -98,7 +99,6 @@ const LoginScreen: React.FC = () => {
                                     value={username}
                                     onChange={(e) => {
                                         setUsername(e.target.value);
-                                        setInlineErrorMessage(null);
                                     }}
                                     placeholder="اسم المستخدم"
                                     className={`w-full pr-10 pl-4 py-2.5 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition dark:focus:bg-gray-900 dark:focus:text-white bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white`}
@@ -119,7 +119,6 @@ const LoginScreen: React.FC = () => {
                                     value={password}
                                     onChange={(e) => {
                                         setPassword(e.target.value);
-                                        setInlineErrorMessage(null);
                                     }}
                                     placeholder="كلمة المرور"
                                     className={`w-full pr-10 pl-4 py-2.5 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition dark:focus:bg-gray-900 dark:focus:text-white bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white`}
@@ -140,12 +139,6 @@ const LoginScreen: React.FC = () => {
                                 <div className="mt-2 p-2.5 rounded-lg flex items-center justify-center gap-2 animate-fade-in font-semibold text-sm bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                                     <InformationCircleIcon className="h-5 w-5"/>
                                     <span>{forgotPasswordMessage}</span>
-                                </div>
-                            )}
-                            {inlineErrorMessage && (
-                                <div className="mt-2 p-2.5 rounded-lg flex items-center justify-center gap-2 animate-fade-in font-semibold text-sm bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                                    <XCircleIcon className="h-5 w-5"/>
-                                    <span>{inlineErrorMessage}</span>
                                 </div>
                             )}
                         </div>
@@ -177,6 +170,11 @@ const LoginScreen: React.FC = () => {
                     &copy; {new Date().getFullYear()} تجمع تبوك الصحي. جميع الحقوق محفوظة.
                 </p>
             </div>
+
+             <InactiveAccountModal 
+                isOpen={showInactiveAccountModal}
+                onClose={() => setShowInactiveAccountModal(false)}
+            />
         </div>
     );
 };

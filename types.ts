@@ -85,7 +85,6 @@ export interface Transaction {
   linked_office_contact?: { id: number; name: string; } | null;
 }
 
-// FIX: Add Notification and NotificationCategory types to resolve import errors.
 // --- New Notification Types ---
 export type NotificationCategory = 'task' | 'transaction' | 'system' | 'employee' | 'contact';
 

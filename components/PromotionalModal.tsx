@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { CloseIcon } from '../icons/Icons';
-import { tabukHealthClusterLogoMain } from './Logo';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface PromotionalModalProps {
     isOpen: boolean;
@@ -11,6 +11,7 @@ interface PromotionalModalProps {
 const PromotionalModal: React.FC<PromotionalModalProps> = ({ isOpen, onClose }) => {
     const [isClosing, setIsClosing] = useState(false);
     const [dontShowAgain, setDontShowAgain] = useState(false);
+    const { logos } = useTheme();
 
     const handleClose = useCallback(() => {
         if (dontShowAgain) {
@@ -65,7 +66,7 @@ const PromotionalModal: React.FC<PromotionalModalProps> = ({ isOpen, onClose }) 
                 </button>
 
                 <img
-                    src={tabukHealthClusterLogoMain}
+                    src={logos.mainLogoUrl}
                     alt="شعار تجمع تبوك الصحي"
                     className="w-28 h-auto mx-auto mb-5"
                 />

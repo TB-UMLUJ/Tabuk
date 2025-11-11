@@ -63,7 +63,8 @@ const UpdateCard: React.FC<{
 }> = ({ item, dataType, selectedFields, onSelectionChange }) => {
     
     const allFields = useMemo(() => Array.from(new Set([...Object.keys(item.old), ...Object.keys(item.new)])), [item.old, item.new]);
-    const changedFields = useMemo(() => allFields.filter(key => key !== 'id' && normalize(item.old[key as keyof typeof item.old]) !== normalize(item.new[key as keyof typeof item.new])), [allFields, item.old, item.new]);
+    // FIX: Cast item.old and item.new to be indexable by string to resolve TypeScript error.
+    const changedFields = useMemo(() => allFields.filter(key => key !== 'id' && normalize((item.old as any)[key]) !== normalize((item.new as any)[key])), [allFields, item.old, item.new]);
 
     const handleFieldToggle = (field: string) => {
         const newSelection = new Set(selectedFields);
@@ -106,21 +107,22 @@ const UpdateCard: React.FC<{
                     <div className="font-bold text-gray-500 dark:text-gray-400">القيمة الجديدة</div>
                     <div></div>
                     
-                    {allFields.map(key => {
-                        if (['id', 'created_at', 'updated_at', 'department'].includes(key)) return null;
+                    {allFields.map(field => {
+                        if (['id', 'created_at', 'updated_at', 'department'].includes(field)) return null;
 
-                        const isChanged = changedFields.includes(key);
-                        const oldValue = normalize(item.old[key as keyof typeof item.old]);
-                        const newValue = normalize(item.new[key as keyof typeof item.new]);
+                        const isChanged = changedFields.includes(field);
+                        // FIX: Cast item.old and item.new to be indexable by string to resolve TypeScript error.
+                        const oldValue = normalize((item.old as any)[field]);
+                        const newValue = normalize((item.new as any)[field]);
 
                         return (
-                             <React.Fragment key={key}>
-                                <div className={`font-semibold py-2 ${isChanged ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`}>{fieldLabels[key] || key}</div>
+                             <React.Fragment key={field}>
+                                <div className={`font-semibold py-2 ${isChanged ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`}>{fieldLabels[field] || field}</div>
                                 <div className={`py-2 truncate ${isChanged ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`} title={oldValue}>{oldValue || '-'}</div>
                                 <div className={`py-2 truncate ${isChanged ? 'bg-yellow-100 dark:bg-yellow-900/40 rounded px-2' : ''}`} title={newValue}>{newValue || '-'}</div>
                                 <div className="py-2 flex justify-center">
                                     {isChanged && (
-                                        <input type="checkbox" checked={selectedFields.has(key)} onChange={() => handleFieldToggle(key)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                                        <input type="checkbox" checked={selectedFields.has(field)} onChange={() => handleFieldToggle(field)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
                                     )}
                                 </div>
                             </React.Fragment>

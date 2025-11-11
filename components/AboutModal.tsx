@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { 
@@ -7,8 +6,8 @@ import {
     CheckCircleIcon,
     ShareIcon
 } from '../icons/Icons';
-import { tabukHealthClusterLogoMain } from './Logo';
 import { useToast } from '../contexts/ToastContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Hardcoded metadata to prevent fetch errors on deployed environments.
 const metadata = {
@@ -24,6 +23,7 @@ interface AboutModalProps {
 const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
     const [isClosing, setIsClosing] = useState(false);
     const { addToast } = useToast();
+    const { logos } = useTheme();
 
     useEffect(() => {
         if (isOpen) {
@@ -93,7 +93,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
             <main className="container mx-auto p-4 md:p-6 pb-24">
                 {/* Hero Section */}
                 <div className="text-center mb-10">
-                    <img src={tabukHealthClusterLogoMain} alt="شعار تجمع تبوك الصحي" className="w-40 h-auto mx-auto mb-4" />
+                    <img src={logos.mainLogoUrl} alt="شعار تجمع تبوك الصحي" className="w-40 h-auto mx-auto mb-4" />
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">{metadata.name}</h1>
                     <p className="mt-4 max-w-2xl mx-auto text-gray-600 dark:text-gray-400 text-base leading-relaxed">
                         {metadata.description}

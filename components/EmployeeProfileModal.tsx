@@ -255,10 +255,15 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
                                     return (
                                         <li key={cert.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                             <div className="flex items-center gap-3">
+                                                {/* FIX: The `title` prop is not valid on these custom Icon components. Wrap the icon in a div with a title attribute for the tooltip. */}
                                                 {isExpired ? (
-                                                    <ExclamationTriangleIcon className="w-6 h-6 text-red-500 flex-shrink-0" title="منتهية الصلاحية" />
+                                                    <div className="flex-shrink-0" title="منتهية الصلاحية">
+                                                        <ExclamationTriangleIcon className="w-6 h-6 text-red-500" />
+                                                    </div>
                                                 ) : (
-                                                    <AcademicCapIcon className="w-6 h-6 text-green-500 flex-shrink-0" title="سارية" />
+                                                    <div className="flex-shrink-0" title="سارية">
+                                                        <AcademicCapIcon className="w-6 h-6 text-green-500" />
+                                                    </div>
                                                 )}
                                                 <div>
                                                     <p className="font-bold text-gray-800 dark:text-white">

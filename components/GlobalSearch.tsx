@@ -125,7 +125,6 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
                             <p className="text-gray-500 dark:text-gray-400">اكتب حرفين على الأقل للبدء في البحث.</p>
                         </div>
                     )}
-                    {/* FIX: Removed reference to undefined 'loading' variable. The search is synchronous. */}
                     {searchTerm.length >= 2 && results && totalResults > 0 && (
                         <div>
                             <ResultSection title="الموظفين" icon={<UserIcon className="w-4 h-4"/>} count={results.employees.length}>

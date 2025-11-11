@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { User } from '../types';
-import { tabukHealthClusterLogoMain } from './Logo';
+import { useTheme } from '../contexts/ThemeContext';
 
 const steps = [
     { id: 1, duration: 1200, text: "التحقق من الهوية..." },
@@ -12,6 +11,7 @@ const steps = [
 ];
 
 const WelcomeScreen: React.FC<{ currentUser: User | null }> = ({ currentUser }) => {
+    const { logos } = useTheme();
     const [progress, setProgress] = useState(0);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const animationFrameId = useRef<number | null>(null);
@@ -69,7 +69,7 @@ const WelcomeScreen: React.FC<{ currentUser: User | null }> = ({ currentUser }) 
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 text-center animate-fade-in relative">
             <div className="mb-12">
                 <img
-                    src={tabukHealthClusterLogoMain}
+                    src={logos.mainLogoUrl}
                     alt="شعار تجمع تبوك الصحي"
                     className="w-32 sm:w-36 h-auto"
                 />

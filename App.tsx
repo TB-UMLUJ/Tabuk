@@ -27,7 +27,7 @@ import { mockTransactions } from './data/mockTransactions';
 import SettingsScreen from './components/SettingsScreen';
 import StatisticsView from './components/StatisticsView';
 import { useAuth } from './contexts/AuthContext';
-import { tabukHealthClusterLogoMain } from './components/Logo';
+import { useTheme } from './contexts/ThemeContext';
 import TaskDetailModal from './components/TaskDetailModal';
 import { logActivity } from './lib/activityLogger';
 import SkeletonLoader from './components/SkeletonLoader';
@@ -41,6 +41,7 @@ declare const XLSX: any;
 const App: React.FC = () => {
     const { addToast } = useToast();
     const { currentUser, isAuthenticating, justLoggedIn, clearJustLoggedIn } = useAuth();
+    const { logos } = useTheme();
     const [showSettings, setShowSettings] = useState(false);
     
     // Data State
@@ -222,7 +223,7 @@ const App: React.FC = () => {
                 if (payload.eventType === 'INSERT') {
                     setTasks(prev => [...prev, payload.new as Task]);
                     if (Notification.permission === 'granted') {
-                        new Notification('مهمة جديدة', { body: `تمت إضافة مهمة: ${payload.new.title}`, icon: tabukHealthClusterLogoMain });
+                        new Notification('مهمة جديدة', { body: `تمت إضافة مهمة: ${payload.new.title}`, icon: logos.mainLogoUrl });
                     }
                 }
                 if (payload.eventType === 'UPDATE') setTasks(prev => prev.map(t => t.id === payload.new.id ? payload.new as Task : t));
@@ -234,7 +235,7 @@ const App: React.FC = () => {
                 if (payload.eventType === 'INSERT') {
                      setTransactions(prev => [enrichTransaction(payload.new as Transaction, employees, officeContacts), ...prev]);
                      if (Notification.permission === 'granted') {
-                        new Notification('معاملة جديدة', { body: `تم تسجيل معاملة: ${payload.new.subject}`, icon: tabukHealthClusterLogoMain });
+                        new Notification('معاملة جديدة', { body: `تم تسجيل معاملة: ${payload.new.subject}`, icon: logos.mainLogoUrl });
                     }
                 }
                 if (payload.eventType === 'UPDATE') {
@@ -252,7 +253,7 @@ const App: React.FC = () => {
             supabase.removeChannel(tasksSubscription);
             supabase.removeChannel(transactionsSubscription);
         };
-    }, [currentUser, employees, officeContacts]);
+    }, [currentUser, employees, officeContacts, logos.mainLogoUrl]);
 
     const filteredEmployees = useMemo(() => {
         const filtered = employees.filter(employee => {
