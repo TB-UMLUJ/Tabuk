@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ChevronDownIcon } from '../icons/Icons';
 
@@ -207,17 +206,17 @@ const levelStyles = [
     },
     // Level 1: Main Departments (e.g., التمريض)
     {
-        container: 'bg-accent-light dark:bg-gray-700 border-r-8 border-accent-dark dark:border-accent rounded-r-lg my-3 shadow',
+        container: 'bg-secondary/10 dark:bg-gray-700 border-r-8 border-secondary dark:border-secondary-light rounded-r-lg my-3 shadow',
         text: 'text-gray-800 dark:text-white font-semibold',
-        englishText: 'text-accent-dark dark:text-accent',
-        chevron: 'text-accent-dark dark:text-accent'
+        englishText: 'text-secondary-dark dark:text-secondary',
+        chevron: 'text-secondary-dark dark:text-secondary'
     },
     // Level 2: Sub-departments (e.g., الجودة التمريضية)
     {
-        container: 'bg-brand-light dark:bg-gray-800 border-r-4 border-brand dark:border-brand-light my-2',
-        text: 'text-brand-dark dark:text-brand-light font-medium',
+        container: 'bg-primary/5 dark:bg-gray-800 border-r-4 border-primary dark:border-primary-light my-2',
+        text: 'text-primary-dark dark:text-primary-light font-medium',
         englishText: 'text-gray-500 dark:text-gray-400',
-        chevron: 'text-brand-dark dark:text-brand-light'
+        chevron: 'text-primary-dark dark:text-primary-light'
     },
     // Level 3 and deeper
     {

@@ -113,7 +113,7 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
         ({onClick, title, children, className}) => (
         <button
             onClick={onClick}
-            className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors ${className}`}
+            className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 transition-colors ${className}`}
             title={title}
         >
             {children}
@@ -124,7 +124,7 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
         <div className="bg-white rounded-xl shadow-md p-3 pb-8 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all relative">
             <div className="flex items-center gap-3">
                 <div className="p-3 bg-gray-200 rounded-lg flex-shrink-0 dark:bg-gray-700">
-                    <BuildingOfficeIcon className="w-5 h-5 text-brand dark:text-brand-light" />
+                    <BuildingOfficeIcon className="w-5 h-5 text-secondary dark:text-secondary-light" />
                 </div>
                 <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-base text-gray-800 truncate dark:text-white">{contact.name}</h3>
@@ -134,17 +134,16 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
                 <div className="flex items-center gap-1 flex-shrink-0">
                     {/* Desktop Buttons */}
                     <div className="hidden md:flex items-center gap-1">
-                        <button onClick={handleShare} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 transition-all" title="مشاركة"><ShareIcon className="w-5 h-5" /></button>
-                        {hasPermission('edit_contacts') && <button onClick={handleEdit} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 transition-all" title="تعديل"><PencilIcon className="w-5 h-5" /></button>}
-                        {hasPermission('delete_contacts') && <button onClick={handleDelete} className="p-2 rounded-lg text-gray-500 hover:bg-danger/10 hover:text-danger dark:text-gray-400 dark:hover:bg-danger/20 dark:hover:text-red-400 transition-all" title="حذف"><TrashIcon className="w-5 h-5" /></button>}
-                        {isValidEmail && <button onClick={() => handleEmailAction('copy')} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 transition-all" title={`نسخ ${contact.email}`}><EmailIcon className="w-5 h-5" /></button>}
+                        <button onClick={handleShare} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 transition-all" title="مشاركة"><ShareIcon className="w-5 h-5" /></button>
+                        {hasPermission('edit_contacts') && <button onClick={handleEdit} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 transition-all" title="تعديل"><PencilIcon className="w-5 h-5" /></button>}
+                        {hasPermission('delete_contacts') && <button onClick={handleDelete} className="p-2 rounded-lg text-gray-500 hover:text-danger hover:bg-danger/10 dark:text-gray-200 dark:hover:text-red-400 dark:hover:bg-danger/20 transition-all" title="حذف"><TrashIcon className="w-5 h-5" /></button>}
+                        {isValidEmail && <button onClick={() => handleEmailAction('copy')} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 transition-all" title={`نسخ ${contact.email}`}><EmailIcon className="w-5 h-5" /></button>}
                         <button
                             onClick={handleCall}
                             className="flex items-center gap-1.5 bg-primary text-white font-semibold py-1.5 px-3 rounded-lg hover:bg-primary-dark transition-all duration-200 transform hover:-translate-y-0.5"
                             title={`اتصال بالرقم ${contact.extension}`}
                         >
                             <PhoneIcon className="w-4 h-4" />
-                            <span className="text-sm pt-px">{contact.extension}</span>
                         </button>
                     </div>
                     
@@ -160,13 +159,11 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
             {/* Expanded Menu for Mobile */}
             {isExpanded && (
                 <div className="md:hidden mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-5 gap-1 animate-fade-in text-center">
-                    <ActionButton onClick={handleCall} title={`اتصال بالرقم ${contact.extension}`} className="text-primary hover:bg-primary/10 dark:text-primary-light dark:hover:bg-primary/20">
+                    <ActionButton onClick={handleCall} title={`اتصال بالرقم ${contact.extension}`} className="text-primary dark:text-inherit hover:bg-primary/10 dark:hover:bg-primary/20">
                         <PhoneIcon className="w-6 h-6" />
-                        <span className="text-xs">{contact.extension}</span>
                     </ActionButton>
-                     <ActionButton onClick={handleShare} title="مشاركة" className="text-purple-600 hover:bg-purple-100 dark:text-purple-400 dark:hover:bg-purple-900/50">
+                     <ActionButton onClick={handleShare} title="مشاركة" className="text-secondary dark:text-inherit hover:bg-secondary/10 dark:hover:bg-secondary/20">
                         <ShareIcon className="w-6 h-6" />
-                        <span className="text-xs">مشاركة</span>
                     </ActionButton>
                     {hasPermission('edit_contacts') && (
                         <ActionButton onClick={handleEdit} title="تعديل">
@@ -174,14 +171,13 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
                         </ActionButton>
                     )}
                     {hasPermission('delete_contacts') && (
-                        <ActionButton onClick={handleDelete} title="حذف" className="text-danger hover:bg-danger/10">
+                        <ActionButton onClick={handleDelete} title="حذف" className="text-danger dark:text-inherit hover:bg-danger/10">
                             <TrashIcon className="w-6 h-6" />
                         </ActionButton>
                     )}
                     {isValidEmail && (
-                        <ActionButton onClick={(e) => { e.stopPropagation(); handleEmailAction('copy'); }} title="نسخ البريد" className="text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/50">
+                        <ActionButton onClick={(e) => { e.stopPropagation(); handleEmailAction('copy'); }} title="نسخ البريد" className="text-primary dark:text-inherit hover:bg-primary/10 dark:hover:bg-primary/20">
                             <EmailIcon className="w-6 h-6" />
-                            <span className="text-xs">نسخ</span>
                         </ActionButton>
                     )}
                 </div>

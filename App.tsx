@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
@@ -52,7 +53,6 @@ const App: React.FC = () => {
     const [loading, setLoading] = useState(true);
 
     // UI & Filter State
-    const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'full_name_ar', direction: 'asc' });
     const [activeFilters, setActiveFilters] = useState<{ center: string; jobTitle: string }>({ center: 'all', jobTitle: 'all' });
     const [activeTab, setActiveTab] = useState<'directory' | 'orgChart' | 'officeDirectory' | 'tasks' | 'transactions' | 'statistics'>('statistics');
@@ -93,13 +93,13 @@ const App: React.FC = () => {
     
     const [importPreview, setImportPreview] = useState<{
         summary: ImportSummary;
-        data: { toCreate: any[]; toUpdate: UpdatePreview<any>[] };
+        // FIX: Replaced `any` with a specific union type to provide better type safety and resolve downstream indexing errors.
+        data: { toCreate: any[]; toUpdate: UpdatePreview<Employee | OfficeContact>[] };
         validationIssues: ValidationIssue[];
         dataType: 'employees' | 'contacts';
         fileInfo: { name: string; size: number };
     } | null>(null);
     
-    const searchAndFilterRef = useRef<SearchAndFilterRef>(null);
     const genericFileInputRef = useRef<HTMLInputElement>(null);
     const [importHandler, setImportHandler] = useState<(file: File) => void>(() => () => {});
 
@@ -262,16 +262,7 @@ const App: React.FC = () => {
             
             if (!centerMatch || !jobTitleMatch) return false;
 
-            if (searchTerm === '') return true;
-            const lowerCaseSearchTerm = searchTerm.toLowerCase();
-
-            return (
-                employee.full_name_ar.toLowerCase().includes(lowerCaseSearchTerm) ||
-                employee.full_name_en.toLowerCase().includes(lowerCaseSearchTerm) ||
-                employee.employee_id.toLowerCase().includes(lowerCaseSearchTerm) ||
-                (employee.national_id && employee.national_id.toLowerCase().includes(lowerCaseSearchTerm)) ||
-                (employee.center && employee.center.toLowerCase().includes(lowerCaseSearchTerm))
-            );
+            return true;
         });
 
         return [...filtered].sort((a, b) => {
@@ -295,7 +286,7 @@ const App: React.FC = () => {
             
             return direction === 'asc' ? comparison : -comparison;
         });
-    }, [employees, searchTerm, sortConfig, activeFilters]);
+    }, [employees, sortConfig, activeFilters]);
 
     const visibleEmployees = useMemo(
         () => filteredEmployees.slice(0, visibleEmployeeCount),
@@ -1038,7 +1029,6 @@ const App: React.FC = () => {
             <main className="container mx-auto px-3 md:px-6 flex-grow pb-24 md:pb-6">
                  <Tabs activeTab={activeTab} setActiveTab={(tab) => {
                     setActiveTab(tab);
-                    setSearchTerm(''); 
                  }} />
 
                  {loading ? (
@@ -1048,9 +1038,6 @@ const App: React.FC = () => {
                         {activeTab === 'directory' && (
                             <>
                                 <SearchAndFilter
-                                    ref={searchAndFilterRef}
-                                    searchTerm={searchTerm}
-                                    setSearchTerm={setSearchTerm}
                                     onImportClick={handleGenericImport}
                                     onAddEmployeeClick={() => { setEmployeeToEdit(null); setShowAddEmployeeModal(true); }}
                                     onExportClick={handleExportEmployees}

@@ -21,7 +21,8 @@ interface ImportPreviewModalProps {
     onClose: () => void;
     onConfirm: (selections: UpdateSelection) => void;
     summary: ImportSummary;
-    data: { toCreate: any[]; toUpdate: UpdatePreview<any>[] };
+    // FIX: Replaced `any` with a specific union type to provide better type safety and resolve downstream indexing errors.
+    data: { toCreate: any[]; toUpdate: UpdatePreview<Employee | OfficeContact>[] };
     validationIssues: ValidationIssue[];
     isProcessing: boolean;
     dataType: DataType;
@@ -63,8 +64,7 @@ const UpdateCard: React.FC<{
 }> = ({ item, dataType, selectedFields, onSelectionChange }) => {
     
     const allFields = useMemo(() => Array.from(new Set([...Object.keys(item.old), ...Object.keys(item.new)])), [item.old, item.new]);
-    // FIX: Cast item.old and item.new to be indexable by string to resolve TypeScript error.
-    const changedFields = useMemo(() => allFields.filter(key => key !== 'id' && normalize((item.old as any)[key]) !== normalize((item.new as any)[key])), [allFields, item.old, item.new]);
+    const changedFields = useMemo(() => allFields.filter(key => key !== 'id' && normalize((item.old as Record<string, any>)[key]) !== normalize((item.new as Record<string, any>)[key])), [allFields, item.old, item.new]);
 
     const handleFieldToggle = (field: string) => {
         const newSelection = new Set(selectedFields);
@@ -111,13 +111,12 @@ const UpdateCard: React.FC<{
                         if (['id', 'created_at', 'updated_at', 'department'].includes(field)) return null;
 
                         const isChanged = changedFields.includes(field);
-                        // FIX: Cast item.old and item.new to be indexable by string to resolve TypeScript error.
-                        const oldValue = normalize((item.old as any)[field]);
-                        const newValue = normalize((item.new as any)[field]);
+                        const oldValue = normalize((item.old as Record<string, any>)[field]);
+                        const newValue = normalize((item.new as Record<string, any>)[field]);
 
                         return (
                              <React.Fragment key={field}>
-                                <div className={`font-semibold py-2 ${isChanged ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`}>{fieldLabels[field] || field}</div>
+                                <div className={`font-semibold py-2 ${isChanged ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`}>{fieldLabels[field as keyof typeof fieldLabels] || field}</div>
                                 <div className={`py-2 truncate ${isChanged ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`} title={oldValue}>{oldValue || '-'}</div>
                                 <div className={`py-2 truncate ${isChanged ? 'bg-yellow-100 dark:bg-yellow-900/40 rounded px-2' : ''}`} title={newValue}>{newValue || '-'}</div>
                                 <div className="py-2 flex justify-center">

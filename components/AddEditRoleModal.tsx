@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Role } from '../types';
@@ -91,9 +90,9 @@ const AddEditRoleModal: React.FC<AddEditRoleModalProps> = ({ isOpen, onClose, on
             <style>{`
                 .input-style { background-color: #F9FAFB; border: 1px solid #D1D5DB; border-radius: 0.5rem; padding: 0.75rem 1rem; width: 100%; outline: none; color: #111827; }
                 .dark .input-style { background-color: #374151; border-color: #4B5563; color: white; }
-                .input-style:focus { --tw-ring-color: #008755; box-shadow: 0 0 0 2px var(--tw-ring-color); }
-                .btn-primary { background-color: #008755; color: white; font-weight: 600; padding: 0.5rem 1.5rem; border-radius: 0.5rem; transition: all 0.2s; min-width: 100px; }
-                .btn-primary:hover { background-color: #006640; }
+                .input-style:focus { --tw-ring-color: #005A9C; box-shadow: 0 0 0 2px var(--tw-ring-color); }
+                .btn-primary { background-color: #005A9C; color: white; font-weight: 600; padding: 0.5rem 1.5rem; border-radius: 0.5rem; transition: all 0.2s; min-width: 100px; }
+                .btn-primary:hover { background-color: #004B80; }
                 .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
                 .btn-secondary { background-color: #E5E7EB; color: #1F2937; font-weight: 600; padding: 0.5rem 1.5rem; border-radius: 0.5rem; transition: all 0.2s; }
                 .dark .btn-secondary { background-color: #4B5563; color: #D1D5DB; }

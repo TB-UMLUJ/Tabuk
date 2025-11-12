@@ -13,11 +13,8 @@ const Header: React.FC<HeaderProps> = ({ onOpenSettings, onOpenGlobalSearch }) =
     return (
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-sm border-b border-gray-200 dark:bg-gray-900/80 dark:border-gray-700">
             <div className="container mx-auto px-3 py-2.5 md:px-6 flex justify-between items-center">
-                <div className="flex items-center gap-3">
+                <div>
                     <img src={logos.headerLogoUrl} alt="Logo" className="h-9 sm:h-12 w-auto"/>
-                    <div className="min-w-0">
-                        <h1 className="text-base sm:text-lg font-bold text-gray-800 dark:text-white truncate">تجمع تبوك الصحي</h1>
-                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                      <button

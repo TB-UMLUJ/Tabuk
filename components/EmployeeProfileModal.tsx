@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { Employee, Certificate } from '../types';
 import { 
@@ -85,36 +85,6 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
         }
     };
     
-    const { completionPercentage, progressBarColorClass } = useMemo(() => {
-        if (!employee) return { completionPercentage: 0, progressBarColorClass: 'bg-danger' };
-
-        const requiredFields: (keyof Employee)[] = [
-            'full_name_ar', 'full_name_en', 'employee_id', 'job_title', 'department',
-            'phone_direct', 'email', 'center', 'national_id', 'nationality',
-            'gender', 'date_of_birth', 'classification_id'
-        ];
-        
-        const completedCount = requiredFields.reduce((count, field) => {
-            const value = employee[field];
-            if (value !== null && value !== undefined && String(value).trim() !== '') {
-                return count + 1;
-            }
-            return count;
-        }, 0);
-
-        const percentage = Math.round((completedCount / requiredFields.length) * 100);
-        
-        let colorClass = 'bg-danger';
-        if (percentage > 80) {
-            colorClass = 'bg-primary';
-        } else if (percentage > 40) {
-            colorClass = 'bg-yellow-500';
-        }
-
-        return { completionPercentage: percentage, progressBarColorClass: colorClass };
-    }, [employee]);
-
-
     const InfoRow: React.FC<{ label: string; value: string | undefined; icon: React.ReactNode; href?: string }> = ({ label, value, icon, href }) => {
         if (!value) return null;
         
@@ -126,7 +96,7 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
 
         return (
             <div className="flex items-start gap-3 py-2.5">
-                <div className="bg-primary/10 p-2 rounded-lg text-primary dark:bg-primary/20 dark:text-primary mt-1">{icon}</div>
+                <div className="bg-primary/10 p-2 rounded-lg text-primary dark:bg-primary/20 dark:text-white mt-1">{icon}</div>
                 <div>
                     <p className="text-sm text-gray-500 font-medium dark:text-gray-400">{label}</p>
                     <p className="text-base font-bold text-gray-800 dark:text-white break-all">{valueContent}</p>
@@ -164,23 +134,10 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
                        <CloseIcon className="w-6 h-6" />
                     </button>
 
-                     <div className="mb-6">
-                        <div className="flex justify-between items-center mb-1">
-                            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">اكتمل الملف بنسبة:</h4>
-                            <span className={`text-sm font-bold ${progressBarColorClass.replace('bg-', 'text-')}`}>{completionPercentage}%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                            <div 
-                                className={`h-2.5 rounded-full transition-all duration-500 ease-out ${progressBarColorClass}`} 
-                                style={{ width: `${completionPercentage}%` }}
-                            ></div>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8 mb-6">
+                    <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8 pt-8 mb-6">
                         <div className="text-center flex-shrink-0">
                              <div className="w-20 h-20 md:w-32 md:h-32 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center mx-auto border-4 border-gray-200 dark:border-gray-600">
-                                <span className="text-4xl md:text-5xl font-bold text-brand dark:text-brand-light">{getInitials(employee.full_name_ar || '')}</span>
+                                <span className="text-4xl md:text-5xl font-bold text-primary dark:text-primary-light">{getInitials(employee.full_name_ar || '')}</span>
                             </div>
                         </div>
                         <div className="flex-1 text-center md:text-right w-full">
@@ -245,7 +202,7 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
 
                     <div className="border-t border-gray-200 pt-4 mt-4 dark:border-gray-700">
                         <h3 className="text-base font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-3">
-                            <AcademicCapIcon className="w-6 h-6 text-primary" />
+                            <AcademicCapIcon className="w-6 h-6 text-primary dark:text-white" />
                             الشهادات والتراخيص
                         </h3>
                         {employee.certificates && employee.certificates.length > 0 ? (
@@ -282,7 +239,7 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
                                                     href={cert.file_url} 
                                                     target="_blank" 
                                                     rel="noopener noreferrer"
-                                                    className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors"
+                                                    className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors dark:text-white dark:hover:bg-white/10"
                                                     title={`تحميل ملف: ${cert.display_file_name || cert.type}`}
                                                 >
                                                     <DocumentArrowDownIcon className="w-6 h-6" />

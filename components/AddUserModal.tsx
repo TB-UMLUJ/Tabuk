@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { User, Role } from '../types';
@@ -156,11 +155,11 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSave, us
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">الاسم الكامل</label>
-                                <input name="full_name" value={userData.full_name} onChange={handleChange} required className="w-full input-style" />
+                                <input name="full_name" value={userData.full_name} onChange={handleChange} required className="input-style" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">اسم المستخدم</label>
-                                <input name="username" value={userData.username} onChange={handleChange} required className="w-full input-style" />
+                                <input name="username" value={userData.username} onChange={handleChange} required className="input-style" />
                             </div>
                         </div>
                         <div>
@@ -216,7 +215,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSave, us
                     color: #111827;
                 }
                 .input-style:focus {
-                    --tw-ring-color: #008755;
+                    --tw-ring-color: #005A9C;
                     box-shadow: 0 0 0 2px var(--tw-ring-color);
                 }
                 .dark .input-style {
@@ -225,7 +224,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSave, us
                     color: white;
                 }
                 .btn-primary {
-                    background-color: #008755;
+                    background-color: #005A9C;
                     color: white;
                     font-weight: 600;
                     padding: 0.5rem 1.5rem;
@@ -234,7 +233,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSave, us
                     min-width: 120px;
                 }
                 .btn-primary:hover {
-                    background-color: #006640;
+                    background-color: #004B80;
                 }
                  .btn-primary:disabled {
                     opacity: 0.7;

@@ -87,9 +87,9 @@ const EmployeeCountGauge: React.FC<GaugeProps> = ({ value, maxValue = 250 }) => 
 
                 {/* Group of colored segments, which will be masked */}
                 <g mask="url(#gauge-mask)">
-                    <path d={describeArc(100, 100, 75, minAngle, greenEndAngle)} fill="none" stroke="#10B981" strokeWidth="12" strokeLinecap="round" />
-                    <path d={describeArc(100, 100, 75, greenEndAngle, yellowEndAngle)} fill="none" stroke="#FBBF24" strokeWidth="12" strokeLinecap="round" />
-                    <path d={describeArc(100, 100, 75, yellowEndAngle, maxAngle)} fill="none" stroke="#F87171" strokeWidth="12" strokeLinecap="round" />
+                    <path d={describeArc(100, 100, 75, minAngle, greenEndAngle)} fill="none" stroke="currentColor" className="text-success" strokeWidth="12" strokeLinecap="round" />
+                    <path d={describeArc(100, 100, 75, greenEndAngle, yellowEndAngle)} fill="none" stroke="currentColor" className="text-warning" strokeWidth="12" strokeLinecap="round" />
+                    <path d={describeArc(100, 100, 75, yellowEndAngle, maxAngle)} fill="none" stroke="currentColor" className="text-danger" strokeWidth="12" strokeLinecap="round" />
                 </g>
                 
                 {/* Text in the middle */}

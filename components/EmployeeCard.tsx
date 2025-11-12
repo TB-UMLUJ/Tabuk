@@ -1,6 +1,6 @@
 import React from 'react';
 import { Employee } from '../types';
-import { IdentificationIcon, ShareIcon, EmailIcon, MapPinIcon, GlobeAltIcon, CheckCircleIcon, ExclamationTriangleIcon } from '../icons/Icons';
+import { IdentificationIcon, ShareIcon, EmailIcon, MapPinIcon, GlobeAltIcon } from '../icons/Icons';
 import { useToast } from '../contexts/ToastContext';
 
 interface EmployeeCardProps {
@@ -36,22 +36,6 @@ const formatTimestamp = (isoString?: string): string | null => {
 const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
     const { addToast } = useToast();
     const lastUpdate = formatTimestamp(employee.updated_at || employee.created_at);
-
-    const isComplete =
-        !!employee.full_name_ar?.trim() &&
-        !!employee.full_name_en?.trim() &&
-        !!employee.employee_id?.trim() &&
-        !!employee.job_title?.trim() &&
-        !!employee.department?.trim() &&
-        !!employee.phone_direct?.trim() &&
-        !!employee.email?.trim() &&
-        !!employee.center?.trim() &&
-        !!employee.national_id?.trim() &&
-        !!employee.nationality?.trim() &&
-        !!employee.gender?.trim() &&
-        !!employee.date_of_birth &&
-        !!employee.classification_id?.trim();
-
 
     const handleShare = async (e: React.MouseEvent) => {
         e.stopPropagation(); // Prevent modal from opening
@@ -104,14 +88,12 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
     return (
         <div 
             onClick={onSelect} 
-            className={`bg-white rounded-xl shadow-md p-3 pb-10 flex items-start gap-3 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative group dark:bg-gray-800 border ${
-                isComplete ? 'border-gray-200 dark:border-gray-700' : 'border-yellow-400 dark:border-yellow-500'
-            }`}
+            className="bg-white rounded-xl shadow-md p-3 pb-10 flex items-start gap-3 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative group dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
         >
              <div className="absolute top-3 left-3">
                  <button
                     onClick={handleShare}
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-primary/10 text-primary transition-all duration-200 transform hover:scale-110 dark:bg-primary/20 dark:text-primary-light"
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary/10 text-secondary transition-all duration-200 transform hover:scale-110 dark:bg-secondary/20 dark:text-secondary-light"
                     aria-label="مشاركة بيانات الموظف"
                     title="مشاركة"
                 >
@@ -120,11 +102,11 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
             </div>
 
             <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center border-4 border-gray-100 dark:border-gray-700">
-                <span className="text-xl sm:text-2xl font-bold text-brand dark:text-brand-light">{getInitials(employee.full_name_ar || '')}</span>
+                <span className="text-xl sm:text-2xl font-bold text-primary dark:text-primary-light">{getInitials(employee.full_name_ar || '')}</span>
             </div>
             <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-base text-gray-800 dark:text-white truncate" title={employee.full_name_ar}>{employee.full_name_ar}</h3>
-                <p className="mt-1 text-xs font-semibold inline-block py-1 px-2.5 rounded-full bg-brand/10 text-brand-dark dark:bg-brand/20 dark:text-brand-light truncate" title={employee.job_title}>{employee.job_title}</p>
+                <p className="mt-1 text-xs font-semibold inline-block py-1 px-2.5 rounded-full bg-secondary/10 text-secondary-dark dark:bg-secondary/20 dark:text-secondary-light truncate" title={employee.job_title}>{employee.job_title}</p>
                 
                 <div className="text-xs text-gray-500 mt-2 space-y-2 dark:text-gray-400">
                     {/* Row 1: Employee ID and Center */}
@@ -175,13 +157,6 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
                     Last Update: {lastUpdate}
                 </p>
             )}
-            <div className="absolute bottom-2 right-4" title={isComplete ? "البيانات مكتملة" : "بيانات غير مكتملة"}>
-                {isComplete ? (
-                    <CheckCircleIcon className="w-5 h-5 text-green-500" />
-                ) : (
-                    <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />
-                )}
-            </div>
         </div>
     );
 };

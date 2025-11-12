@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>HEALTH</title>
+    <title>تجمع تبوك الصحي</title>
     <link rel="icon" href="https://i.ibb.co/zWXjmsRP/2e0622ca-655f-4fdd-99bd43691398.png" type="image/png">
     <link rel="apple-touch-icon" href="https://i.ibb.co/zWXjmsRP/2e0622ca-655f-4fdd-99bd43691398.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#008755">
+    <meta name="theme-color" content="#005A9C">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,40 +18,42 @@
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Zain', 'sans-serif'],
+              sans: ['Tajawal', 'sans-serif'],
               cairo: ['Cairo', 'sans-serif'],
               tajawal: ['Tajawal', 'sans-serif'],
               el_messiri: ['El Messiri', 'sans-serif'],
               zain: ['Zain', 'sans-serif'],
             },
             colors: {
-              primary: { // Green from Ministry of Health brand guide
-                DEFAULT: '#008755',
-                light: '#E6F3EE',
-                dark: '#006640'
+              primary: { // Professional Corporate Blue
+                light: '#EBF5FF',
+                DEFAULT: '#007AFF',
+                dark: '#0056B3',
               },
-              accent: { // Khaki from Ministry of Health brand guide
-                light: '#E2E1D2',   // Lighter tint (30%)
-                DEFAULT: '#9b945f', // Main Khaki color
-                dark: '#B5B197'     // Darker tint (75%)
+              secondary: { // Modern Teal
+                light: '#E0F7F6',
+                DEFAULT: '#00A79D',
+                dark: '#008B82',
               },
-              brand: { // Blue from Ministry of Health brand guide secondary palette
-                DEFAULT: '#009ACE',
-                light: '#E5F5FF',
-                dark: '#0076A2'
+              brand: { // For Export and distinct actions
+                light: '#E0F2FE', // sky-100
+                DEFAULT: '#0EA5E9', // sky-500
+                dark: '#0284C7',  // sky-600
               },
-              danger: '#C8102E', // Red from Ministry of Health brand guide secondary palette
+              success: '#48BB78', // Green
+              warning: '#F6AD55', // Amber
+              danger: '#E53E3E', // Red
               gray: {
-                50: '#F7F9FA',
-                100: '#EFF2F3',
-                200: '#DEE3E6',
-                300: '#BDCBD3',
-                400: '#9CB7C7',
-                500: '#7E8F99',
-                600: '#5A7381',
-                700: '#454F5B',
-                800: '#212B36', // Card and modal background
-                900: '#161C24'  // Main dark background
+                50: '#F9FAFB',
+                100: '#F3F4F6',
+                200: '#E5E7EB',
+                300: '#D1D5DB',
+                400: '#9CA3AF',
+                500: '#6B7280',
+                600: '#4B5563',
+                700: '#374151',
+                800: '#1F2937', // Card and modal background
+                900: '#111827'  // Main dark background
               }
             }
           }
@@ -63,11 +65,11 @@
    1. Base, Mobile & General Styles
    ========================================================================== */
 body {
-  font-family: 'Zain', 'sans-serif';
+  font-family: 'Tajawal', 'sans-serif';
 }
 
 .dark {
-  background-color: #161C24;
+  background-color: #111827;
 }
 
 /* Prevent iOS zoom on focus by ensuring font size is at least 16px */

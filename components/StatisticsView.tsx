@@ -51,16 +51,16 @@ const groupAndAggregate = (data: any[], key: string, limit?: number) => {
 
 // --- Sub-Components ---
 const gradients = {
-    facilities: { id: 'grad-facilities', colors: ['#008755', '#009ACE'] }, // Green to Blue
-    offices: { id: 'grad-offices', colors: ['#009ACE', '#4f46e5'] },     // Blue to Indigo
-    ongoing: { id: 'grad-ongoing', colors: ['#F59E0B', '#FBBF24'] },   // Orange to Yellow
-    completed: { id: 'grad-completed', colors: ['#10B981', '#34D399'] }, // Green to Lighter Green
-    remainingTasks: { id: 'grad-remaining', colors: ['#64748B', '#475569'] }, // Slate colors
-    completedTasks: { id: 'grad-completed-tasks', colors: ['#22C55E', '#16A34A'] } // Green colors
+    facilities: { id: 'grad-facilities', colors: ['#00A79D', '#007AFF'] }, 
+    offices: { id: 'grad-offices', colors: ['#007AFF', '#4f46e5'] },     
+    ongoing: { id: 'grad-ongoing', colors: ['#F59E0B', '#FBBF24'] },   
+    completed: { id: 'grad-completed', colors: ['#10B981', '#34D399'] }, 
+    remainingTasks: { id: 'grad-remaining', colors: ['#64748B', '#475569'] },
+    completedTasks: { id: 'grad-completed-tasks', colors: ['#22C55E', '#16A34A'] }
 };
 
 const StatCard: React.FC<{ title: string; value: string | number; icon: React.ReactElement<React.SVGProps<SVGSVGElement>>; gradientId: string; gradientColors: [string, string] }> = ({ title, value, icon, gradientId, gradientColors }) => (
-    <div className="relative bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden h-20">
+    <div className="relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/80 p-3 rounded-xl shadow-md border border-gray-200/50 dark:border-gray-700/50 overflow-hidden h-20">
         <svg width="0" height="0" style={{ position: 'absolute' }}>
             <defs>
                 <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -122,7 +122,7 @@ const BarChartCard: React.FC<{ title: string, data: { label: string, value: numb
 
 
 const DonutChartCard: React.FC<{ title: string, data: {label: string, value: number}[], noScroll?: boolean }> = ({ title, data, noScroll = false }) => {
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF6666', '#66CCCC', '#FFD700'];
+    const COLORS = ['#007AFF', '#00A79D', '#0EA5E9', '#F59E0B', '#6366F1', '#EF4444', '#F6AD55'];
     const total = data.reduce((sum, item) => sum + item.value, 0);
 
     return (
@@ -168,16 +168,16 @@ const LineChartCard: React.FC<{ title: string, data: { label: string, value: num
                     <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
                         <defs>
                             <linearGradient id="lineChartGradient" x1="0" x2="0" y1="0" y2="1">
-                                <stop offset="0%" stopColor="#008755" stopOpacity="0.4"/>
-                                <stop offset="100%" stopColor="#008755" stopOpacity="0"/>
+                                <stop offset="0%" stopColor="#00A79D" stopOpacity="0.4"/>
+                                <stop offset="100%" stopColor="#00A79D" stopOpacity="0"/>
                             </linearGradient>
                         </defs>
-                        <polyline fill="url(#lineChartGradient)" stroke="#008755" strokeWidth="2" points={`0,100 ${points} 100,100`} />
-                        <polyline fill="none" stroke="#008755" strokeWidth="3" points={points} />
+                        <polyline fill="url(#lineChartGradient)" stroke="#00A79D" strokeWidth="2" points={`0,100 ${points} 100,100`} />
+                        <polyline fill="none" stroke="#00A79D" strokeWidth="3" points={points} />
                          {data.map((item, index) => {
                             const x = (index / (data.length - 1)) * 100;
                             const y = 100 - (item.value / maxValue) * 90;
-                            return <circle key={index} cx={x} cy={y} r="2" fill="white" stroke="#008755" strokeWidth="1.5" />;
+                            return <circle key={index} cx={x} cy={y} r="2" fill="white" stroke="#00A79D" strokeWidth="1.5" />;
                         })}
                     </svg>
                     <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
@@ -191,25 +191,21 @@ const LineChartCard: React.FC<{ title: string, data: { label: string, value: num
     );
 };
 
-interface UsageStatCardProps {
+interface UsageListItemProps {
     icon: React.ReactNode;
     title: string;
     value: string;
-    bgColor: string;
     iconBgColor: string;
-    textColor: string;
 }
 
-const UsageStatCard: React.FC<UsageStatCardProps> = ({ icon, title, value, bgColor, iconBgColor, textColor }) => (
-    <div className={`p-6 rounded-2xl shadow-lg transition-transform duration-300 hover:-translate-y-1.5 ${bgColor}`}>
-        <div className="flex items-center justify-between">
-            <div>
-                <p className={`font-semibold text-sm ${textColor} opacity-80`}>{title}</p>
-                <p className={`text-2xl font-bold mt-1 ${textColor}`}>{value}</p>
-            </div>
-            <div className={`p-3 rounded-full ${iconBgColor}`}>
-                {icon}
-            </div>
+const UsageListItem: React.FC<UsageListItemProps> = ({ icon, title, value, iconBgColor }) => (
+    <div className="flex items-center gap-4">
+        <div className={`p-3 rounded-full ${iconBgColor}`}>
+            {icon}
+        </div>
+        <div>
+            <p className="font-semibold text-gray-800 dark:text-white">{value}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{title}</p>
         </div>
     </div>
 );
@@ -322,146 +318,143 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
             </div>
 
             {/* Main Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
+                {/* === KPIs, Gauge & Highlights === */}
                 <div className="lg:col-span-4">
                     <EmployeeCountGauge value={stats.totalEmployees} />
                 </div>
                 
-                <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <StatCard 
-                        title="المراكز الصحية" 
-                        value={stats.totalFacilities} 
-                        icon={<BuildingOfficeIcon />} 
-                        gradientId={gradients.facilities.id} 
-                        gradientColors={gradients.facilities.colors as [string, string]}
-                    />
-                    <StatCard 
-                        title="تحويلات المكاتب" 
-                        value={officeContacts.length} 
-                        icon={<PhoneIcon />}
-                        gradientId={gradients.offices.id} 
-                        gradientColors={gradients.offices.colors as [string, string]}
-                    />
-                    <StatCard 
-                        title="معاملات جارية" 
-                        value={stats.ongoingTransactions} 
-                        icon={<ClockIcon />}
-                        gradientId={gradients.ongoing.id} 
-                        gradientColors={gradients.ongoing.colors as [string, string]}
-                    />
-                    <StatCard 
-                        title="معاملات مكتملة" 
-                        value={stats.completedTransactions} 
-                        icon={<CheckCircleIcon />}
-                        gradientId={gradients.completed.id} 
-                        gradientColors={gradients.completed.colors as [string, string]}
-                    />
-                    <StatCard 
-                        title="المهام المتبقية" 
-                        value={stats.remainingTasks} 
-                        icon={<BellIcon />}
-                        gradientId={gradients.remainingTasks.id} 
-                        gradientColors={gradients.remainingTasks.colors as [string, string]}
-                    />
-                    <StatCard 
-                        title="المهام المكتملة" 
-                        value={stats.completedTasks} 
-                        icon={<ShieldCheckIcon />}
-                        gradientId={gradients.completedTasks.id} 
-                        gradientColors={gradients.completedTasks.colors as [string, string]}
-                    />
+                <div className="lg:col-span-8 flex flex-col gap-6">
+                    {/* Stat Cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <StatCard 
+                            title="المراكز الصحية" 
+                            value={stats.totalFacilities} 
+                            icon={<BuildingOfficeIcon />} 
+                            gradientId={gradients.facilities.id} 
+                            gradientColors={gradients.facilities.colors as [string, string]}
+                        />
+                        <StatCard 
+                            title="تحويلات المكاتب" 
+                            value={officeContacts.length} 
+                            icon={<PhoneIcon />}
+                            gradientId={gradients.offices.id} 
+                            gradientColors={gradients.offices.colors as [string, string]}
+                        />
+                        <StatCard 
+                            title="معاملات جارية" 
+                            value={stats.ongoingTransactions} 
+                            icon={<ClockIcon />}
+                            gradientId={gradients.ongoing.id} 
+                            gradientColors={gradients.ongoing.colors as [string, string]}
+                        />
+                        <StatCard 
+                            title="معاملات مكتملة" 
+                            value={stats.completedTransactions} 
+                            icon={<CheckCircleIcon />}
+                            gradientId={gradients.completed.id} 
+                            gradientColors={gradients.completed.colors as [string, string]}
+                        />
+                        <StatCard 
+                            title="المهام المتبقية" 
+                            value={stats.remainingTasks} 
+                            icon={<BellIcon />}
+                            gradientId={gradients.remainingTasks.id} 
+                            gradientColors={gradients.remainingTasks.colors as [string, string]}
+                        />
+                        <StatCard 
+                            title="المهام المكتملة" 
+                            value={stats.completedTasks} 
+                            icon={<ShieldCheckIcon />}
+                            gradientId={gradients.completedTasks.id} 
+                            gradientColors={gradients.completedTasks.colors as [string, string]}
+                        />
+                    </div>
+                     {/* Smart Highlights */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                         <HighlightCard 
+                            text={`نشاط اليوم ${stats.dailyActivityChange >= 0 ? 'مرتفع' : 'منخفض'} بنسبة ${Math.abs(stats.dailyActivityChange).toFixed(0)}% مقارنة بالأمس.`}
+                            icon={<ArrowTrendingUpIcon className={`w-7 h-7 ${stats.dailyActivityChange >= 0 ? 'text-green-700' : 'text-red-700 rotate-90'}`}/>}
+                            colorClass={`bg-gradient-to-br ${stats.dailyActivityChange >= 0 ? 'from-green-50 to-green-100 text-green-800 dark:from-green-900/40 dark:to-green-900/20 dark:text-green-200' : 'from-red-50 to-red-100 text-red-800 dark:from-red-900/40 dark:to-red-900/20 dark:text-red-200'}`}
+                         />
+                         <HighlightCard 
+                            text={stats.overdueTransactions > 0 ? `هناك ${stats.overdueTransactions} معاملات لم تُراجع منذ أكثر من يومين.` : 'لا توجد معاملات متأخرة.'}
+                            icon={<ExclamationTriangleIcon className="w-7 h-7 text-yellow-700"/>}
+                            colorClass="bg-gradient-to-br from-yellow-50 to-yellow-100 text-yellow-800 dark:from-yellow-900/40 dark:to-yellow-900/20 dark:text-yellow-200"
+                         />
+                          <HighlightCard 
+                            text="تم تسجيل 10 مستخدمين جدد هذا الأسبوع."
+                            icon={<StarIcon className="w-7 h-7 text-blue-700"/>}
+                            colorClass="bg-gradient-to-br from-blue-50 to-blue-100 text-blue-800 dark:from-blue-900/40 dark:to-blue-900/20 dark:text-blue-200"
+                         />
+                    </div>
                 </div>
 
-
-                 {/* 5. Smart Highlights */}
-                 <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                     <HighlightCard 
-                        text={`نشاط اليوم ${stats.dailyActivityChange >= 0 ? 'مرتفع' : 'منخفض'} بنسبة ${Math.abs(stats.dailyActivityChange).toFixed(0)}% مقارنة بالأمس.`}
-                        icon={<ArrowTrendingUpIcon className={`w-7 h-7 ${stats.dailyActivityChange >= 0 ? 'text-green-700' : 'text-red-700 rotate-90'}`}/>}
-                        colorClass={`${stats.dailyActivityChange >= 0 ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200'}`}
-                     />
-                     <HighlightCard 
-                        text={stats.overdueTransactions > 0 ? `هناك ${stats.overdueTransactions} معاملات لم تُراجع منذ أكثر من يومين.` : 'لا توجد معاملات متأخرة.'}
-                        icon={<ExclamationTriangleIcon className="w-7 h-7 text-yellow-700"/>}
-                        colorClass="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200"
-                     />
-                      <HighlightCard 
-                        text="تم تسجيل 10 مستخدمين جدد هذا الأسبوع."
-                        icon={<StarIcon className="w-7 h-7 text-blue-700"/>}
-                        colorClass="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200"
-                     />
+                
+                {/* === Analytics Header === */}
+                <div className="lg:col-span-12">
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-white mt-6 mb-4 text-center">التحليلات الرئيسية</h2>
                 </div>
-
-                {/* 2. Interactive Employee Charts */}
-                <div className="lg:col-span-4">
-                    <h2 className="text-xl font-bold text-gray-800 dark:text-white mt-6 mb-4 text-center">تحليلات الموظفين</h2>
-                </div>
-                <div className="md:col-span-2 lg:col-span-2">
+                
+                {/* === ROW 4: Employee Charts === */}
+                <div className="lg:col-span-7">
                     <BarChartCard 
                         title="التوزيع حسب القطاع" 
                         data={chartData.employeesByDepartment} 
                     />
                 </div>
-                <div className="md:col-span-2 lg:col-span-2">
-                    <DonutChartCard title="التوزيع حسب المراكز" data={chartData.employeesByCenter} />
+                <div className="lg:col-span-5">
+                     <DonutChartCard title="التوزيع حسب الجنس" data={chartData.employeesByGender} noScroll />
                 </div>
-
-                <div className="lg:col-span-4">
-                    <BarChartCard 
+                
+                {/* === ROW 5: More Employee Charts === */}
+                <div className="lg:col-span-12">
+                     <BarChartCard 
                         title="التوزيع حسب المسمى الوظيفي (أعلى 7)" 
                         data={chartData.employeesByJobTitle} 
                     />
                 </div>
-
-                <div className="md:col-span-2 lg:col-span-2">
-                    <DonutChartCard title="التوزيع حسب الجنس" data={chartData.employeesByGender} noScroll />
+                
+                <div className="lg:col-span-12">
+                    <DonutChartCard title="التوزيع حسب المراكز" data={chartData.employeesByCenter} />
                 </div>
-                <div className="md:col-span-2 lg:col-span-2">
+
+                <div className="lg:col-span-12">
                     <BarChartCard 
                         title="التوزيع حسب الجنسية (أعلى 7)" 
                         data={chartData.employeesByNationality} 
                     />
                 </div>
 
-                {/* Transaction Charts */}
-                <div className="lg:col-span-4">
-                    <hr className="my-6 border-gray-200 dark:border-gray-700" />
-                    <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 text-center">تحليلات المعاملات</h2>
-                </div>
-                <div className="lg:col-span-4">
+
+                {/* === ROW 6: Operational Charts === */}
+                <div className="lg:col-span-7">
                     <LineChartCard title="نشاط المعاملات (آخر 7 أيام)" data={chartData.transactionsLast7Days} />
                 </div>
-
-                {/* 3. User Activity Analytics */}
-                <div className="lg:col-span-4">
-                    <hr className="my-6 border-gray-200 dark:border-gray-700" />
-                    <h3 className="font-bold text-xl text-center text-gray-800 mb-6 dark:text-white">تحليل استخدام المنصة <span className="text-sm font-normal text-gray-400">(بيانات تجريبية)</span></h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        <UsageStatCard
-                            icon={<UserIcon className="w-8 h-8 text-white" />}
-                            title="أكثر المستخدمين نشاطًا"
-                            value="عبدالله الفايدي"
-                            bgColor="bg-brand dark:bg-brand-dark"
-                            iconBgColor="bg-white/20"
-                            textColor="text-white"
-                        />
-                        <UsageStatCard
-                            icon={<BuildingOfficeIcon className="w-8 h-8 text-white" />}
-                            title="أكثر الأقسام استخدامًا"
-                            value="إدارة المعاملات"
-                            bgColor="bg-primary dark:bg-primary-dark"
-                            iconBgColor="bg-white/20"
-                            textColor="text-white"
-                        />
-                        <UsageStatCard
-                            icon={<ClockIcon className="w-8 h-8 text-white" />}
-                            title="الأوقات الأكثر نشاطًا"
-                            value="11:00 صباحًا"
-                            bgColor="bg-amber-500 dark:bg-amber-600"
-                            iconBgColor="bg-white/20"
-                            textColor="text-white"
-                        />
+                <div className="lg:col-span-5">
+                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-200 dark:border-gray-700 h-full">
+                        <h3 className="font-bold text-lg text-gray-800 mb-6 dark:text-white">تحليل استخدام المنصة <span className="text-sm font-normal text-gray-400">(بيانات تجريبية)</span></h3>
+                        <div className="space-y-6">
+                            <UsageListItem
+                                icon={<UserIcon className="w-6 h-6 text-brand" />}
+                                title="أكثر المستخدمين نشاطًا"
+                                value="عبدالله الفايدي"
+                                iconBgColor="bg-brand/10 dark:bg-brand/20"
+                            />
+                            <UsageListItem
+                                icon={<BuildingOfficeIcon className="w-6 h-6 text-primary" />}
+                                title="أكثر الأقسام استخدامًا"
+                                value="إدارة المعاملات"
+                                iconBgColor="bg-primary/10 dark:bg-primary/20"
+                            />
+                            <UsageListItem
+                                icon={<ClockIcon className="w-6 h-6 text-amber-500" />}
+                                title="الأوقات الأكثر نشاطًا"
+                                value="11:00 صباحًا"
+                                iconBgColor="bg-amber-100/70 dark:bg-amber-500/20"
+                            />
+                        </div>
                     </div>
                 </div>
 

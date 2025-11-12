@@ -71,7 +71,7 @@ const LoginScreen: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen relative flex flex-col items-center justify-center bg-gray-100 p-4 dark:bg-gray-900">
+        <div className="min-h-screen relative flex flex-col items-center justify-center bg-gray-50 p-4 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800">
             <div className="absolute top-4 left-4">
                 <ThemeToggle />
             </div>
@@ -81,7 +81,7 @@ const LoginScreen: React.FC = () => {
                     alt="شعار تجمع تبوك الصحي"
                     className="w-56 h-auto mx-auto mb-10"
                 />
-                <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 dark:bg-gray-800">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 dark:bg-gray-800/80 dark:backdrop-blur-sm dark:border dark:border-gray-700">
                     <div className="text-center mb-8">
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">أهلاً بك</h1>
                         <p className="text-sm text-gray-500 mt-2 dark:text-gray-400">سجّل الدخول لتجربة إدارة أسرع وأذكى</p>
@@ -146,7 +146,7 @@ const LoginScreen: React.FC = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-primary-dark text-white font-bold py-2.5 px-4 rounded-lg hover:from-primary-dark hover:to-primary transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="w-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-secondary text-white font-bold py-2.5 px-4 rounded-lg hover:from-primary-dark hover:to-secondary-dark transition-all duration-300 transform hover:scale-105 shadow-lg shadow-primary/30 dark:shadow-lg dark:shadow-primary/20 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? 'جاري الدخول...' : 'تسجيل الدخول'}
                             {!isSubmitting && <ArrowRightOnRectangleIcon className="h-5 w-5" />}
