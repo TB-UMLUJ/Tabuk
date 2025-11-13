@@ -10,10 +10,10 @@ interface TransactionCardProps {
 }
 
 const statusMap: Record<TransactionStatus, { text: string; className: string }> = {
-    new: { text: 'جديدة', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' },
-    inProgress: { text: 'قيد الإجراء', className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' },
-    followedUp: { text: 'متابعة', className: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' },
-    completed: { text: 'منجزة', className: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' }
+    new: { text: 'جديدة', className: 'bg-brand/10 text-brand-dark dark:bg-brand/20 dark:text-brand-light' },
+    inProgress: { text: 'قيد الإجراء', className: 'bg-yellow-100/70 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300' },
+    followedUp: { text: 'متابعة', className: 'bg-primary/10 text-primary-dark dark:bg-blue-900/50 dark:text-blue-300' },
+    completed: { text: 'منجزة', className: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' }
 };
 
 const platformMap: Record<TransactionPlatform, string> = {
@@ -47,8 +47,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction, onSelect
     const formattedDate = new Date(transaction.date + 'T00:00:00.000Z').toLocaleDateString('ar-SA', { day: '2-digit', month: 'short', year: 'numeric' });
     const statusInfo = statusMap[transaction.status];
     const typeInfo = {
-        incoming: { text: 'واردة', className: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' },
-        outgoing: { text: 'صادرة', className: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' }
+        incoming: { text: 'واردة', className: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' },
+        outgoing: { text: 'صادرة', className: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' }
     }[transaction.type];
     const lastUpdate = formatTimestamp(transaction.updated_at || transaction.created_at);
 
@@ -112,13 +112,13 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction, onSelect
                         </div>
                     )}
                     {transaction.linked_employee && (
-                        <div className="flex items-center gap-1 text-brand-dark dark:text-brand-light font-bold">
+                        <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-bold">
                             <UserIcon className="w-4 h-4" />
                             <span>مرتبطة بموظف</span>
                         </div>
                     )}
                     {transaction.linked_office_contact && (
-                        <div className="flex items-center gap-1 text-accent-dark dark:text-accent font-bold">
+                        <div className="flex items-center gap-1 text-indigo-500 dark:text-indigo-400 font-bold">
                             <BuildingOfficeIcon className="w-4 h-4" />
                             <span>مرتبطة بمكتب</span>
                         </div>

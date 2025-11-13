@@ -18,7 +18,7 @@ const defaultLogos: AppSettings = {
     // Fallback logo used for login, welcome, and about screens if database fetch fails.
     mainLogoUrl: 'https://c.top4top.io/p_35899m4de1.png',
     // Fallback logo used for the main app header if database fetch fails.
-    headerLogoUrl: 'https://f.top4top.io/p_3588jwrcb1.png',
+    headerLogoUrl: 'https://i.ibb.co/7bQ07Pz/sgh-logo.png',
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);

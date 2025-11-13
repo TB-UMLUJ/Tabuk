@@ -51,12 +51,12 @@ const groupAndAggregate = (data: any[], key: string, limit?: number) => {
 
 // --- Sub-Components ---
 const gradients = {
-    facilities: { id: 'grad-facilities', colors: ['#00A79D', '#007AFF'] }, 
-    offices: { id: 'grad-offices', colors: ['#007AFF', '#4f46e5'] },     
-    ongoing: { id: 'grad-ongoing', colors: ['#F59E0B', '#FBBF24'] },   
-    completed: { id: 'grad-completed', colors: ['#10B981', '#34D399'] }, 
-    remainingTasks: { id: 'grad-remaining', colors: ['#64748B', '#475569'] },
-    completedTasks: { id: 'grad-completed-tasks', colors: ['#22C55E', '#16A34A'] }
+    facilities: { id: 'grad-facilities', colors: ['#9b945f', '#B5B197'] }, 
+    offices: { id: 'grad-offices', colors: ['#9b945f', '#B5B197'] },     
+    ongoing: { id: 'grad-ongoing', colors: ['#F0B323', '#F8D06B'] },   
+    completed: { id: 'grad-completed', colors: ['#008755', '#33A077'] }, 
+    remainingTasks: { id: 'grad-remaining', colors: ['#707372', '#9CA3AF'] },
+    completedTasks: { id: 'grad-completed-tasks', colors: ['#008755', '#006640'] }
 };
 
 const StatCard: React.FC<{ title: string; value: string | number; icon: React.ReactElement<React.SVGProps<SVGSVGElement>>; gradientId: string; gradientColors: [string, string] }> = ({ title, value, icon, gradientId, gradientColors }) => (
@@ -122,7 +122,7 @@ const BarChartCard: React.FC<{ title: string, data: { label: string, value: numb
 
 
 const DonutChartCard: React.FC<{ title: string, data: {label: string, value: number}[], noScroll?: boolean }> = ({ title, data, noScroll = false }) => {
-    const COLORS = ['#007AFF', '#00A79D', '#0EA5E9', '#F59E0B', '#6366F1', '#EF4444', '#F6AD55'];
+    const COLORS = ['#008755', '#9B945F', '#F0B323', '#DC582A', '#009ACE', '#753BBD', '#980051'];
     const total = data.reduce((sum, item) => sum + item.value, 0);
 
     return (
@@ -168,16 +168,16 @@ const LineChartCard: React.FC<{ title: string, data: { label: string, value: num
                     <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
                         <defs>
                             <linearGradient id="lineChartGradient" x1="0" x2="0" y1="0" y2="1">
-                                <stop offset="0%" stopColor="#00A79D" stopOpacity="0.4"/>
-                                <stop offset="100%" stopColor="#00A79D" stopOpacity="0"/>
+                                <stop offset="0%" stopColor="#008755" stopOpacity="0.4"/>
+                                <stop offset="100%" stopColor="#008755" stopOpacity="0"/>
                             </linearGradient>
                         </defs>
-                        <polyline fill="url(#lineChartGradient)" stroke="#00A79D" strokeWidth="2" points={`0,100 ${points} 100,100`} />
-                        <polyline fill="none" stroke="#00A79D" strokeWidth="3" points={points} />
+                        <polyline fill="url(#lineChartGradient)" stroke="#008755" strokeWidth="2" points={`0,100 ${points} 100,100`} />
+                        <polyline fill="none" stroke="#008755" strokeWidth="3" points={points} />
                          {data.map((item, index) => {
                             const x = (index / (data.length - 1)) * 100;
                             const y = 100 - (item.value / maxValue) * 90;
-                            return <circle key={index} cx={x} cy={y} r="2" fill="white" stroke="#00A79D" strokeWidth="1.5" />;
+                            return <circle key={index} cx={x} cy={y} r="2" fill="white" stroke="#008755" strokeWidth="1.5" />;
                         })}
                     </svg>
                     <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
@@ -305,15 +305,17 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
 
     return (
         <div className="mt-6 animate-fade-in pb-24 md:pb-6 relative">
-             <div className="bg-primary-light dark:bg-primary/20 p-4 rounded-xl flex items-center gap-4 mb-6 border border-primary/20 dark:border-primary/30">
-                <InformationCircleIcon className="w-8 h-8 text-primary dark:text-primary-light flex-shrink-0" />
+             <div className="bg-primary p-4 rounded-xl flex items-center justify-between mb-6">
                 <div>
-                    <p className="font-bold text-primary-dark dark:text-white text-lg">
-                        صباح الخير، {currentUser?.full_name || 'زائر'}
+                    <p className="font-bold text-white text-xl">
+                        صباح الخير، {currentUser?.full_name || 'عمر'}
                     </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                    <p className="text-sm text-gray-200 mt-1">
                         إليك ملخصًا سريعًا لليوم.
                     </p>
+                </div>
+                <div className="w-8 h-8 flex-shrink-0 bg-white/25 rounded-full flex items-center justify-center">
+                    <InformationCircleIcon className="w-6 h-6 text-white" />
                 </div>
             </div>
 
@@ -437,10 +439,10 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                         <h3 className="font-bold text-lg text-gray-800 mb-6 dark:text-white">تحليل استخدام المنصة <span className="text-sm font-normal text-gray-400">(بيانات تجريبية)</span></h3>
                         <div className="space-y-6">
                             <UsageListItem
-                                icon={<UserIcon className="w-6 h-6 text-brand" />}
+                                icon={<UserIcon className="w-6 h-6 text-indigo-500" />}
                                 title="أكثر المستخدمين نشاطًا"
                                 value="عبدالله الفايدي"
-                                iconBgColor="bg-brand/10 dark:bg-brand/20"
+                                iconBgColor="bg-indigo-100 dark:bg-indigo-500/20"
                             />
                             <UsageListItem
                                 icon={<BuildingOfficeIcon className="w-6 h-6 text-primary" />}
@@ -465,7 +467,7 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                  <div className="relative" ref={exportMenuRef}>
                     <button
                         onClick={() => setIsReportMenuOpen(prev => !prev)}
-                        className="flex items-center gap-2 bg-brand/10 text-brand-dark dark:bg-brand/20 dark:text-brand-light font-semibold py-2.5 px-6 rounded-lg hover:bg-brand/20 dark:hover:bg-brand/30 transition-all duration-200 transform hover:-translate-y-0.5"
+                        className="flex items-center gap-2 bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent-dark font-semibold py-2.5 px-6 rounded-lg hover:bg-accent/20 dark:hover:bg-accent/30 transition-all duration-200 transform hover:-translate-y-0.5"
                         title="تحميل تقرير الإحصائيات"
                     >
                         <DocumentArrowDownIcon className="w-5 h-5" />

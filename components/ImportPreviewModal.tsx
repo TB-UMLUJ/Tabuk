@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { ImportSummary, ValidationIssue, UpdatePreview, UpdateSelection, Employee, OfficeContact } from '../types';
@@ -21,8 +22,7 @@ interface ImportPreviewModalProps {
     onClose: () => void;
     onConfirm: (selections: UpdateSelection) => void;
     summary: ImportSummary;
-    // FIX: Replaced `any` with a specific union type to provide better type safety and resolve downstream indexing errors.
-    data: { toCreate: any[]; toUpdate: UpdatePreview<Employee | OfficeContact>[] };
+    data: { toCreate: (Omit<Employee, 'id'> | Omit<OfficeContact, 'id'>)[]; toUpdate: UpdatePreview<Employee | OfficeContact>[] };
     validationIssues: ValidationIssue[];
     isProcessing: boolean;
     dataType: DataType;
@@ -51,8 +51,8 @@ const getIdentifier = (item: any, dataType: DataType): string | number => {
     return dataType === 'employees' ? item.employee_id : item.name;
 };
 
-const normalize = (val: any): string => {
-    if (val === null || val === undefined) return '';
+const normalize = (val: any): string | null => {
+    if (val === null || val === undefined || String(val).trim() === '') return null;
     return String(val).trim();
 };
 
@@ -64,7 +64,11 @@ const UpdateCard: React.FC<{
 }> = ({ item, dataType, selectedFields, onSelectionChange }) => {
     
     const allFields = useMemo(() => Array.from(new Set([...Object.keys(item.old), ...Object.keys(item.new)])), [item.old, item.new]);
-    const changedFields = useMemo(() => allFields.filter(key => key !== 'id' && normalize((item.old as Record<string, any>)[key]) !== normalize((item.new as Record<string, any>)[key])), [allFields, item.old, item.new]);
+    
+    const allChangedFields = useMemo(() => allFields.filter(key => {
+        if (['id', 'created_at', 'updated_at', 'department'].includes(key)) return false;
+        return normalize((item.old as Record<string, any>)[key]) !== normalize((item.new as Record<string, any>)[key]);
+    }), [allFields, item.old, item.new]);
 
     const handleFieldToggle = (field: string) => {
         const newSelection = new Set(selectedFields);
@@ -78,13 +82,13 @@ const UpdateCard: React.FC<{
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
-            onSelectionChange(new Set(changedFields));
+            onSelectionChange(new Set(allChangedFields));
         } else {
             onSelectionChange(new Set());
         }
     };
     
-    const isAllSelected = changedFields.length > 0 && changedFields.every(field => selectedFields.has(field));
+    const isAllSelected = allChangedFields.length > 0 && allChangedFields.every(field => selectedFields.has(field));
     const displayName = dataType === 'employees' ? (item.old as Employee).full_name_ar : (item.old as OfficeContact).name;
     const identifier = dataType === 'employees' ? (item.old as Employee).employee_id : (item.old as OfficeContact).name;
 
@@ -110,15 +114,19 @@ const UpdateCard: React.FC<{
                     {allFields.map(field => {
                         if (['id', 'created_at', 'updated_at', 'department'].includes(field)) return null;
 
-                        const isChanged = changedFields.includes(field);
                         const oldValue = normalize((item.old as Record<string, any>)[field]);
                         const newValue = normalize((item.new as Record<string, any>)[field]);
+                        const isChanged = oldValue !== newValue;
+                        const willClearData = isChanged && oldValue !== null && newValue === null;
 
                         return (
                              <React.Fragment key={field}>
                                 <div className={`font-semibold py-2 ${isChanged ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`}>{fieldLabels[field as keyof typeof fieldLabels] || field}</div>
-                                <div className={`py-2 truncate ${isChanged ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`} title={oldValue}>{oldValue || '-'}</div>
-                                <div className={`py-2 truncate ${isChanged ? 'bg-yellow-100 dark:bg-yellow-900/40 rounded px-2' : ''}`} title={newValue}>{newValue || '-'}</div>
+                                <div className={`py-2 truncate ${isChanged ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`} title={oldValue || undefined}>{oldValue || '-'}</div>
+                                <div className={`py-2 truncate flex items-center gap-2 ${isChanged ? 'bg-yellow-50 dark:bg-yellow-900/30 rounded px-2' : ''}`} title={newValue || undefined}>
+                                    {willClearData && <ExclamationTriangleIcon className="w-4 h-4 text-amber-500 flex-shrink-0" title="سيؤدي هذا إلى مسح البيانات الموجودة" />}
+                                    <span className={willClearData ? 'italic text-gray-500' : ''}>{newValue || '-'}</span>
+                                </div>
                                 <div className="py-2 flex justify-center">
                                     {isChanged && (
                                         <input type="checkbox" checked={selectedFields.has(field)} onChange={() => handleFieldToggle(field)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
@@ -155,9 +163,15 @@ const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({ isOpen, onClose
             const initialSelections: UpdateSelection = {};
             data.toUpdate.forEach(item => {
                 const id = getIdentifier(item.old, dataType);
-                const changedFields = Object.keys(item.new).filter(key => 
-                    normalize(item.old[key as keyof typeof item.old]) !== normalize(item.new[key as keyof typeof item.new])
-                );
+                const changedFields = Object.keys(item.new).filter(key => {
+                    const oldValue = normalize((item.old as any)[key]);
+                    const newValue = normalize((item.new as any)[key]);
+                    const isNewValueEmpty = newValue === null;
+
+                    // Only pre-select if the values are different AND the new value is not empty.
+                    // This prevents accidentally clearing data by default.
+                    return oldValue !== newValue && !isNewValueEmpty;
+                });
                 initialSelections[id] = new Set(changedFields);
             });
             setUpdateSelections(initialSelections);

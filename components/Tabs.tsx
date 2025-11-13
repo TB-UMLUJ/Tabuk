@@ -34,7 +34,7 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
                             whitespace-nowrap py-4 px-1 border-b-2 font-semibold text-sm flex items-center gap-2
                             ${
                                 activeTab === tab.id
-                                    ? 'border-primary text-primary dark:border-primary-light dark:text-primary-light'
+                                    ? 'border-accent text-accent dark:border-accent-dark dark:text-accent-dark'
                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'
                             }
                             transition-colors focus:outline-none

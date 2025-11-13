@@ -30,7 +30,7 @@ const categoryIcons: Record<NotificationCategory, React.ReactNode> = {
     transaction: <DocumentDuplicateIcon className="w-5 h-5 text-purple-500" />,
     system: <BellIcon className="w-5 h-5 text-blue-500" />,
     employee: <UserIcon className="w-5 h-5 text-green-500" />,
-    contact: <PhoneIcon className="w-5 h-5 text-brand" />,
+    contact: <PhoneIcon className="w-5 h-5 text-secondary" />,
 };
 
 const NotificationItem: React.FC<NotificationItemProps> = ({ notification }) => {

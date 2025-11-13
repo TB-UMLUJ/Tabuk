@@ -93,7 +93,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
              <div className="absolute top-3 left-3">
                  <button
                     onClick={handleShare}
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary/10 text-secondary transition-all duration-200 transform hover:scale-110 dark:bg-secondary/20 dark:text-secondary-light"
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-accent/10 text-accent transition-all duration-200 transform hover:scale-110 dark:bg-accent/20 dark:text-accent-dark"
                     aria-label="مشاركة بيانات الموظف"
                     title="مشاركة"
                 >
@@ -102,11 +102,11 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
             </div>
 
             <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center border-4 border-gray-100 dark:border-gray-700">
-                <span className="text-xl sm:text-2xl font-bold text-primary dark:text-primary-light">{getInitials(employee.full_name_ar || '')}</span>
+                <span className="text-xl sm:text-2xl font-bold text-brand dark:text-brand-light">{getInitials(employee.full_name_ar || '')}</span>
             </div>
             <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-base text-gray-800 dark:text-white truncate" title={employee.full_name_ar}>{employee.full_name_ar}</h3>
-                <p className="mt-1 text-xs font-semibold inline-block py-1 px-2.5 rounded-full bg-secondary/10 text-secondary-dark dark:bg-secondary/20 dark:text-secondary-light truncate" title={employee.job_title}>{employee.job_title}</p>
+                <p className="mt-1 text-xs font-semibold inline-block py-1 px-2.5 rounded-full bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent-dark truncate" title={employee.job_title}>{employee.job_title}</p>
                 
                 <div className="text-xs text-gray-500 mt-2 space-y-2 dark:text-gray-400">
                     {/* Row 1: Employee ID and Center */}

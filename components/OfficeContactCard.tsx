@@ -124,7 +124,7 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
         <div className="bg-white rounded-xl shadow-md p-3 pb-8 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all relative">
             <div className="flex items-center gap-3">
                 <div className="p-3 bg-gray-200 rounded-lg flex-shrink-0 dark:bg-gray-700">
-                    <BuildingOfficeIcon className="w-5 h-5 text-secondary dark:text-secondary-light" />
+                    <BuildingOfficeIcon className="w-5 h-5 text-accent dark:text-accent-dark" />
                 </div>
                 <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-base text-gray-800 truncate dark:text-white">{contact.name}</h3>
@@ -158,11 +158,11 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
 
             {/* Expanded Menu for Mobile */}
             {isExpanded && (
-                <div className="md:hidden mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-5 gap-1 animate-fade-in text-center">
+                <div className="md:hidden mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-5 gap-1 text-center">
                     <ActionButton onClick={handleCall} title={`اتصال بالرقم ${contact.extension}`} className="text-primary dark:text-inherit hover:bg-primary/10 dark:hover:bg-primary/20">
                         <PhoneIcon className="w-6 h-6" />
                     </ActionButton>
-                     <ActionButton onClick={handleShare} title="مشاركة" className="text-secondary dark:text-inherit hover:bg-secondary/10 dark:hover:bg-secondary/20">
+                     <ActionButton onClick={handleShare} title="مشاركة" className="text-accent dark:text-inherit hover:bg-accent/10 dark:hover:bg-accent/20">
                         <ShareIcon className="w-6 h-6" />
                     </ActionButton>
                     {hasPermission('edit_contacts') && (

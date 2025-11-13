@@ -142,7 +142,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                      <div className="flex items-stretch justify-center gap-3">
                         <button 
                             onClick={handleShare}
-                            className="flex-1 inline-flex items-center gap-2 bg-brand/10 text-brand-dark dark:bg-brand/20 dark:text-brand-light font-bold py-2.5 px-4 rounded-lg hover:bg-brand/20 dark:hover:bg-brand/30 transition-all duration-300 transform hover:-translate-y-0.5 justify-center text-sm"
+                            className="flex-1 inline-flex items-center gap-2 bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent-dark font-bold py-2.5 px-4 rounded-lg hover:bg-accent/20 dark:hover:bg-accent/30 transition-all duration-300 transform hover:-translate-y-0.5 justify-center text-sm"
                         >
                             <ShareIcon className="w-5 h-5" />
                             <span>مشاركة التطبيق</span>

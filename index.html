@@ -7,7 +7,7 @@
     <link rel="icon" href="https://i.ibb.co/zWXjmsRP/2e0622ca-655f-4fdd-99bd43691398.png" type="image/png">
     <link rel="apple-touch-icon" href="https://i.ibb.co/zWXjmsRP/2e0622ca-655f-4fdd-99bd43691398.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#005A9C">
+    <meta name="theme-color" content="#008755">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,35 +25,35 @@
               zain: ['Zain', 'sans-serif'],
             },
             colors: {
-              primary: { // Professional Corporate Blue
-                light: '#EBF5FF',
-                DEFAULT: '#007AFF',
-                dark: '#0056B3',
+              primary: {
+                light: '#E6F3EE',
+                DEFAULT: '#008755',
+                dark: '#006640',
               },
-              secondary: { // Modern Teal
-                light: '#E0F7F6',
-                DEFAULT: '#00A79D',
-                dark: '#008B82',
+              accent: {
+                light: '#E2E1D2',
+                DEFAULT: '#9b945f',
+                dark: '#B5B197',
               },
-              brand: { // For Export and distinct actions
-                light: '#E0F2FE', // sky-100
-                DEFAULT: '#0EA5E9', // sky-500
-                dark: '#0284C7',  // sky-600
+              brand: {
+                light: '#E5F5FF',
+                DEFAULT: '#009ACE',
+                dark: '#0076A2',
               },
-              success: '#48BB78', // Green
-              warning: '#F6AD55', // Amber
-              danger: '#E53E3E', // Red
+              danger: {
+                DEFAULT: '#C8102E',
+              },
               gray: {
-                50: '#F9FAFB',
-                100: '#F3F4F6',
-                200: '#E5E7EB',
-                300: '#D1D5DB',
-                400: '#9CA3AF',
-                500: '#6B7280',
-                600: '#4B5563',
-                700: '#374151',
-                800: '#1F2937', // Card and modal background
-                900: '#111827'  // Main dark background
+                50: '#F7F9FA',
+                100: '#EFF2F3',
+                200: '#DEE3E6',
+                300: '#d1d5db',
+                400: '#9CB7C7',
+                500: '#7E8F99',
+                600: '#4b5563',
+                700: '#454F5B',
+                800: '#212B36',
+                900: '#161C24'
               }
             }
           }
@@ -69,7 +69,7 @@ body {
 }
 
 .dark {
-  background-color: #111827;
+  background-color: #161C24; /* gray-900 */
 }
 
 /* Prevent iOS zoom on focus by ensuring font size is at least 16px */
@@ -124,71 +124,30 @@ textarea::placeholder {
   line-height: 1.25rem;
 }
 
-/* success (Accepted) -> light green */
-.toast-success {
-  background-color: #f0fdf4; /* green-50 */
-  color: #15803d; /* green-700 */
-  border-color: #bbf7d0; /* green-200 */
-}
-.toast-success .toast-icon {
-  color: #22c55e; /* green-500 */
-}
-.dark .toast-success {
-  background-color: rgba(74, 222, 128, 0.1);
-  color: #86efac; /* green-300 */
-  border-color: rgba(74, 222, 128, 0.2);
-}
-.dark .toast-success .toast-icon {
-  color: #4ade80; /* green-400 */
-}
+/* success -> primary */
+.toast-success { background-color: #E6F3EE; color: #006640; border-color: rgba(0, 135, 85, 0.3); }
+.toast-success .toast-icon { color: #008755; }
+.dark .toast-success { background-color: rgba(0, 135, 85, 0.15); color: #64d2a9; border-color: rgba(0, 135, 85, 0.3); }
+.dark .toast-success .toast-icon { color: #33a077; }
 
-/* error/deleted (Declined) -> light red */
-.toast-failed {
-  background-color: #fef2f2; /* red-50 */
-  color: #b91c1c; /* red-700 */
-  border-color: #fecaca; /* red-200 */
-}
-.toast-failed .toast-icon {
-  color: #ef4444; /* red-500 */
-}
-.dark .toast-failed {
-  background-color: rgba(248, 113, 113, 0.1);
-  color: #fca5a5; /* red-300 */
-  border-color: rgba(248, 113, 113, 0.2);
-}
-.dark .toast-failed .toast-icon {
-  color: #f87171; /* red-400 */
-}
+/* error/deleted -> danger */
+.toast-failed { background-color: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+.toast-failed .toast-icon { color: #C8102E; }
+.dark .toast-failed { background-color: rgba(200, 16, 46, 0.1); color: #f38a9c; border-color: rgba(200, 16, 46, 0.2); }
+.dark .toast-failed .toast-icon { color: #e85d75; }
 
-/* warning (Waiting) -> light orange/yellow */
-.toast-pending {
-  background-color: #fffbeb; /* amber-50 */
-  color: #b45309; /* amber-700 */
-  border-color: #fde68a; /* amber-200 */
-}
-.toast-pending .toast-icon {
-  color: #f59e0b; /* amber-500 */
-}
-.dark .toast-pending {
-  background-color: rgba(251, 191, 36, 0.1);
-  color: #fcd34d; /* amber-300 */
-  border-color: rgba(251, 191, 36, 0.2);
-}
-.dark .toast-pending .toast-icon {
-  color: #fbbf24; /* amber-400 */
-}
+/* warning -> yellow */
+.toast-pending { background-color: #fffbeb; color: #b45309; border-color: #fde68a; }
+.toast-pending .toast-icon { color: #f59e0b; }
+.dark .toast-pending { background-color: rgba(245, 158, 11, 0.1); color: #fcd34d; border-color: rgba(245, 158, 11, 0.2); }
+.dark .toast-pending .toast-icon { color: #fbbf24; }
 
-/* info (Added) -> solid blue */
-.toast-submitted {
-  background-color: #2563eb; /* blue-600 */
-  color: white;
-}
-.toast-submitted .toast-icon {
-  color: white;
-}
-.dark .toast-submitted {
-  background-color: #3b82f6; /* blue-500 */
-}
+/* info -> brand */
+.toast-submitted { background-color: #E5F5FF; color: #0076A2; border-color: rgba(0, 154, 206, 0.3); }
+.toast-submitted .toast-icon { color: #009ACE; }
+.dark .toast-submitted { background-color: rgba(0, 154, 206, 0.1); color: #66cff5; border-color: rgba(0, 154, 206, 0.2); }
+.dark .toast-submitted .toast-icon { color: #33b1d8; }
+
 
 /* Default Animations (Mobile First) */
 .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }

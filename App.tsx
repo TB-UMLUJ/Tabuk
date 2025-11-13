@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
@@ -93,8 +94,7 @@ const App: React.FC = () => {
     
     const [importPreview, setImportPreview] = useState<{
         summary: ImportSummary;
-        // FIX: Replaced `any` with a specific union type to provide better type safety and resolve downstream indexing errors.
-        data: { toCreate: any[]; toUpdate: UpdatePreview<Employee | OfficeContact>[] };
+        data: { toCreate: (Omit<Employee, 'id'> | Omit<OfficeContact, 'id'>)[]; toUpdate: UpdatePreview<Employee | OfficeContact>[] };
         validationIssues: ValidationIssue[];
         dataType: 'employees' | 'contacts';
         fileInfo: { name: string; size: number };
@@ -584,7 +584,7 @@ const App: React.FC = () => {
 
             } catch (err: any) {
                 console.error("Import error:", err);
-                addToast('فشل استيراد الملف', 'تأكد من صحة التنسيق وعدم وجود تكرار.', 'error');
+                addToast('فشل استيراد الملف', err.message || 'تأكد من صحة التنسيق وعدم وجود تكرار.', 'error');
             }
         };
         reader.readAsArrayBuffer(file);
@@ -640,6 +640,8 @@ const App: React.FC = () => {
                         (finalRecord as any)[field] = (item.new as any)[field];
                     }
                 });
+                // Set updated_at timestamp for records that are being updated
+                (finalRecord as any).updated_at = new Date().toISOString();
                 return finalRecord;
             }).filter(Boolean) as (Employee[] | OfficeContact[]);
     
@@ -660,7 +662,16 @@ const App: React.FC = () => {
 
             for (let i = 0; i < totalRecords; i += CHUNK_SIZE) {
                 const chunk = dataToUpsert.slice(i, i + CHUNK_SIZE);
-                const { error } = await supabase.from(tableName).upsert(chunk, { onConflict });
+                
+                // For upsert, we should not send 'id' or 'created_at'.
+                // 'id' is auto-generated for new records. The database default is used for 'created_at'.
+                // For updates, 'id' is not needed due to `onConflict`, and we want to preserve the original 'created_at'.
+                const chunkForUpsert = chunk.map(record => {
+                    const { id, created_at, ...rest } = record as any;
+                    return rest;
+                });
+
+                const { error } = await supabase.from(tableName).upsert(chunkForUpsert, { onConflict });
                 if (error) throw error;
                 
                 processedRecords += chunk.length;
@@ -691,7 +702,7 @@ const App: React.FC = () => {
 
         } catch (err: any) {
             console.error("Confirm Import error:", err);
-            addToast('فشل الاستيراد', 'حدث خطأ أثناء حفظ البيانات.', 'error');
+            addToast('فشل الاستيراد', err.message || 'حدث خطأ أثناء حفظ البيانات.', 'error');
         } finally {
             setTimeout(() => {
                 setImportProgress({ isOpen: false, fileName: '', fileSize: 0, progress: 0 });
@@ -813,9 +824,9 @@ const App: React.FC = () => {
                     fileInfo: { name: file.name, size: file.size },
                 });
 
-            } catch (err) {
+            } catch (err: any) {
                 console.error("Import error:", err);
-                addToast('فشل استيراد الملف', 'تأكد من صحة التنسيق وعدم وجود تكرار.', 'error');
+                addToast('فشل استيراد الملف', err.message || 'تأكد من صحة التنسيق وعدم وجود تكرار.', 'error');
             }
         };
         reader.readAsArrayBuffer(file);
