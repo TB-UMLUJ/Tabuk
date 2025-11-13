@@ -16,6 +16,7 @@ export interface Employee {
   date_of_birth?: string;
   classification_id?: string;
   certificates?: Certificate[];
+  documents?: EmployeeDocument[];
 }
 
 export const CertificateTypes = [
@@ -29,6 +30,16 @@ export interface Certificate {
   type: CertificateType;
   custom_name?: string;
   expiry_date?: string; // 'YYYY-MM-DD'
+  file_url?: string;
+  file_name?: string; // path in storage for deletion
+  display_file_name?: string; // original user-facing filename
+  file?: File; // For handling new file uploads in forms
+}
+
+export interface EmployeeDocument {
+  id: string; // Using a UUID for local state management before saving
+  name: string;
+  uploaded_at?: string; // ISO string
   file_url?: string;
   file_name?: string; // path in storage for deletion
   display_file_name?: string; // original user-facing filename

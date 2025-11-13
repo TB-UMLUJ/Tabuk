@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import { Employee, Certificate } from '../types';
+import { Employee, Certificate, EmployeeDocument } from '../types';
 import { 
     EmailIcon, 
     PhoneIcon, 
@@ -18,7 +18,8 @@ import {
     AcademicCapIcon,
     DocumentArrowDownIcon,
     CalendarDaysIcon,
-    ExclamationTriangleIcon
+    ExclamationTriangleIcon,
+    DocumentTextIcon
 } from '../icons/Icons';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -39,9 +40,11 @@ const getInitials = (name: string) => {
 const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, employee, onClose, onEdit, onDelete }) => {
     const { hasPermission } = useAuth();
     const [isClosing, setIsClosing] = useState(false);
+    const [activeTab, setActiveTab] = useState<'info' | 'certificates' | 'documents'>('info');
 
     useEffect(() => {
         if (isOpen) {
+            setActiveTab('info');
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = 'auto';
@@ -184,75 +187,129 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
                         </div>
                     </div>
                     
-                    <div className="border-t border-gray-200 pt-2 grid grid-cols-1 md:grid-cols-2 gap-x-6 dark:border-gray-700">
-                        <InfoRow label="الاسم باللغة العربية" value={employee.full_name_ar} icon={<UserIcon className="w-5 h-5"/>}/>
-                        <InfoRow label="الاسم باللغة الإنجليزية" value={employee.full_name_en} icon={<UserIcon className="w-5 h-5"/>}/>
-                        <InfoRow label="الرقم الوظيفي" value={employee.employee_id} icon={<IdentificationIcon className="w-5 h-5"/>}/>
-                        <InfoRow label="المسمى الوظيفي" value={employee.job_title} icon={<BriefcaseIcon className="w-5 h-5"/>}/>
-                        <InfoRow label="القطاع" value={employee.department} icon={<BuildingOfficeIcon className="w-5 h-5"/>}/>
-                        <InfoRow label="المركز" value={employee.center} icon={<BuildingOfficeIcon className="w-5 h-5"/>}/>
-                        <InfoRow label="رقم الجوال" value={employee.phone_direct} icon={<PhoneIcon className="w-5 h-5"/>} href={`tel:${employee.phone_direct}`} />
-                        <InfoRow label="البريد الإلكتروني" value={employee.email} icon={<EmailIcon className="w-5 h-5"/>} href={isValidEmail(employee.email) ? `mailto:${employee.email}` : undefined} />
-                        <InfoRow label="السجل المدني / الإقامة" value={employee.national_id} icon={<IdentificationIcon className="w-5 h-5"/>}/>
-                        <InfoRow label="الجنسية" value={employee.nationality} icon={<GlobeAltIcon className="w-5 h-5"/>}/>
-                        <InfoRow label="الجنس" value={employee.gender} icon={<UsersIcon className="w-5 h-5"/>}/>
-                        <InfoRow label="تاريخ الميلاد" value={employee.date_of_birth ? new Date(employee.date_of_birth).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' }) : undefined} icon={<CakeIcon className="w-5 h-5"/>}/>
-                        <InfoRow label="رقم التصنيف" value={employee.classification_id} icon={<DocumentCheckIcon className="w-5 h-5"/>}/>
+                    <div className="border-b border-gray-200 dark:border-gray-700 mb-4">
+                        <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+                            <button onClick={() => setActiveTab('info')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-semibold text-sm ${activeTab === 'info' ? 'border-primary text-primary dark:border-primary-light dark:text-primary-light' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}>المعلومات الأساسية</button>
+                            <button onClick={() => setActiveTab('certificates')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-semibold text-sm ${activeTab === 'certificates' ? 'border-primary text-primary dark:border-primary-light dark:text-primary-light' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}>الشهادات</button>
+                            <button onClick={() => setActiveTab('documents')} className={`whitespace-nowrap py-4 px-1 border-b-2 font-semibold text-sm ${activeTab === 'documents' ? 'border-primary text-primary dark:border-primary-light dark:text-primary-light' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}>ملفات الموظف</button>
+                        </nav>
                     </div>
 
-                    <div className="border-t border-gray-200 pt-4 mt-4 dark:border-gray-700">
-                        <h3 className="text-base font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-3">
-                            <AcademicCapIcon className="w-6 h-6 text-primary dark:text-white" />
-                            الشهادات والتراخيص
-                        </h3>
-                        {employee.certificates && employee.certificates.length > 0 ? (
-                            <ul className="space-y-3">
-                                {employee.certificates.map((cert: Certificate) => {
-                                    const isExpired = cert.expiry_date && new Date(cert.expiry_date) < new Date();
-                                    return (
-                                        <li key={cert.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                                            <div className="flex items-center gap-3">
-                                                {/* FIX: The `title` prop is not valid on these custom Icon components. Wrap the icon in a div with a title attribute for the tooltip. */}
-                                                {isExpired ? (
-                                                    <div className="flex-shrink-0" title="منتهية الصلاحية">
-                                                        <ExclamationTriangleIcon className="w-6 h-6 text-red-500" />
+                    <div className="animate-fade-in">
+                        {activeTab === 'info' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                                <InfoRow label="الاسم باللغة العربية" value={employee.full_name_ar} icon={<UserIcon className="w-5 h-5"/>}/>
+                                <InfoRow label="الاسم باللغة الإنجليزية" value={employee.full_name_en} icon={<UserIcon className="w-5 h-5"/>}/>
+                                <InfoRow label="الرقم الوظيفي" value={employee.employee_id} icon={<IdentificationIcon className="w-5 h-5"/>}/>
+                                <InfoRow label="المسمى الوظيفي" value={employee.job_title} icon={<BriefcaseIcon className="w-5 h-5"/>}/>
+                                <InfoRow label="القطاع" value={employee.department} icon={<BuildingOfficeIcon className="w-5 h-5"/>}/>
+                                <InfoRow label="المركز" value={employee.center} icon={<BuildingOfficeIcon className="w-5 h-5"/>}/>
+                                <InfoRow label="رقم الجوال" value={employee.phone_direct} icon={<PhoneIcon className="w-5 h-5"/>} href={`tel:${employee.phone_direct}`} />
+                                <InfoRow label="البريد الإلكتروني" value={employee.email} icon={<EmailIcon className="w-5 h-5"/>} href={isValidEmail(employee.email) ? `mailto:${employee.email}` : undefined} />
+                                <InfoRow label="السجل المدني / الإقامة" value={employee.national_id} icon={<IdentificationIcon className="w-5 h-5"/>}/>
+                                <InfoRow label="الجنسية" value={employee.nationality} icon={<GlobeAltIcon className="w-5 h-5"/>}/>
+                                <InfoRow label="الجنس" value={employee.gender} icon={<UsersIcon className="w-5 h-5"/>}/>
+                                <InfoRow label="تاريخ الميلاد" value={employee.date_of_birth ? new Date(employee.date_of_birth).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' }) : undefined} icon={<CakeIcon className="w-5 h-5"/>}/>
+                                <InfoRow label="رقم التصنيف" value={employee.classification_id} icon={<DocumentCheckIcon className="w-5 h-5"/>}/>
+                            </div>
+                        )}
+                        {activeTab === 'certificates' && (
+                             <div>
+                                <h3 className="text-base font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-3">
+                                    <AcademicCapIcon className="w-6 h-6 text-primary dark:text-white" />
+                                    الشهادات والتراخيص
+                                </h3>
+                                {employee.certificates && employee.certificates.length > 0 ? (
+                                    <ul className="space-y-3">
+                                        {employee.certificates.map((cert: Certificate) => {
+                                            const isExpired = cert.expiry_date && new Date(cert.expiry_date) < new Date();
+                                            return (
+                                                <li key={cert.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                                    <div className="flex items-center gap-3">
+                                                        {isExpired ? (
+                                                            <div className="flex-shrink-0" title="منتهية الصلاحية">
+                                                                <ExclamationTriangleIcon className="w-6 h-6 text-red-500" />
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex-shrink-0" title="سارية">
+                                                                <AcademicCapIcon className="w-6 h-6 text-green-500" />
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <p className="font-bold text-gray-800 dark:text-white">
+                                                                {cert.type === 'Other' ? cert.custom_name : cert.type}
+                                                            </p>
+                                                            {cert.expiry_date && (
+                                                                <p className={`text-sm flex items-center gap-1 ${isExpired ? 'text-red-500 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                                    <CalendarDaysIcon className="w-4 h-4" />
+                                                                    تنتهي في: {new Date(cert.expiry_date).toLocaleDateString('ar-SA')}
+                                                                </p>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                ) : (
-                                                    <div className="flex-shrink-0" title="سارية">
-                                                        <AcademicCapIcon className="w-6 h-6 text-green-500" />
-                                                    </div>
-                                                )}
-                                                <div>
-                                                    <p className="font-bold text-gray-800 dark:text-white">
-                                                        {cert.type === 'Other' ? cert.custom_name : cert.type}
-                                                    </p>
-                                                    {cert.expiry_date && (
-                                                        <p className={`text-sm flex items-center gap-1 ${isExpired ? 'text-red-500 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
-                                                            <CalendarDaysIcon className="w-4 h-4" />
-                                                            تنتهي في: {new Date(cert.expiry_date).toLocaleDateString('ar-SA')}
-                                                        </p>
+                                                    {cert.file_url && (
+                                                        <a 
+                                                            href={cert.file_url} 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors dark:text-white dark:hover:bg-white/10"
+                                                            title={`تحميل ملف: ${cert.display_file_name || cert.type}`}
+                                                        >
+                                                            <DocumentArrowDownIcon className="w-6 h-6" />
+                                                        </a>
                                                     )}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                ) : (
+                                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                                        لا توجد شهادات مسجلة لهذا الموظف.
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                        {activeTab === 'documents' && (
+                            <div>
+                                <h3 className="text-base font-semibold text-gray-800 dark:text-white flex items-center gap-2 mb-3">
+                                    <DocumentTextIcon className="w-6 h-6 text-primary dark:text-white" />
+                                    ملفات الموظف
+                                </h3>
+                                {employee.documents && employee.documents.length > 0 ? (
+                                    <ul className="space-y-3">
+                                        {employee.documents.map((doc: EmployeeDocument) => (
+                                            <li key={doc.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                                <div className="flex items-center gap-3">
+                                                    <DocumentTextIcon className="w-6 h-6 text-gray-500" />
+                                                    <div>
+                                                        <p className="font-bold text-gray-800 dark:text-white">
+                                                            {doc.name}
+                                                        </p>
+                                                         <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                            {doc.uploaded_at ? `تاريخ الرفع: ${new Date(doc.uploaded_at).toLocaleDateString('ar-SA')}` : ''}
+                                                         </p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            {cert.file_url && (
-                                                <a 
-                                                    href={cert.file_url} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors dark:text-white dark:hover:bg-white/10"
-                                                    title={`تحميل ملف: ${cert.display_file_name || cert.type}`}
-                                                >
-                                                    <DocumentArrowDownIcon className="w-6 h-6" />
-                                                </a>
-                                            )}
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        ) : (
-                            <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-                                لا توجد شهادات مسجلة لهذا الموظف.
-                            </p>
+                                                {doc.file_url && (
+                                                    <a 
+                                                        href={doc.file_url} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors dark:text-white dark:hover:bg-white/10"
+                                                        title={`تحميل ملف: ${doc.display_file_name || doc.name}`}
+                                                    >
+                                                        <DocumentArrowDownIcon className="w-6 h-6" />
+                                                    </a>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                                        لا توجد ملفات مرفوعة لهذا الموظف.
+                                    </p>
+                                )}
+                            </div>
                         )}
                     </div>
                 </div>

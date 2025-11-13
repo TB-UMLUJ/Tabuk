@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { ImportSummary, ValidationIssue, UpdatePreview, UpdateSelection, Employee, OfficeContact } from '../types';
@@ -124,7 +125,8 @@ const UpdateCard: React.FC<{
                                 <div className={`font-semibold py-2 ${isChanged ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`}>{fieldLabels[field as keyof typeof fieldLabels] || field}</div>
                                 <div className={`py-2 truncate ${isChanged ? 'text-gray-800 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}`} title={oldValue || undefined}>{oldValue || '-'}</div>
                                 <div className={`py-2 truncate flex items-center gap-2 ${isChanged ? 'bg-yellow-50 dark:bg-yellow-900/30 rounded px-2' : ''}`} title={newValue || undefined}>
-                                    {willClearData && <ExclamationTriangleIcon className="w-4 h-4 text-amber-500 flex-shrink-0" title="سيؤدي هذا إلى مسح البيانات الموجودة" />}
+                                    {/* FIX: Moved title prop to a wrapping span to fix TypeScript error. */}
+                                    {willClearData && <span title="سيؤدي هذا إلى مسح البيانات الموجودة"><ExclamationTriangleIcon className="w-4 h-4 text-amber-500 flex-shrink-0" /></span>}
                                     <span className={willClearData ? 'italic text-gray-500' : ''}>{newValue || '-'}</span>
                                 </div>
                                 <div className="py-2 flex justify-center">

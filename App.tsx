@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
-import { Employee, OfficeContact, Task, Transaction, User, TransactionStatus, ImportSummary, ValidationIssue, UpdatePreview, UpdateSelection, Certificate } from './types';
+import { Employee, OfficeContact, Task, Transaction, User, TransactionStatus, ImportSummary, ValidationIssue, UpdatePreview, UpdateSelection, Certificate, EmployeeDocument } from './types';
 import Header from './components/Header';
 import SearchAndFilter, { SearchAndFilterRef } from './components/SearchAndFilter';
 import EmployeeList from './components/EmployeeList';
@@ -310,16 +310,17 @@ const App: React.FC = () => {
         const isEditing = !!employeeData.id;
         
         try {
-            const { certificates, ...restOfEmployeeData } = employeeData;
+            const { certificates, documents, ...restOfEmployeeData } = employeeData;
             
+            // --- Certificate Processing ---
             let processedCertificates: Omit<Certificate, 'file'>[] = [];
-            const filesToDelete: string[] = [];
+            const certFilesToDelete: string[] = [];
     
             if (isEditing && employeeToEdit?.certificates) {
                 const newCertIds = new Set(certificates?.map(c => c.id));
                 employeeToEdit.certificates.forEach(oldCert => {
                     if (oldCert.id && !newCertIds.has(oldCert.id) && oldCert.file_name) {
-                        filesToDelete.push(oldCert.file_name);
+                        certFilesToDelete.push(oldCert.file_name);
                     }
                 });
             }
@@ -331,46 +332,80 @@ const App: React.FC = () => {
                         if (isEditing && cert.id && employeeToEdit?.certificates) {
                             const oldCert = employeeToEdit.certificates.find(c => c.id === cert.id);
                             if (oldCert?.file_name) {
-                                filesToDelete.push(oldCert.file_name);
+                                certFilesToDelete.push(oldCert.file_name);
                             }
                         }
-    
                         const fileExt = file.name.split('.').pop();
                         const randomName = `${crypto.randomUUID()}.${fileExt}`;
-                        const filePath = `${currentUser?.user_id || 'public'}/${restOfEmployeeData.employee_id || 'new'}/${randomName}`;
+                        const filePath = `${currentUser?.user_id || 'public'}/${restOfEmployeeData.employee_id || 'new'}/certificates/${randomName}`;
     
-                        const { data: uploadData, error: uploadError } = await supabase.storage
-                            .from('certificates')
-                            .upload(filePath, file);
-    
-                        if (uploadError) {
-                            throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
-                        }
-    
+                        const { data: uploadData, error: uploadError } = await supabase.storage.from('certificates').upload(filePath, file);
+                        if (uploadError) throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
                         const { data: urlData } = supabase.storage.from('certificates').getPublicUrl(uploadData.path);
     
-                        return {
-                            ...certData,
-                            file_url: urlData.publicUrl,
-                            file_name: filePath,
-                            display_file_name: file.name,
-                        };
+                        return { ...certData, file_url: urlData.publicUrl, file_name: filePath, display_file_name: file.name };
                     }
                     return certData;
                 }));
             }
     
-            if (filesToDelete.length > 0) {
-                const { error: deleteError } = await supabase.storage.from('certificates').remove(filesToDelete);
-                if (deleteError) {
-                    console.error('Failed to delete old certificate files:', deleteError);
-                    addToast('فشل حذف المرفقات القديمة', 'قد تبقى بعض الملفات القديمة في المخزن.', 'warning');
+            if (certFilesToDelete.length > 0) {
+                const { error } = await supabase.storage.from('certificates').remove(certFilesToDelete);
+                if (error) {
+                    console.error('Failed to delete old certificate files:', error);
+                    addToast('فشل حذف المرفقات القديمة', 'قد تبقى بعض الشهادات القديمة في المخزن.', 'warning');
+                }
+            }
+            
+            // --- Document Processing ---
+            let processedDocuments: Omit<EmployeeDocument, 'file'>[] = [];
+            const docFilesToDelete: string[] = [];
+
+            if (isEditing && employeeToEdit?.documents) {
+                const newDocIds = new Set(documents?.map(d => d.id));
+                employeeToEdit.documents.forEach(oldDoc => {
+                    if (oldDoc.id && !newDocIds.has(oldDoc.id) && oldDoc.file_name) {
+                        docFilesToDelete.push(oldDoc.file_name);
+                    }
+                });
+            }
+
+            if (documents && documents.length > 0) {
+                processedDocuments = await Promise.all(documents.map(async (doc) => {
+                    const { file, ...docData } = doc;
+                    if (file instanceof File) {
+                        if (isEditing && doc.id && employeeToEdit?.documents) {
+                            const oldDoc = employeeToEdit.documents.find(d => d.id === doc.id);
+                            if (oldDoc?.file_name) {
+                                docFilesToDelete.push(oldDoc.file_name);
+                            }
+                        }
+                        const fileExt = file.name.split('.').pop();
+                        const randomName = `${crypto.randomUUID()}.${fileExt}`;
+                        const filePath = `${currentUser?.user_id || 'public'}/${restOfEmployeeData.employee_id || 'new'}/${randomName}`;
+
+                        const { data: uploadData, error: uploadError } = await supabase.storage.from('employee-documents').upload(filePath, file);
+                        if (uploadError) throw new Error(`Failed to upload document ${file.name}: ${uploadError.message}`);
+                        const { data: urlData } = supabase.storage.from('employee-documents').getPublicUrl(uploadData.path);
+
+                        return { ...docData, file_url: urlData.publicUrl, file_name: filePath, display_file_name: file.name, uploaded_at: new Date().toISOString() };
+                    }
+                    return { ...docData, uploaded_at: docData.uploaded_at || new Date().toISOString() };
+                }));
+            }
+
+            if (docFilesToDelete.length > 0) {
+                const { error } = await supabase.storage.from('employee-documents').remove(docFilesToDelete);
+                 if (error) {
+                    console.error('Failed to delete old document files:', error);
+                    addToast('فشل حذف الملفات القديمة', 'قد تبقى بعض الملفات القديمة في المخزن.', 'warning');
                 }
             }
     
             const dataWithTimestamp = {
                 ...restOfEmployeeData,
                 certificates: processedCertificates,
+                documents: processedDocuments,
                 updated_at: new Date().toISOString()
             };
             
@@ -400,24 +435,27 @@ const App: React.FC = () => {
     const handleDeleteEmployee = async (employee: Employee) => {
         requestConfirmation(
             'تأكيد الحذف',
-            `هل أنت متأكد من رغبتك في حذف الموظف "${employee.full_name_ar}"؟ سيتم حذف جميع شهاداته المرتبطة. لا يمكن التراجع عن هذا الإجراء.`,
+            `هل أنت متأكد من رغبتك في حذف الموظف "${employee.full_name_ar}"؟ سيتم حذف جميع الشهادات والملفات المرتبطة. لا يمكن التراجع عن هذا الإجراء.`,
             async () => {
-                // First, delete associated certificate files from storage
+                // Delete certificate files
                 if (employee.certificates && employee.certificates.length > 0) {
-                    const filePaths = employee.certificates
-                        .map(cert => cert.file_name)
-                        .filter((fileName): fileName is string => !!fileName);
-                    
-                    if (filePaths.length > 0) {
-                        const { error: storageError } = await supabase.storage.from('certificates').remove(filePaths);
-                        if (storageError) {
-                            console.error("Error deleting certificate files:", storageError);
-                            addToast('فشل حذف المرفقات', 'لم نتمكن من حذف ملفات الشهادات المرتبطة.', 'warning');
-                        }
+                    const certFilePaths = employee.certificates.map(cert => cert.file_name).filter(Boolean) as string[];
+                    if (certFilePaths.length > 0) {
+                        const { error } = await supabase.storage.from('certificates').remove(certFilePaths);
+                        if (error) console.error("Error deleting certificate files:", error);
+                    }
+                }
+                
+                // Delete document files
+                if (employee.documents && employee.documents.length > 0) {
+                    const docFilePaths = employee.documents.map(doc => doc.file_name).filter(Boolean) as string[];
+                    if (docFilePaths.length > 0) {
+                         const { error } = await supabase.storage.from('employee-documents').remove(docFilePaths);
+                        if (error) console.error("Error deleting document files:", error);
                     }
                 }
 
-                // Then, delete the employee record
+                // Delete the employee record
                 const { error } = await supabase.from('employees').delete().eq('id', employee.id);
                 if (error) {
                     addToast('فشل حذف الموظف', error.message, 'error');
@@ -425,7 +463,7 @@ const App: React.FC = () => {
                     logActivity(currentUser, 'DELETE_EMPLOYEE', { employeeId: employee.id, employeeName: employee.full_name_ar });
                     addToast('تم حذف الموظف بنجاح', '', 'deleted');
                 }
-                setSelectedEmployee(null); // Close profile modal after deletion
+                setSelectedEmployee(null);
             }
         );
     };

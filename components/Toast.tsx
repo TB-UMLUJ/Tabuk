@@ -8,6 +8,7 @@ const iconMap: Record<ToastMessage['type'], React.ReactNode> = {
     warning: <ClockIcon className="toast-icon" />,
     info: <CheckCircleIcon className="toast-icon" />,
     deleted: <XCircleIcon className="toast-icon" />,
+    scan_success: <CheckCircleIcon className="toast-icon" />,
 };
 
 const typeClassMap: Record<ToastMessage['type'], string> = {
@@ -16,6 +17,7 @@ const typeClassMap: Record<ToastMessage['type'], string> = {
     warning: 'toast-pending',
     info: 'toast-submitted',
     deleted: 'toast-failed',
+    scan_success: 'toast-scan-success',
 };
 
 interface ToastProps {
