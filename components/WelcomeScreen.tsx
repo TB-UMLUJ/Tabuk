@@ -71,7 +71,7 @@ const WelcomeScreen: React.FC<{ currentUser: User | null }> = ({ currentUser }) 
                 <img
                     src={logos.mainLogoUrl}
                     alt="شعار تجمع تبوك الصحي"
-                    className="w-32 sm:w-36 h-auto"
+                    className="w-40 sm:w-48 h-auto"
                 />
             </div>
             

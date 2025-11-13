@@ -13,29 +13,8 @@ const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).slice(0, 2).join('');
 };
 
-const formatTimestamp = (isoString?: string): string | null => {
-    if (!isoString) return null;
-    try {
-        const date = new Date(isoString);
-        if (isNaN(date.getTime())) return null;
-
-        const datePart = date.toLocaleDateString('en-CA'); // Gets YYYY-MM-DD format
-        const timePart = date.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
-
-        return `${datePart} | ${timePart}`;
-    } catch (e) {
-        return null;
-    }
-};
-
-
 const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
     const { addToast } = useToast();
-    const lastUpdate = formatTimestamp(employee.updated_at || employee.created_at);
 
     const handleShare = async (e: React.MouseEvent) => {
         e.stopPropagation(); // Prevent modal from opening
@@ -88,7 +67,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
     return (
         <div 
             onClick={onSelect} 
-            className="bg-white rounded-xl shadow-md p-3 pb-10 flex items-start gap-3 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative group dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+            className="bg-white rounded-xl shadow-md p-3 flex items-start gap-3 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative group dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
         >
              <div className="absolute top-3 left-3">
                  <button
@@ -152,11 +131,6 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
                     )}
                 </div>
             </div>
-            {lastUpdate && (
-                <p className="absolute bottom-2 left-4 text-[10px] text-gray-400 dark:text-gray-500" dir="ltr">
-                    Last Update: {lastUpdate}
-                </p>
-            )}
         </div>
     );
 };

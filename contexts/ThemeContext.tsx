@@ -6,6 +6,7 @@ type Theme = 'light' | 'dark';
 interface AppSettings {
     mainLogoUrl: string;
     headerLogoUrl: string;
+    loginLogoUrl: string;
 }
 
 interface ThemeContextType {
@@ -15,10 +16,12 @@ interface ThemeContextType {
 }
 
 const defaultLogos: AppSettings = {
-    // Fallback logo used for login, welcome, and about screens if database fetch fails.
+    // Fallback logo used for welcome, and about screens if database fetch fails.
     mainLogoUrl: 'https://c.top4top.io/p_35899m4de1.png',
     // Fallback logo used for the main app header if database fetch fails.
     headerLogoUrl: 'https://i.ibb.co/7bQ07Pz/sgh-logo.png',
+    // Fallback for login screen logo. Will be same as main logo by default.
+    loginLogoUrl: 'https://c.top4top.io/p_35899m4de1.png',
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -64,12 +67,19 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             if(data) {
                 const mainLogo = data.find(l => l.name === 'main_logo');
                 const headerLogo = data.find(l => l.name === 'header_logo');
+                const loginLogo = data.find(l => l.name === 'health_holding');
 
                 if (mainLogo?.image_url) {
                     fetchedLogos.mainLogoUrl = mainLogo.image_url;
                 }
                 if (headerLogo?.image_url) {
                     fetchedLogos.headerLogoUrl = headerLogo.image_url;
+                }
+                if (loginLogo?.image_url) {
+                    fetchedLogos.loginLogoUrl = loginLogo.image_url;
+                } else if (mainLogo?.image_url) {
+                    // If health_holding logo is not found, fallback to main_logo for login.
+                    fetchedLogos.loginLogoUrl = mainLogo.image_url;
                 }
             }
             setLogos(fetchedLogos);

@@ -77,8 +77,8 @@ const LoginScreen: React.FC = () => {
             </div>
             <div className="w-full max-w-md mx-auto">
                 <img
-                    src={logos.mainLogoUrl}
-                    alt="شعار تجمع تبوك الصحي"
+                    src={logos.loginLogoUrl}
+                    alt="شعار الشركة الصحية القابضة"
                     className="w-56 h-auto mx-auto mb-10"
                 />
                 <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 dark:bg-gray-800/80 dark:backdrop-blur-sm dark:border dark:border-gray-700">
@@ -146,7 +146,7 @@ const LoginScreen: React.FC = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-accent text-white font-bold py-2.5 px-4 rounded-lg hover:from-primary-dark hover:to-accent-dark transition-all duration-300 transform hover:scale-105 shadow-lg shadow-primary/30 dark:shadow-lg dark:shadow-primary/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold py-2.5 px-4 rounded-lg hover:bg-primary-dark transition-all duration-300 transform hover:scale-105 shadow-lg shadow-primary/30 dark:shadow-lg dark:shadow-primary/20 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? 'جاري الدخول...' : 'تسجيل الدخول'}
                             {!isSubmitting && <ArrowRightOnRectangleIcon className="h-5 w-5" />}
