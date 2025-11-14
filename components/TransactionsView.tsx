@@ -1,6 +1,5 @@
-
 import React, { useState, useMemo, useRef } from 'react';
-import { Transaction } from '../types';
+import { Transaction, TransactionStatus } from '../types';
 import TransactionCard from './TransactionCard';
 import { SearchIcon, ArrowUpTrayIcon, ArrowDownTrayIcon, PlusIcon } from '../icons/Icons';
 import { useAuth } from '../contexts/AuthContext';
@@ -30,13 +29,27 @@ const TransactionsView: React.FC<TransactionsViewProps> = ({
     const { hasPermission } = useAuth();
 
     const filteredTransactions = useMemo(() => {
+        const statusOrder: Record<TransactionStatus, number> = {
+            new: 0,
+            inProgress: 1,
+            followedUp: 2,
+            completed: 3,
+        };
+
         return transactions
             .filter(t => {
                 return searchTerm === '' ||
                     t.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     t.transaction_number.toLowerCase().includes(searchTerm.toLowerCase());
             })
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            .sort((a, b) => {
+                const statusComparison = statusOrder[a.status] - statusOrder[b.status];
+                if (statusComparison !== 0) {
+                    return statusComparison;
+                }
+                // If statuses are the same, sort by date (newest first)
+                return new Date(b.date).getTime() - new Date(a.date).getTime();
+            });
     }, [transactions, searchTerm]);
 
 
@@ -61,17 +74,17 @@ const TransactionsView: React.FC<TransactionsViewProps> = ({
                         {hasPermission('add_transaction') && (
                             <button 
                                 onClick={onAddTransaction} 
-                                className="p-2.5 rounded-lg flex-1 sm:flex-none flex items-center justify-center transition-all duration-200 font-semibold bg-primary text-white hover:bg-primary-dark transform hover:-translate-y-0.5"
+                                className="btn btn-primary flex-1 sm:flex-none gap-2"
                                 title="إضافة معاملة جديدة"
                             >
-                                <PlusIcon className="h-5 w-5 ml-2" /> إضافة
+                                <PlusIcon className="h-5 w-5" /> <span className="hidden sm:inline">إضافة</span>
                             </button>
                         )}
-                        <button onClick={onImportClick} className="p-2.5 rounded-lg flex-1 sm:flex-none flex items-center justify-center transition-all duration-200 font-semibold bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary/20 dark:text-primary-light dark:hover:bg-primary/30 transform hover:-translate-y-0.5">
-                            <ArrowUpTrayIcon className="h-5 w-5 ml-2" /> <span className="hidden sm:inline">استيراد</span>
+                        <button onClick={onImportClick} className="btn btn-muted flex-1 sm:flex-none gap-2">
+                            <ArrowUpTrayIcon className="h-5 w-5" /> <span className="hidden sm:inline">استيراد</span>
                         </button>
-                        <button onClick={onExportClick} className="p-2.5 rounded-lg flex-1 sm:flex-none flex items-center justify-center transition-all duration-200 font-semibold bg-accent/10 text-accent hover:bg-accent/20 dark:bg-accent/20 dark:text-accent-dark dark:hover:bg-accent/30 transform hover:-translate-y-0.5">
-                            <ArrowDownTrayIcon className="h-5 w-5 ml-2" /> <span className="hidden sm:inline">تصدير</span>
+                        <button onClick={onExportClick} className="btn btn-secondary flex-1 sm:flex-none gap-2">
+                            <ArrowDownTrayIcon className="h-5 w-5" /> <span className="hidden sm:inline">تصدير</span>
                         </button>
                     </div>
                 </div>

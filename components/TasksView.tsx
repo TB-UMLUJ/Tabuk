@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useMemo, useRef } from 'react';
 import { Task } from '../types';
 import TaskCard from './TaskCard';
@@ -75,17 +72,17 @@ const TasksView: React.FC<TasksViewProps> = ({ tasks, onAddTask, onToggleComplet
                         {hasPermission('add_task') && (
                             <button 
                                 onClick={onAddTask} 
-                                className="p-2.5 rounded-lg flex-1 sm:flex-none flex items-center justify-center transition-all duration-200 font-semibold bg-primary text-white hover:bg-primary-dark transform hover:-translate-y-0.5"
+                                className="btn btn-primary flex-1 sm:flex-none gap-2"
                                 title="إضافة مهمة جديدة"
                             >
-                                <PlusIcon className="h-5 w-5 ml-2" /> إضافة
+                                <PlusIcon className="h-5 w-5" /> <span className="hidden sm:inline">إضافة</span>
                             </button>
                         )}
-                        <button onClick={onImportClick} className="p-2.5 rounded-lg flex-1 sm:flex-none flex items-center justify-center transition-all duration-200 font-semibold bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary/20 dark:text-primary-light dark:hover:bg-primary/30 transform hover:-translate-y-0.5">
-                            <ArrowUpTrayIcon className="h-5 w-5 ml-2" /> <span className="hidden sm:inline">استيراد</span>
+                        <button onClick={onImportClick} className="btn btn-muted flex-1 sm:flex-none gap-2">
+                            <ArrowUpTrayIcon className="h-5 w-5" /> <span className="hidden sm:inline">استيراد</span>
                         </button>
-                        <button onClick={onExportClick} className="p-2.5 rounded-lg flex-1 sm:flex-none flex items-center justify-center transition-all duration-200 font-semibold bg-secondary/10 text-secondary-dark hover:bg-secondary/20 dark:bg-secondary/20 dark:text-secondary-light dark:hover:bg-secondary/30 transform hover:-translate-y-0.5">
-                            <ArrowDownTrayIcon className="h-5 w-5 ml-2" /> <span className="hidden sm:inline">تصدير</span>
+                        <button onClick={onExportClick} className="btn btn-secondary flex-1 sm:flex-none gap-2">
+                            <ArrowDownTrayIcon className="h-5 w-5" /> <span className="hidden sm:inline">تصدير</span>
                         </button>
                     </div>
                 </div>

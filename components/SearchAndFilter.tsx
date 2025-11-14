@@ -75,37 +75,37 @@ const SearchAndFilter = forwardRef<SearchAndFilterRef, SearchAndFilterProps>(({
                     {hasPermission('edit_employees') && (
                          <button
                             onClick={onAddEmployeeClick}
-                            className="p-2 rounded-lg flex-1 sm:flex-none flex items-center justify-center transition-all duration-200 font-semibold bg-primary text-white hover:bg-primary-dark transform hover:-translate-y-0.5"
+                            className="btn btn-primary flex-1 sm:flex-none gap-2"
                             title="إضافة موظف جديد"
                         >
-                            <UserPlusIcon className="h-5 w-5 ml-2" />
-                            إضافة
+                            <UserPlusIcon className="h-5 w-5" />
+                            <span className="hidden sm:inline">إضافة</span>
                         </button>
                     )}
                     <button
                         onClick={onSortClick}
-                        className="p-2 rounded-lg flex-1 sm:flex-none flex items-center justify-center transition-all duration-200 font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transform hover:-translate-y-0.5"
+                        className="btn btn-secondary flex-1 sm:flex-none gap-2"
                         title="فرز متقدم"
                     >
-                        <ArrowsUpDownIcon className="h-5 w-5 ml-2" />
+                        <ArrowsUpDownIcon className="h-5 w-5" />
                         <span className="hidden sm:inline">فرز</span>
                     </button>
                     {hasPermission('import_export_employees') && (
                        <>
                          <button
                             onClick={onImportClick}
-                            className="p-2 rounded-lg flex-1 sm:flex-none flex items-center justify-center transition-all duration-200 font-semibold bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary/20 dark:text-primary-light dark:hover:bg-primary/30 transform hover:-translate-y-0.5"
+                            className="btn btn-muted flex-1 sm:flex-none gap-2"
                             title="استيراد الموظفين من ملف Excel"
                         >
-                            <ArrowUpTrayIcon className="h-5 w-5 ml-2" />
+                            <ArrowUpTrayIcon className="h-5 w-5" />
                             <span className="hidden sm:inline">استيراد</span>
                         </button>
                         <button
                             onClick={onExportClick}
-                            className="p-2 rounded-lg flex-1 sm:flex-none flex items-center justify-center transition-all duration-200 font-semibold bg-accent/10 text-accent hover:bg-accent/20 dark:bg-accent/20 dark:text-accent-dark dark:hover:bg-accent/30 transform hover:-translate-y-0.5"
+                            className="btn btn-secondary flex-1 sm:flex-none gap-2"
                             title="تصدير النتائج الحالية"
                         >
-                            <ArrowDownTrayIcon className="h-5 w-5 ml-2" />
+                            <ArrowDownTrayIcon className="h-5 w-5" />
                             <span className="hidden sm:inline">تصدير</span>
                         </button>
                        </>

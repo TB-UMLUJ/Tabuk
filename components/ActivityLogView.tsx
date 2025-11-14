@@ -128,7 +128,7 @@ const ActivityLogView: React.FC = () => {
                 if (error) throw error;
                 setUsers(data || []);
             } catch (error: any) {
-                addToast('خطأ', 'فشل في جلب قائمة المستخدمين للفرز.', 'error');
+                addToast('خطأ', `فشل جلب المستخدمين: ${error.message}`, 'error');
             }
         };
         fetchUsers();
@@ -152,7 +152,7 @@ const ActivityLogView: React.FC = () => {
                 if (error) throw error;
                 setLogs(data || []);
             } catch (error: any) {
-                addToast('خطأ', 'فشل في تحميل سجل النشاطات.', 'error');
+                addToast('خطأ', `فشل تحميل السجل: ${error.message}`, 'error');
             } finally {
                 setLoading(false);
             }

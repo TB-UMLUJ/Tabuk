@@ -111,11 +111,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ isOpen, onClose, onSave, ta
                         </div>
                         
                         <div className="mt-8 flex justify-end gap-3">
-                            <button type="button" onClick={handleClose} className="bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-lg hover:bg-gray-300 transition-all duration-200 transform hover:-translate-y-0.5 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500">
+                            <button type="button" onClick={handleClose} className="btn btn-secondary">
                                 إلغاء
                             </button>
-                            <button type="submit" className="bg-primary text-white font-semibold py-2 px-6 rounded-lg hover:bg-primary-dark transition-all duration-200 transform hover:-translate-y-0.5">
-                                {isEditMode ? 'حفظ التغييرات' : 'إضافة المهمة'}
+                            <button type="submit" className="btn btn-primary">
+                                {isEditMode ? 'حفظ' : 'إضافة'}
                             </button>
                         </div>
                     </form>

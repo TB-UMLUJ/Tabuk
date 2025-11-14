@@ -114,7 +114,7 @@ const AddPolicyModal: React.FC<AddPolicyModalProps> = ({ isOpen, onClose, onSave
 
             const savedPolicy = data as Policy;
             const action = isEditMode ? 'UPDATE_POLICY' : 'CREATE_POLICY';
-            logActivity(currentUser, action, { policyId: savedPolicy.id, policyTitle: savedPolicy.title });
+            await logActivity(currentUser, action, { policyId: savedPolicy.id, policyTitle: savedPolicy.title });
 
             addToast(`تم ${isEditMode ? 'تحديث' : 'إضافة'} السياسة بنجاح`, '', 'success');
             onSaveSuccess();

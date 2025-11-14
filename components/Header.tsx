@@ -19,20 +19,20 @@ const Header: React.FC<HeaderProps> = ({ onOpenSettings, onOpenGlobalSearch }) =
                 <div className="flex items-center gap-2">
                      <button
                         onClick={onOpenGlobalSearch}
-                        className="p-2.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-all duration-200 transform hover:-translate-y-0.5 dark:text-gray-400 dark:hover:bg-gray-700"
+                        className="btn btn-icon btn-secondary"
                         title="بحث شامل"
                         aria-label="بحث شامل"
                     >
-                        <SearchIcon className="h-6 w-6" />
+                        <SearchIcon />
                     </button>
                     <ThemeToggle />
                     <button
                         onClick={onOpenSettings}
-                        className="p-2.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-all duration-200 transform hover:-translate-y-0.5 dark:text-gray-400 dark:hover:bg-gray-700"
+                        className="btn btn-icon btn-secondary"
                         title="الإعدادات"
                         aria-label="الإعدادات"
                     >
-                        <AdjustmentsVerticalIcon className="h-6 w-6" />
+                        <AdjustmentsVerticalIcon />
                     </button>
                 </div>
             </div>

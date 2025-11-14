@@ -18,8 +18,8 @@ export const useToasts = () => {
 
   const addToast = useCallback((title: string, message: string, type: ToastType = 'info') => {
     const id = Date.now() + Math.random();
-    // Add new toasts to the beginning of the array to show them on top
-    setToasts(currentToasts => [{ id, title, message, type }, ...currentToasts]);
+    // Append new toasts to the list, allowing multiple to be displayed.
+    setToasts(prevToasts => [...prevToasts, { id, title, message, type }]);
   }, []);
 
   return { toasts, addToast, removeToast };

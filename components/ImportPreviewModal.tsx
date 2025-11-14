@@ -263,11 +263,11 @@ const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({ isOpen, onClose
                 </div>
 
                 <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3 flex-shrink-0">
-                    <button onClick={handleClose} disabled={isProcessing} className="bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 disabled:opacity-50">
+                    <button onClick={handleClose} disabled={isProcessing} className="btn btn-secondary disabled:opacity-50">
                         إلغاء
                     </button>
-                    <button onClick={() => onConfirm(updateSelections)} disabled={isProcessing} className="bg-primary text-white font-semibold py-2 px-6 rounded-lg hover:bg-primary-dark disabled:opacity-50 disabled:cursor-wait">
-                        {isProcessing ? 'جاري المعالجة...' : 'تأكيد الاستيراد'}
+                    <button onClick={() => onConfirm(updateSelections)} disabled={isProcessing} className="btn btn-primary disabled:opacity-50 disabled:cursor-wait">
+                        {isProcessing ? 'جاري المعالجة...' : 'تأكيد'}
                     </button>
                 </div>
             </div>

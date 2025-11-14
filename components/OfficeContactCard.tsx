@@ -18,30 +18,10 @@ interface OfficeContactCardProps {
     onDelete: () => void;
 }
 
-const formatTimestamp = (isoString?: string): string | null => {
-    if (!isoString) return null;
-    try {
-        const date = new Date(isoString);
-        if (isNaN(date.getTime())) return null;
-
-        const datePart = date.toLocaleDateString('en-CA'); // Gets YYYY-MM-DD format
-        const timePart = date.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
-
-        return `${datePart} | ${timePart}`;
-    } catch (e) {
-        return null;
-    }
-};
-
 const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, onDelete }) => {
     const { addToast } = useToast();
     const { hasPermission } = useAuth();
     const [isExpanded, setIsExpanded] = useState(false);
-    const lastUpdate = formatTimestamp(contact.updated_at || contact.created_at);
 
     const handleCall = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -55,7 +35,7 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
                     .then(() => addToast('تم نسخ البريد الإلكتروني', '', 'info'))
                     .catch(err => {
                         console.error('Failed to copy email:', err);
-                        addToast('خطأ', 'فشل نسخ البريد الإلكتروني', 'error');
+                        addToast('خطأ', `فشل نسخ البريد الإلكتروني: ${err.message}`, 'error');
                     });
             } else {
                 window.location.href = `mailto:${contact.email}`;
@@ -90,9 +70,9 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
             try {
                 await navigator.clipboard.writeText(shareText);
                 addToast('تم نسخ بيانات جهة الاتصال', '', 'info');
-            } catch (err) {
+            } catch (err: any) {
                 console.error('Failed to copy: ', err);
-                addToast('خطأ', 'فشل نسخ البيانات', 'error');
+                addToast('خطأ', `فشل نسخ البيانات: ${err.message}`, 'error');
             }
         }
     };
@@ -121,7 +101,7 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
     );
 
     return (
-        <div className="bg-white rounded-xl shadow-md p-3 pb-8 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all relative">
+        <div className="bg-white rounded-xl shadow-md p-3 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:scale-[1.03] relative">
             <div className="flex items-center gap-3">
                 <div className="p-3 bg-gray-200 rounded-lg flex-shrink-0 dark:bg-gray-700">
                     <BuildingOfficeIcon className="w-5 h-5 text-accent dark:text-accent-dark" />
@@ -159,10 +139,10 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
             {/* Expanded Menu for Mobile */}
             {isExpanded && (
                 <div className="md:hidden mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-5 gap-1 text-center">
-                    <ActionButton onClick={handleCall} title={`اتصال بالرقم ${contact.extension}`} className="text-primary dark:text-inherit hover:bg-primary/10 dark:hover:bg-primary/20">
+                    <ActionButton onClick={handleCall} title={`اتصال بالرقم ${contact.extension}`} className="text-primary dark:text-primary-light hover:bg-primary/10 dark:hover:bg-primary/20">
                         <PhoneIcon className="w-6 h-6" />
                     </ActionButton>
-                     <ActionButton onClick={handleShare} title="مشاركة" className="text-accent dark:text-inherit hover:bg-accent/10 dark:hover:bg-accent/20">
+                     <ActionButton onClick={handleShare} title="مشاركة" className="text-accent dark:text-accent-dark hover:bg-accent/10 dark:hover:bg-accent/20">
                         <ShareIcon className="w-6 h-6" />
                     </ActionButton>
                     {hasPermission('edit_contacts') && (
@@ -171,21 +151,16 @@ const OfficeContactCard: React.FC<OfficeContactCardProps> = ({ contact, onEdit, 
                         </ActionButton>
                     )}
                     {hasPermission('delete_contacts') && (
-                        <ActionButton onClick={handleDelete} title="حذف" className="text-danger dark:text-inherit hover:bg-danger/10">
+                        <ActionButton onClick={handleDelete} title="حذف" className="text-danger dark:text-red-400 hover:bg-danger/10 dark:hover:bg-danger/20">
                             <TrashIcon className="w-6 h-6" />
                         </ActionButton>
                     )}
                     {isValidEmail && (
-                        <ActionButton onClick={(e) => { e.stopPropagation(); handleEmailAction('copy'); }} title="نسخ البريد" className="text-primary dark:text-inherit hover:bg-primary/10 dark:hover:bg-primary/20">
+                        <ActionButton onClick={(e) => { e.stopPropagation(); handleEmailAction('copy'); }} title="نسخ البريد" className="text-primary dark:text-primary-light hover:bg-primary/10 dark:hover:bg-primary/20">
                             <EmailIcon className="w-6 h-6" />
                         </ActionButton>
                     )}
                 </div>
-            )}
-            {lastUpdate && (
-                <p className="absolute bottom-2 left-4 text-[10px] text-gray-400 dark:text-gray-500" dir="ltr">
-                    Last Update: {lastUpdate}
-                </p>
             )}
         </div>
     );

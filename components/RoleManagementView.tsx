@@ -2,6 +2,8 @@
 
 
 
+
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Role, Permission } from '../types';
@@ -35,7 +37,7 @@ const RoleManagementView: React.FC = () => {
             if (error) throw error;
             setRoles(data || []);
         } catch (error: any) {
-            addToast('خطأ', 'فشل في جلب الأدوار والصلاحيات.', 'error');
+            addToast('خطأ', `فشل جلب الأدوار: ${error.message}`, 'error');
         } finally {
             setLoading(false);
         }

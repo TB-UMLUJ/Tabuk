@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ToastMessage } from '../hooks/useToasts';
-import { CheckCircleIcon, XCircleIcon, ClockIcon } from '../icons/Icons';
+import { CheckCircleIcon, XCircleIcon, ClockIcon, InformationCircleIcon } from '../icons/Icons';
 
 const iconMap: Record<ToastMessage['type'], React.ReactNode> = {
     success: <CheckCircleIcon className="toast-icon" />,
     error: <XCircleIcon className="toast-icon" />,
     warning: <ClockIcon className="toast-icon" />,
-    info: <CheckCircleIcon className="toast-icon" />,
+    info: <InformationCircleIcon className="toast-icon" />,
     deleted: <XCircleIcon className="toast-icon" />,
     scan_success: <CheckCircleIcon className="toast-icon" />,
 };
@@ -26,7 +26,7 @@ interface ToastProps {
 }
 
 const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
-  const { title } = toast;
+  const { title, message, type } = toast;
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
@@ -45,11 +45,14 @@ const Toast: React.FC<ToastProps> = ({ toast, onDismiss }) => {
 
   return (
     <div
-      className={`toast ${typeClassMap[toast.type]} ${isClosing ? 'animate-toast-out' : 'animate-toast-in'}`}
+      className={`toast ${typeClassMap[type]} ${isClosing ? 'animate-toast-out' : 'animate-toast-in'}`}
       role="alert"
     >
-        {iconMap[toast.type]}
-        <p className="title">{title}</p>
+        {iconMap[type]}
+        <div className="flex-grow">
+          <p className="title">{title}</p>
+          {message && message.trim() && <p className="message">{message}</p>}
+        </div>
     </div>
   );
 };

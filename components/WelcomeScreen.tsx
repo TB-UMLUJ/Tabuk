@@ -30,7 +30,7 @@ const WelcomeScreen: React.FC<{ currentUser: User | null }> = ({ currentUser }) 
 
         // Total duration for the screen is cumulativeTime (6000ms).
         // We make the animation a bit faster to ensure it completes before the component unmounts.
-        const totalAnimationDuration = 5800; 
+        const totalAnimationDuration = cumulativeTime - 200; // 5800ms
 
         const animateProgress = (timestamp: number) => {
             if (!startTimeRef.current) {
@@ -89,25 +89,21 @@ const WelcomeScreen: React.FC<{ currentUser: User | null }> = ({ currentUser }) 
                      </p>
                 </div>
                 
-                <div className="relative w-full pt-5">
-                    <div 
-                        className="absolute top-0 text-xs font-bold text-primary dark:text-primary-light"
-                        style={{ 
-                            right: `${progress}%`, 
-                            transform: 'translateX(50%)',
-                            minWidth: '32px', // to fit 100%
-                        }}
-                    >
-                        <span>{Math.round(progress)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden shadow-inner">
-                        <div 
-                            className="bg-gradient-to-r from-teal-400 to-primary h-2.5 rounded-full"
-                            style={{ 
-                                width: `${progress}%`,
-                            }}
-                        />
-                    </div>
+                <div className="w-full flex items-center justify-center gap-2 px-4 my-6">
+                    {steps.map((_, index) => {
+                        const segmentStartProgress = index * (100 / steps.length);
+                        // Calculate the fill percentage for this specific segment
+                        const segmentProgress = Math.min(100, Math.max(0, (progress - segmentStartProgress) * steps.length));
+                        
+                        return (
+                            <div key={index} className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-gradient-to-r from-brand to-primary rounded-full"
+                                    style={{ width: `${segmentProgress}%`, transition: 'width 150ms linear' }}
+                                />
+                            </div>
+                        );
+                    })}
                 </div>
 
             </div>

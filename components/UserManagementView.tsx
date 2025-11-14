@@ -46,7 +46,7 @@ const UserManagementView: React.FC = () => {
             setUsers(usersData as any[] || []);
             setRoles(rolesData || []);
         } catch (error: any) {
-            addToast('خطأ', 'فشل في جلب بيانات المستخدمين.', 'error');
+            addToast('خطأ', `فشل جلب المستخدمين: ${error.message}`, 'error');
             console.error(error);
         } finally {
             setLoading(false);
@@ -136,7 +136,7 @@ const UserManagementView: React.FC = () => {
             if (error) throw error;
             addToast('تم تحديث حالة المستخدم', '', 'success');
         } catch (error: any) {
-            addToast('خطأ', 'فشل تحديث حالة المستخدم.', 'error');
+            addToast('خطأ', `فشل تحديث الحالة: ${error.message}`, 'error');
             setUsers(originalUsers); // Revert on error
         }
     };

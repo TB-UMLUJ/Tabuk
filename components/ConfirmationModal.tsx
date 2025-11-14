@@ -85,14 +85,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 <div className="mt-5 sm:mt-6 flex flex-row-reverse gap-3">
                     <button
                         type="button"
-                        className="inline-flex w-full justify-center rounded-md bg-danger px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger"
+                        className="btn btn-danger w-full"
                         onClick={handleConfirm}
                     >
                         {confirmText}
                     </button>
                     <button
                         type="button"
-                        className="inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:ring-gray-600 dark:hover:bg-gray-600"
+                        className="btn btn-secondary w-full"
                         onClick={handleClose}
                     >
                         {cancelText}

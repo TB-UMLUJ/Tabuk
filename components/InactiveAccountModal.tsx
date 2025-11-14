@@ -65,10 +65,10 @@ const InactiveAccountModal: React.FC<InactiveAccountModalProps> = ({ isOpen, onC
                 <div className="mt-5 sm:mt-6">
                     <button
                         type="button"
-                        className="inline-flex w-full justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-800"
+                        className="btn btn-primary w-full"
                         onClick={handleClose}
                     >
-                        فهمت
+                        حسنًا
                     </button>
                 </div>
             </div>

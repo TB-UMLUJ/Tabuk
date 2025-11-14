@@ -36,7 +36,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, onClose }) =>
                 if (error) throw error;
                 setUser(data as any);
             } catch (error: any) {
-                addToast('خطأ', 'فشل في جلب بيانات المستخدم.', 'error');
+                addToast('خطأ', `فشل جلب بيانات المستخدم: ${error.message}`, 'error');
                 handleClose();
             } finally {
                 setLoading(false);

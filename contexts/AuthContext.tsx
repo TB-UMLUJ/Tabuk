@@ -11,8 +11,6 @@ interface AuthContextType {
     changePassword: (userId: number, currentPassword: string, newPassword: string) => Promise<boolean>;
     logout: () => void;
     hasPermission: (permissionName: string) => boolean;
-    justLoggedIn: boolean;
-    clearJustLoggedIn: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,7 +18,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [isAuthenticating, setIsAuthenticating] = useState(true);
-    const [justLoggedIn, setJustLoggedIn] = useState(false);
 
     const fetchUserPermissions = useCallback(async (roleId: number): Promise<string[]> => {
         const { data, error } = await supabase
@@ -96,13 +93,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const performLogin = (user: User) => {
         setCurrentUser(user);
         sessionStorage.setItem('currentUser', JSON.stringify(user));
-        setJustLoggedIn(true);
         logActivity(user, 'LOGIN');
     };
 
 
-    const logout = () => {
-        logActivity(currentUser, 'LOGOUT');
+    const logout = async () => {
+        await logActivity(currentUser, 'LOGOUT');
         setCurrentUser(null);
         sessionStorage.removeItem('currentUser');
         sessionStorage.setItem('logoutMessage', 'تم تسجيل خروجك بنجاح.');
@@ -112,10 +108,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return !!currentUser?.permissions.includes(permissionName);
     };
     
-    const clearJustLoggedIn = () => {
-        setJustLoggedIn(false);
-    };
-
     const changePassword = async (userId: number, currentPassword: string, newPassword: string): Promise<boolean> => {
         try {
             // 1. Verify current password
@@ -154,8 +146,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         changePassword,
         logout,
         hasPermission,
-        justLoggedIn,
-        clearJustLoggedIn,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

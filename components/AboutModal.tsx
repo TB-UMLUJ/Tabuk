@@ -4,7 +4,9 @@ import {
     CloseIcon, 
     SparklesIcon, 
     CheckCircleIcon,
-    ShareIcon
+    ShareIcon,
+    XIcon,
+    LinkedInIcon
 } from '../icons/Icons';
 import { useToast } from '../contexts/ToastContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -100,60 +102,20 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
                     </p>
                 </div>
 
-                {/* What's New Section */}
-                <div className="mb-10">
-                    <div className="flex items-center justify-center gap-2 mb-4">
-                        <SparklesIcon className="w-6 h-6 text-yellow-500"/>
-                        <h3 className="text-xl font-bold text-gray-800 dark:text-white text-center">
-                            ما الجديد في هذا الإصدار
-                            <span className="mr-2 bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light text-xs font-semibold px-3 py-1 rounded-full align-middle">
-                                1.9.4
-                            </span>
-                        </h3>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
-                        <ul className="space-y-3">
-                            <li className="flex items-start gap-3">
-                                <CheckCircleIcon className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                                <p className="text-gray-700 dark:text-gray-300">إضافة ميزة تغيير الخط: يمكن للمسؤولين الآن تغيير خط التطبيق بالكامل من الإعدادات.</p>
-                            </li>
-                            <li className="flex items-start gap-3">
-                                <CheckCircleIcon className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                                <p className="text-gray-700 dark:text-gray-300">إعادة تنظيم الإعدادات: تم تجميع بطاقات الإعدادات في أقسام منطقية لتسهيل الوصول.</p>
-                            </li>
-                             <li className="flex items-start gap-3">
-                                <CheckCircleIcon className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                                <p className="text-gray-700 dark:text-gray-300">تصميم جديد لسجل النشاطات: تم تحويل عرض سجل النشاطات إلى بطاقات عصرية بدلًا من الخط الزمني.</p>
-                            </li>
-                             <li className="flex items-start gap-3">
-                                <CheckCircleIcon className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                                <p className="text-gray-700 dark:text-gray-300">تحسين الإشعارات: أصبحت تظهر في الأسفل على الهاتف مع رسائل أوضح وأكثر اختصارًا.</p>
-                            </li>
-                             <li className="flex items-start gap-3">
-                                <CheckCircleIcon className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
-                                <p className="text-gray-700 dark:text-gray-300">تحسينات على واجهة الهاتف: تم تصغير العديد من العناصر وتحسين التنسيق لتجربة أفضل.</p>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
                 {/* Footer Section */}
                 <div className="text-center border-t border-gray-200 dark:border-gray-700 pt-8">
-                     <div className="flex items-stretch justify-center gap-3">
-                        <button 
-                            onClick={handleShare}
-                            className="flex-1 inline-flex items-center gap-2 bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent-dark font-bold py-2.5 px-4 rounded-lg hover:bg-accent/20 dark:hover:bg-accent/30 transition-all duration-300 transform hover:-translate-y-0.5 justify-center text-sm"
-                        >
-                            <ShareIcon className="w-5 h-5" />
-                            <span>مشاركة التطبيق</span>
-                        </button>
-                        <a 
-                            href="https://www.health.sa/ar"
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="flex-1 inline-flex items-center justify-center text-center bg-primary text-white font-bold py-2.5 px-4 rounded-lg hover:bg-primary-dark transition-all duration-300 transform hover:-translate-y-0.5 text-sm"
-                        >
-                            زيارة موقع التجمع
+                     <div className="inline-flex items-center p-1.5 rounded-full bg-blue-100/60 dark:bg-gray-900/50 shadow-inner backdrop-blur-sm gap-2">
+                        <a href="https://x.com/Tabuk_hc" target="_blank" rel="noopener noreferrer" aria-label="Follow us on X"
+                           className="h-10 w-10 flex items-center justify-center bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                            <XIcon className="h-5 w-5 text-black dark:text-white"/>
+                        </a>
+                        <a href="https://www.linkedin.com/company/tabuk-health-cluster/" target="_blank" rel="noopener noreferrer" aria-label="Follow us on LinkedIn"
+                           className="h-10 w-10 flex items-center justify-center bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                            <LinkedInIcon className="h-5 w-5 text-black dark:text-white"/>
+                        </a>
+                        <a href="https://www.health.sa/ar/Pages/default.aspx" target="_blank" rel="noopener noreferrer"
+                           className="inline-flex items-center justify-center px-5 h-10 rounded-full bg-blue-600 text-white font-bold text-sm shadow-md hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
+                            تواصل معنا
                         </a>
                     </div>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-6">

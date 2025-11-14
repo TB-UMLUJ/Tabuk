@@ -1,6 +1,6 @@
 import React from 'react';
 import { Employee } from '../types';
-import { IdentificationIcon, ShareIcon, EmailIcon, MapPinIcon, GlobeAltIcon } from '../icons/Icons';
+import { IdentificationIcon, ShareIcon, EmailIcon, MapPinIcon, GlobeAltIcon, UserIcon } from '../icons/Icons';
 import { useToast } from '../contexts/ToastContext';
 
 interface EmployeeCardProps {
@@ -57,79 +57,99 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
             try {
                 await navigator.clipboard.writeText(shareText);
                 addToast('تم نسخ بيانات الموظف', '', 'info');
-            } catch (err) {
+            } catch (err: any) {
                 console.error('Failed to copy: ', err);
-                addToast('خطأ', 'فشل نسخ البيانات', 'error');
+                addToast('خطأ', `فشل نسخ البيانات: ${err.message}`, 'error');
             }
         }
+    };
+
+    const handleViewProfileClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onSelect();
     };
 
     return (
         <div 
             onClick={onSelect} 
-            className="bg-white rounded-xl shadow-md p-3 flex items-start gap-3 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative group dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+            className="bg-white rounded-xl shadow-md flex flex-col justify-between cursor-pointer hover:shadow-lg hover:-translate-y-1 hover:scale-[1.03] transition-all duration-300 relative group dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
         >
-             <div className="absolute top-3 left-3">
-                 <button
-                    onClick={handleShare}
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-accent/10 text-accent transition-all duration-200 transform hover:scale-110 dark:bg-accent/20 dark:text-accent-dark"
-                    aria-label="مشاركة بيانات الموظف"
-                    title="مشاركة"
-                >
-                    <ShareIcon className="w-5 h-5" />
-                </button>
-            </div>
+            <div className="p-3">
+                 <div className="absolute top-3 left-3">
+                     <button
+                        onClick={handleShare}
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-accent/10 text-accent transition-all duration-200 transform hover:scale-110 dark:bg-accent/20 dark:text-accent-dark"
+                        aria-label="مشاركة بيانات الموظف"
+                        title="مشاركة"
+                    >
+                        <ShareIcon className="w-5 h-5" />
+                    </button>
+                </div>
 
-            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center border-4 border-gray-100 dark:border-gray-700">
-                <span className="text-xl sm:text-2xl font-bold text-brand dark:text-brand-light">{getInitials(employee.full_name_ar || '')}</span>
-            </div>
-            <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-base text-gray-800 dark:text-white truncate" title={employee.full_name_ar}>{employee.full_name_ar}</h3>
-                <p className="mt-1 text-xs font-semibold inline-block py-1 px-2.5 rounded-full bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent-dark truncate" title={employee.job_title}>{employee.job_title}</p>
-                
-                <div className="text-xs text-gray-500 mt-2 space-y-2 dark:text-gray-400">
-                    {/* Row 1: Employee ID and Center */}
-                    <div className="flex items-center gap-4 flex-wrap">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                            <IdentificationIcon className="w-3.5 h-3.5 flex-shrink-0"/>
-                            <span className="truncate" title={`الرقم الوظيفي: ${employee.employee_id}`}>{employee.employee_id}</span>
-                        </div>
-                        {employee.center && (
-                            <div className="flex items-center gap-1.5 min-w-0">
-                                <MapPinIcon className="w-3.5 h-3.5 flex-shrink-0"/>
-                                <span className="truncate" title={`المركز: ${employee.center}`}>{employee.center}</span>
-                            </div>
-                        )}
+                <div className="flex items-start gap-3">
+                    <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center border-4 border-gray-100 dark:border-gray-700">
+                        <span className="text-xl sm:text-2xl font-bold text-brand dark:text-brand-light">{getInitials(employee.full_name_ar || '')}</span>
                     </div>
-
-                    {/* Row 2: National ID, Nationality and Email */}
-                    {(employee.national_id || employee.nationality || (employee.email && employee.email.includes('@'))) && (
-                        <div className="flex items-center gap-4 flex-wrap">
-                            {employee.national_id && (
-                               <div className="flex items-center gap-1.5 min-w-0">
-                                   <IdentificationIcon className="w-3.5 h-3.5 flex-shrink-0"/>
-                                   <span className="truncate" title={`السجل المدني / الإقامة: ${employee.national_id}`}>{employee.national_id}</span>
-                               </div>
-                            )}
-                            {employee.nationality && (
+                    <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-base text-gray-800 dark:text-white truncate" title={employee.full_name_ar}>{employee.full_name_ar}</h3>
+                        <p className="mt-1 text-xs font-semibold inline-block py-1 px-2.5 rounded-full bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent-dark truncate" title={employee.job_title}>{employee.job_title}</p>
+                        
+                        <div className="text-xs text-gray-500 mt-2 space-y-2 dark:text-gray-400">
+                            {/* Row 1: Employee ID and Center */}
+                            <div className="flex items-center gap-4 flex-wrap">
                                 <div className="flex items-center gap-1.5 min-w-0">
-                                    <GlobeAltIcon className="w-3.5 h-3.5 flex-shrink-0"/>
-                                    <span className="truncate" title={`الجنسية: ${employee.nationality}`}>{employee.nationality}</span>
+                                    <IdentificationIcon className="w-3.5 h-3.5 flex-shrink-0"/>
+                                    <span className="truncate" title={`الرقم الوظيفي: ${employee.employee_id}`}>{employee.employee_id}</span>
+                                </div>
+                                {employee.center && (
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                        <MapPinIcon className="w-3.5 h-3.5 flex-shrink-0"/>
+                                        <span className="truncate" title={`المركز: ${employee.center}`}>{employee.center}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Row 2: National ID, Nationality and Email */}
+                            {(employee.national_id || employee.nationality || (employee.email && employee.email.includes('@'))) && (
+                                <div className="flex items-center gap-4 flex-wrap">
+                                    {employee.national_id && (
+                                       <div className="flex items-center gap-1.5 min-w-0">
+                                           <IdentificationIcon className="w-3.5 h-3.5 flex-shrink-0"/>
+                                           <span className="truncate" title={`السجل المدني / الإقامة: ${employee.national_id}`}>{employee.national_id}</span>
+                                       </div>
+                                    )}
+                                    {employee.nationality && (
+                                        <div className="flex items-center gap-1.5 min-w-0">
+                                            <GlobeAltIcon className="w-3.5 h-3.5 flex-shrink-0"/>
+                                            <span className="truncate" title={`الجنسية: ${employee.nationality}`}>{employee.nationality}</span>
+                                        </div>
+                                    )}
+                                    {employee.email && employee.email.includes('@') && (
+                                        <a
+                                            href={`mailto:${employee.email}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="flex items-center gap-1.5 min-w-0 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors"
+                                        >
+                                            <EmailIcon className="w-3.5 h-3.5 flex-shrink-0"/>
+                                            <span className="truncate" title={employee.email} dir="ltr">{employee.email}</span>
+                                        </a>
+                                    )}
                                 </div>
                             )}
-                            {employee.email && employee.email.includes('@') && (
-                                <a
-                                    href={`mailto:${employee.email}`}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="flex items-center gap-1.5 min-w-0 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light transition-colors"
-                                >
-                                    <EmailIcon className="w-3.5 h-3.5 flex-shrink-0"/>
-                                    <span className="truncate" title={employee.email} dir="ltr">{employee.email}</span>
-                                </a>
-                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
+            </div>
+            
+            <div className="p-3 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700 rounded-b-xl">
+                 <button
+                    onClick={handleViewProfileClick}
+                    className="btn btn-muted w-full gap-2"
+                    aria-label={`عرض ملف ${employee.full_name_ar}`}
+                >
+                    <UserIcon className="w-4 h-4" />
+                    <span>عرض الملف الشخصي</span>
+                </button>
             </div>
         </div>
     );

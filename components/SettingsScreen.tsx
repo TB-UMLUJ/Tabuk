@@ -21,6 +21,7 @@ import {
     PencilIcon,
     TrashIcon,
     BellIcon,
+    FingerprintIcon,
 } from '../icons/Icons';
 import AboutModal from './AboutModal';
 import { useAuth } from '../contexts/AuthContext';
@@ -31,13 +32,14 @@ import { useToast } from '../contexts/ToastContext';
 import AddPolicyModal from './AddPolicyModal';
 import ConfirmationModal from './ConfirmationModal';
 import { logActivity } from '../lib/activityLogger';
+import WebAuthnManagementView from './WebAuthnManagementView';
 
 interface SettingsScreenProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-type SettingsView = 'main' | 'userRoleManagement' | 'activityLog' | 'privacyPolicy' | 'termsOfUse' | 'contactUs' | 'disclaimer' | 'compliance' | 'governance';
+type SettingsView = 'main' | 'userRoleManagement' | 'activityLog' | 'privacyPolicy' | 'termsOfUse' | 'contactUs' | 'disclaimer' | 'compliance' | 'governance' | 'webauthn';
 
 
 // --- New Policy Detail Modal Component ---
@@ -256,7 +258,7 @@ const GovernanceCenterContent: React.FC = () => {
             const { error: dbError } = await supabase.from('policies').delete().eq('id', policyToDelete.id);
             if (dbError) throw dbError;
 
-            logActivity(currentUser, 'DELETE_POLICY', { policyId: policyToDelete.id, policyTitle: policyToDelete.title });
+            await logActivity(currentUser, 'DELETE_POLICY', { policyId: policyToDelete.id, policyTitle: policyToDelete.title });
             addToast('تم حذف السياسة بنجاح', '', 'deleted');
             fetchPolicies(); // Refetch policies after deletion
         } catch (error: any) {
@@ -573,6 +575,13 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
                         onClick={() => setShowChangePasswordModal(true)}
                     />
                     <SettingsCard
+                        icon={<FingerprintIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
+                        title="الدخول بالبصمة / الوجه"
+                        description="إدارة الأجهزة الموثوقة للدخول السريع."
+                        onClick={() => setCurrentView('webauthn')}
+                        colorClass="text-teal-600 dark:text-teal-400 bg-teal-100/70 dark:bg-teal-500/20"
+                    />
+                    <SettingsCard
                         icon={<ArrowRightOnRectangleIcon className="w-6 h-6 sm:w-7 sm:h-7" />}
                         title="تسجيل الخروج"
                         description="إنهاء الجلسة الحالية والخروج من حسابك."
@@ -696,6 +705,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
         disclaimer: 'إخلاء المسؤولية',
         compliance: 'الامتثال والمعايير',
         governance: 'مركز الحوكمة والسياسات',
+        webauthn: 'الدخول بالبصمة / الوجه',
     };
 
     return ReactDOM.createPortal(
@@ -740,6 +750,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
                 {currentView === 'disclaimer' && <DisclaimerContent />}
                 {currentView === 'compliance' && <ComplianceContent />}
                 {currentView === 'governance' && <GovernanceCenterContent />}
+                {currentView === 'webauthn' && <WebAuthnManagementView />}
             </main>
 
             <AboutModal isOpen={showAboutModal} onClose={() => setShowAboutModal(false)} />

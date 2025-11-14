@@ -49,8 +49,8 @@ const RolePermissionsModal: React.FC<RolePermissionsModalProps> = ({ isOpen, onC
                     Array.isArray(perms) ? perms.map((rp: any) => rp.permissions.permission_id) : []
                 );
                 setSelectedPermissions(initialSelected);
-            } catch (error) {
-                addToast('خطأ', 'فشل في تحميل قائمة الصلاحيات.', 'error');
+            } catch (error: any) {
+                addToast('خطأ', `فشل تحميل الصلاحيات: ${error.message}`, 'error');
             } finally {
                 setLoading(false);
             }
@@ -113,7 +113,7 @@ const RolePermissionsModal: React.FC<RolePermissionsModalProps> = ({ isOpen, onC
             onSaveSuccess();
             handleClose();
         } catch (error: any) {
-            addToast('خطأ', 'فشل حفظ الصلاحيات.', 'error');
+            addToast('خطأ', `فشل حفظ الصلاحيات: ${error.message}`, 'error');
         } finally {
             setIsSaving(false);
         }

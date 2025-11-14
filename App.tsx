@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
@@ -9,11 +7,10 @@ import SearchAndFilter, { SearchAndFilterRef } from './components/SearchAndFilte
 import EmployeeList from './components/EmployeeList';
 import EmployeeProfileModal from './components/EmployeeProfileModal';
 import LoginScreen from './components/LoginScreen';
-import WelcomeScreen from './components/WelcomeScreen';
 import { useToast } from './contexts/ToastContext';
 import Tabs from './components/Tabs';
 import OrganizationalChartView from './components/OrganizationalChartView';
-import AddEmployeeModal from './components/AddEmployeeModal';
+import AddEmployeeOnboarding from './components/AddEmployeeOnboarding';
 import ImportProgressModal from './components/ImportProgressModal';
 import BottomNavBar from './components/BottomNavBar';
 import OfficeDirectory from './components/OfficeDirectory';
@@ -42,7 +39,7 @@ declare const XLSX: any;
 
 const App: React.FC = () => {
     const { addToast } = useToast();
-    const { currentUser, isAuthenticating, justLoggedIn, clearJustLoggedIn } = useAuth();
+    const { currentUser, isAuthenticating } = useAuth();
     const { logos } = useTheme();
     const [showSettings, setShowSettings] = useState(false);
     
@@ -68,7 +65,7 @@ const App: React.FC = () => {
     
     // Modal State
     const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-    const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
+    const [showAddEmployeeOnboarding, setShowAddEmployeeOnboarding] = useState(false);
     const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
     const [contactToEdit, setContactToEdit] = useState<OfficeContact | null>(null);
     const [showAddOfficeContactModal, setShowAddOfficeContactModal] = useState(false);
@@ -176,19 +173,10 @@ const App: React.FC = () => {
             }
         };
 
-        if (currentUser && !justLoggedIn) {
+        if (currentUser) {
             fetchDataAndSeed();
         }
-    }, [currentUser, justLoggedIn, addToast]);
-
-     useEffect(() => {
-        if (justLoggedIn) {
-            const timer = setTimeout(() => {
-                clearJustLoggedIn();
-            }, 6000); // Show welcome message for 6 seconds
-            return () => clearTimeout(timer);
-        }
-    }, [justLoggedIn, clearJustLoggedIn]);
+    }, [currentUser, addToast]);
 
     // --- Real-time Subscriptions ---
     useEffect(() => {
@@ -206,43 +194,92 @@ const App: React.FC = () => {
 
         const employeesSubscription = supabase.channel('employees-realtime')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, (payload) => {
-                if (payload.eventType === 'INSERT') setEmployees(prev => [...prev, payload.new as Employee]);
-                if (payload.eventType === 'UPDATE') setEmployees(prev => prev.map(e => e.id === payload.new.id ? payload.new as Employee : e));
-                if (payload.eventType === 'DELETE') setEmployees(prev => prev.filter(e => e.id !== (payload.old as any).id));
+                if (payload.eventType === 'INSERT') {
+                    const newEmployee = payload.new as Employee;
+                    setEmployees(prev => [...prev, newEmployee]);
+                    addToast(`إضافة موظف: ${newEmployee.full_name_ar}`, '', 'success');
+                }
+                if (payload.eventType === 'UPDATE') {
+                    const updatedEmployee = payload.new as Employee;
+                    const oldEmployee = payload.old as Employee;
+                    setEmployees(prev => prev.map(e => e.id === updatedEmployee.id ? updatedEmployee : e));
+
+                    const oldDocsCount = oldEmployee.documents?.length || 0;
+                    const newDocsCount = updatedEmployee.documents?.length || 0;
+
+                    if (newDocsCount > oldDocsCount) {
+                        addToast(`مستند جديد لـ ${updatedEmployee.full_name_ar}`, '', 'info');
+                    } else {
+                        addToast(`تحديث: ${updatedEmployee.full_name_ar}`, '', 'info');
+                    }
+                }
+                if (payload.eventType === 'DELETE') {
+                    const oldEmployee = payload.old as any;
+                    setEmployees(prev => prev.filter(e => e.id !== oldEmployee.id));
+                    addToast(`حذف: ${oldEmployee.full_name_ar}`, '', 'deleted');
+                }
             }).subscribe();
 
         const contactsSubscription = supabase.channel('office_contacts-realtime')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'office_contacts' }, (payload) => {
-                if (payload.eventType === 'INSERT') setOfficeContacts(prev => [...prev, payload.new as OfficeContact]);
-                if (payload.eventType === 'UPDATE') setOfficeContacts(prev => prev.map(c => c.id === payload.new.id ? payload.new as OfficeContact : c));
-                if (payload.eventType === 'DELETE') setOfficeContacts(prev => prev.filter(c => c.id !== (payload.old as any).id));
+                 if (payload.eventType === 'INSERT') {
+                    const newContact = payload.new as OfficeContact;
+                    setOfficeContacts(prev => [...prev, newContact]);
+                    addToast(`إضافة مكتب: ${newContact.name}`, '', 'success');
+                }
+                if (payload.eventType === 'UPDATE') {
+                    const updatedContact = payload.new as OfficeContact;
+                    setOfficeContacts(prev => prev.map(c => c.id === updatedContact.id ? updatedContact : c));
+                    addToast(`تحديث: ${updatedContact.name}`, '', 'info');
+                }
+                if (payload.eventType === 'DELETE') {
+                    const oldContact = payload.old as any;
+                    setOfficeContacts(prev => prev.filter(c => c.id !== oldContact.id));
+                    addToast(`حذف: ${oldContact.name}`, '', 'deleted');
+                }
             }).subscribe();
         
         const tasksSubscription = supabase.channel('tasks-realtime')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, (payload) => {
-                if (payload.eventType === 'INSERT') {
-                    setTasks(prev => [...prev, payload.new as Task]);
+                 if (payload.eventType === 'INSERT') {
+                    const newTask = payload.new as Task;
+                    setTasks(prev => [...prev, newTask]);
+                    addToast(`مهمة جديدة: ${newTask.title}`, '', 'success');
                     if (Notification.permission === 'granted') {
-                        new Notification('مهمة جديدة', { body: `تمت إضافة مهمة: ${payload.new.title}`, icon: logos.mainLogoUrl });
+                        new Notification('مهمة جديدة', { body: `تمت إضافة مهمة: ${newTask.title}`, icon: logos.mainLogoUrl });
                     }
                 }
-                if (payload.eventType === 'UPDATE') setTasks(prev => prev.map(t => t.id === payload.new.id ? payload.new as Task : t));
-                if (payload.eventType === 'DELETE') setTasks(prev => prev.filter(t => t.id !== (payload.old as any).id));
+                if (payload.eventType === 'UPDATE') {
+                    const updatedTask = payload.new as Task;
+                    setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+                    addToast(`تحديث مهمة: ${updatedTask.title}`, '', 'info');
+                }
+                if (payload.eventType === 'DELETE') {
+                    const oldTask = payload.old as any;
+                    setTasks(prev => prev.filter(t => t.id !== oldTask.id));
+                    addToast(`حذف مهمة: ${oldTask.title}`, '', 'deleted');
+                }
             }).subscribe();
 
         const transactionsSubscription = supabase.channel('transactions-realtime')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, (payload) => {
                 if (payload.eventType === 'INSERT') {
-                     setTransactions(prev => [enrichTransaction(payload.new as Transaction, employees, officeContacts), ...prev]);
-                     if (Notification.permission === 'granted') {
-                        new Notification('معاملة جديدة', { body: `تم تسجيل معاملة: ${payload.new.subject}`, icon: logos.mainLogoUrl });
+                    const newTransaction = payload.new as Transaction;
+                    setTransactions(prev => [enrichTransaction(newTransaction, employees, officeContacts), ...prev]);
+                    addToast(`معاملة جديدة: ${newTransaction.subject}`, '', 'success');
+                    if (Notification.permission === 'granted') {
+                        new Notification('معاملة جديدة', { body: `تم تسجيل معاملة: ${newTransaction.subject}`, icon: logos.mainLogoUrl });
                     }
                 }
                 if (payload.eventType === 'UPDATE') {
-                    setTransactions(prev => prev.map(t => t.id === payload.new.id ? enrichTransaction(payload.new as Transaction, employees, officeContacts) : t));
+                    const updatedTransaction = payload.new as Transaction;
+                    setTransactions(prev => prev.map(t => t.id === updatedTransaction.id ? enrichTransaction(updatedTransaction, employees, officeContacts) : t));
+                    addToast(`تحديث معاملة: ${updatedTransaction.subject}`, '', 'info');
                 }
                 if (payload.eventType === 'DELETE') {
-                    setTransactions(prev => prev.filter(t => t.id !== (payload.old as any).id));
+                    const oldTransaction = payload.old as any;
+                    setTransactions(prev => prev.filter(t => t.id !== oldTransaction.id));
+                    addToast(`حذف معاملة: ${oldTransaction.subject}`, '', 'deleted');
                 }
             }).subscribe();
 
@@ -253,7 +290,7 @@ const App: React.FC = () => {
             supabase.removeChannel(tasksSubscription);
             supabase.removeChannel(transactionsSubscription);
         };
-    }, [currentUser, employees, officeContacts, logos.mainLogoUrl]);
+    }, [currentUser, employees, officeContacts, logos.mainLogoUrl, addToast]);
 
     const filteredEmployees = useMemo(() => {
         const filtered = employees.filter(employee => {
@@ -412,23 +449,22 @@ const App: React.FC = () => {
             const { data, error } = await supabase.from('employees').upsert(dataWithTimestamp).select();
     
             if (error) {
-                addToast('فشل حفظ الموظف', error.message, 'error');
+                addToast('فشل حفظ الموظف', `حدث خطأ: ${error.message}`, 'error');
             } else if (data) {
                 const savedEmployee = data[0];
                 if (!isEditing) {
-                    setEmployees(prev => [...prev, savedEmployee]);
-                    logActivity(currentUser, 'CREATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
+                    // Handled by realtime subscription toast
+                    await logActivity(currentUser, 'CREATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
                 } else {
-                    logActivity(currentUser, 'UPDATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
-                    setEmployees(prev => prev.map(e => e.id === savedEmployee.id ? savedEmployee : e));
+                    await logActivity(currentUser, 'UPDATE_EMPLOYEE', { employeeId: savedEmployee.id, employeeName: savedEmployee.full_name_ar });
+                    // Handled by realtime subscription toast
                 }
-                addToast(`تم ${isEditing ? 'تحديث' : 'إضافة'} الموظف بنجاح`, '', 'success');
-                setShowAddEmployeeModal(false);
+                setShowAddEmployeeOnboarding(false);
                 setEmployeeToEdit(null);
             }
         } catch(e: any) {
             console.error('Error during employee save process:', e);
-            addToast('خطأ فادح', e.message || 'حدث خطأ غير متوقع أثناء حفظ بيانات الموظف.', 'error');
+            addToast('خطأ فادح', `حدث خطأ غير متوقع: ${e.message}`, 'error');
         }
     };
 
@@ -458,10 +494,10 @@ const App: React.FC = () => {
                 // Delete the employee record
                 const { error } = await supabase.from('employees').delete().eq('id', employee.id);
                 if (error) {
-                    addToast('فشل حذف الموظف', error.message, 'error');
+                    addToast('فشل حذف الموظف', `حدث خطأ: ${error.message}`, 'error');
                 } else {
-                    logActivity(currentUser, 'DELETE_EMPLOYEE', { employeeId: employee.id, employeeName: employee.full_name_ar });
-                    addToast('تم حذف الموظف بنجاح', '', 'deleted');
+                    await logActivity(currentUser, 'DELETE_EMPLOYEE', { employeeId: employee.id, employeeName: employee.full_name_ar });
+                    // Toast handled by realtime subscription
                 }
                 setSelectedEmployee(null);
             }
@@ -622,7 +658,7 @@ const App: React.FC = () => {
 
             } catch (err: any) {
                 console.error("Import error:", err);
-                addToast('فشل استيراد الملف', err.message || 'تأكد من صحة التنسيق وعدم وجود تكرار.', 'error');
+                addToast('فشل استيراد الملف', `حدث خطأ أثناء المعالجة: ${err.message}`, 'error');
             }
         };
         reader.readAsArrayBuffer(file);
@@ -728,7 +764,7 @@ const App: React.FC = () => {
             }
 
             const totalImportedCount = toCreate.length + updatedRecords.length;
-            logActivity(currentUser, importPreview.dataType === 'employees' ? 'IMPORT_EMPLOYEES' : 'IMPORT_CONTACTS', {
+            await logActivity(currentUser, importPreview.dataType === 'employees' ? 'IMPORT_EMPLOYEES' : 'IMPORT_CONTACTS', {
                 count: totalImportedCount,
                 created: toCreate.length,
                 updated: updatedRecords.length,
@@ -740,7 +776,7 @@ const App: React.FC = () => {
 
         } catch (err: any) {
             console.error("Confirm Import error:", err);
-            addToast('فشل الاستيراد', err.message || 'حدث خطأ أثناء حفظ البيانات.', 'error');
+            addToast('فشل الاستيراد', `حدث خطأ أثناء حفظ البيانات: ${err.message}`, 'error');
         } finally {
             setTimeout(() => {
                 setImportProgress({ isOpen: false, fileName: '', fileSize: 0, progress: 0 });
@@ -755,16 +791,16 @@ const App: React.FC = () => {
         const { data, error } = await supabase.from('office_contacts').upsert(dataWithTimestamp).select();
         
         if (error) {
-            addToast('فشل حفظ جهة الاتصال', error.message, 'error');
+            addToast('فشل حفظ جهة الاتصال', `حدث خطأ: ${error.message}`, 'error');
         } else if (data) {
              const savedContact = data[0];
              if (!isEditing) {
-                setOfficeContacts(prev => [...prev, savedContact]);
-                logActivity(currentUser, 'CREATE_CONTACT', { contactId: savedContact.id, contactName: savedContact.name });
+                // Handled by realtime subscription
+                await logActivity(currentUser, 'CREATE_CONTACT', { contactId: savedContact.id, contactName: savedContact.name });
             } else {
-                logActivity(currentUser, 'UPDATE_CONTACT', { contactId: savedContact.id, contactName: savedContact.name });
+                await logActivity(currentUser, 'UPDATE_CONTACT', { contactId: savedContact.id, contactName: savedContact.name });
+                // Handled by realtime subscription
             }
-            addToast(`تم ${isEditing ? 'تحديث' : 'إضافة'} جهة الاتصال بنجاح`, '', 'success');
             setShowAddOfficeContactModal(false);
             setContactToEdit(null);
         }
@@ -774,10 +810,10 @@ const App: React.FC = () => {
         requestConfirmation('تأكيد الحذف', `هل أنت متأكد من رغبتك في حذف "${contact.name}"؟`, async () => {
             const { error } = await supabase.from('office_contacts').delete().eq('id', contact.id);
             if (error) {
-                addToast('فشل الحذف', error.message, 'error');
+                addToast('فشل الحذف', `حدث خطأ: ${error.message}`, 'error');
             } else {
-                logActivity(currentUser, 'DELETE_CONTACT', { contactId: contact.id, contactName: contact.name });
-                addToast('تم حذف جهة الاتصال بنجاح', '', 'deleted');
+                await logActivity(currentUser, 'DELETE_CONTACT', { contactId: contact.id, contactName: contact.name });
+                // Toast handled by realtime subscription
             }
         });
     };
@@ -864,7 +900,7 @@ const App: React.FC = () => {
 
             } catch (err: any) {
                 console.error("Import error:", err);
-                addToast('فشل استيراد الملف', err.message || 'تأكد من صحة التنسيق وعدم وجود تكرار.', 'error');
+                addToast('فشل استيراد الملف', `حدث خطأ أثناء المعالجة: ${err.message}`, 'error');
             }
         };
         reader.readAsArrayBuffer(file);
@@ -889,16 +925,15 @@ const App: React.FC = () => {
         const dataWithTimestamp = { ...taskData, updated_at: new Date().toISOString() };
         const { data, error } = await supabase.from('tasks').upsert(dataWithTimestamp).select();
         if (error) {
-            addToast('فشل حفظ المهمة', error.message, 'error');
+            addToast('فشل حفظ المهمة', `حدث خطأ: ${error.message}`, 'error');
         } else if (data) {
             const savedTask = data[0];
             if (!isEditing) {
-                setTasks(prev => [...prev, savedTask]);
-                logActivity(currentUser, 'CREATE_TASK', { taskId: savedTask.id, taskTitle: savedTask.title });
+                await logActivity(currentUser, 'CREATE_TASK', { taskId: savedTask.id, taskTitle: savedTask.title });
             } else {
-                 logActivity(currentUser, 'UPDATE_TASK', { taskId: savedTask.id, taskTitle: savedTask.title });
+                 await logActivity(currentUser, 'UPDATE_TASK', { taskId: savedTask.id, taskTitle: savedTask.title });
             }
-            addToast(`تم ${isEditing ? 'تحديث' : 'إضافة'} المهمة بنجاح`, '', 'success');
+            // Toast handled by realtime subscription
             setShowAddTaskModal(false);
             setTaskToEdit(null);
         }
@@ -908,10 +943,10 @@ const App: React.FC = () => {
         requestConfirmation('تأكيد الحذف', `هل أنت متأكد من رغبتك في حذف مهمة "${task.title}"؟`, async () => {
             const { error } = await supabase.from('tasks').delete().eq('id', task.id);
             if (error) {
-                addToast('فشل الحذف', error.message, 'error');
+                addToast('فشل الحذف', `حدث خطأ: ${error.message}`, 'error');
             } else {
-                logActivity(currentUser, 'DELETE_TASK', { taskId: task.id, taskTitle: task.title });
-                addToast('تم حذف المهمة بنجاح', '', 'deleted');
+                await logActivity(currentUser, 'DELETE_TASK', { taskId: task.id, taskTitle: task.title });
+                // Toast handled by realtime subscription
                 setSelectedTask(null); // Close detail modal on successful delete
             }
         });
@@ -926,17 +961,17 @@ const App: React.FC = () => {
                 updated_at: new Date().toISOString()
             }).eq('id', taskId).select();
             if (error) {
-                addToast('فشل تحديث حالة المهمة', error.message, 'error');
+                addToast('فشل تحديث الحالة', `حدث خطأ: ${error.message}`, 'error');
             } else if (data) {
                 const updatedTask = data[0];
                 if(selectedTask && selectedTask.id === taskId) {
                     setSelectedTask(updatedTask);
                 }
                 if (newStatus) {
-                    logActivity(currentUser, 'COMPLETE_TASK', { taskId: task.id, taskTitle: task.title, status: 'completed' });
+                    await logActivity(currentUser, 'COMPLETE_TASK', { taskId: task.id, taskTitle: task.title, status: 'completed' });
                     addToast('اكتملت المهمة بنجاح', '', 'success');
                 } else {
-                    logActivity(currentUser, 'UPDATE_TASK', { taskId: task.id, taskTitle: task.title, status: 're-opened' });
+                    await logActivity(currentUser, 'UPDATE_TASK', { taskId: task.id, taskTitle: task.title, status: 're-opened' });
                     addToast('أعيد فتح المهمة', '', 'info');
                 }
             }
@@ -967,15 +1002,15 @@ const App: React.FC = () => {
         const { data, error } = await supabase.from('transactions').upsert(payload).select('*');
         
         if (error) {
-            addToast('فشل حفظ المعاملة', error.message, 'error');
+            addToast('فشل حفظ المعاملة', `حدث خطأ: ${error.message}`, 'error');
         } else if (data) {
             const savedTransaction = data[0];
              if (!isEditing) {
-                 logActivity(currentUser, 'CREATE_TRANSACTION', { transactionId: savedTransaction.id, transactionSubject: savedTransaction.subject });
+                 await logActivity(currentUser, 'CREATE_TRANSACTION', { transactionId: savedTransaction.id, transactionSubject: savedTransaction.subject });
             } else {
-                logActivity(currentUser, 'UPDATE_TRANSACTION', { transactionId: savedTransaction.id, transactionSubject: savedTransaction.subject });
+                await logActivity(currentUser, 'UPDATE_TRANSACTION', { transactionId: savedTransaction.id, transactionSubject: savedTransaction.subject });
             }
-            addToast(`تم ${isEditing ? 'تحديث' : 'إضافة'} المعاملة بنجاح`, '', 'success');
+            // Toast handled by realtime subscription
             setShowAddTransactionModal(false);
             setTransactionToEdit(null);
         }
@@ -985,10 +1020,10 @@ const App: React.FC = () => {
         requestConfirmation('تأكيد الحذف', `هل أنت متأكد من رغبتك في حذف المعاملة رقم "${transaction.transaction_number}"؟`, async () => {
             const { error } = await supabase.from('transactions').delete().eq('id', transaction.id);
             if (error) {
-                addToast('فشل حذف المعاملة', error.message, 'error');
+                addToast('فشل حذف المعاملة', `حدث خطأ: ${error.message}`, 'error');
             } else {
-                logActivity(currentUser, 'DELETE_TRANSACTION', { transactionId: transaction.id, transactionNumber: transaction.transaction_number });
-                addToast('تم حذف المعاملة بنجاح', '', 'deleted');
+                await logActivity(currentUser, 'DELETE_TRANSACTION', { transactionId: transaction.id, transactionNumber: transaction.transaction_number });
+                // Toast handled by realtime subscription
             }
              setSelectedTransaction(null); // Close detail modal
         });
@@ -1022,10 +1057,10 @@ const App: React.FC = () => {
         const { error } = await supabase.from('transactions').update({ status: nextStatus, updated_at: new Date().toISOString() }).eq('id', transactionId);
 
         if (error) {
-            addToast('فشل تحديث حالة المعاملة', error.message, 'error');
+            addToast('فشل تحديث الحالة', `حدث خطأ: ${error.message}`, 'error');
         } else {
             const nextStatusText = statusTextMap[nextStatus as keyof typeof statusTextMap];
-            logActivity(currentUser, 'UPDATE_TRANSACTION_STATUS', { transactionId: transaction.id, transactionSubject: transaction.subject, newStatus: nextStatus });
+            await logActivity(currentUser, 'UPDATE_TRANSACTION_STATUS', { transactionId: transaction.id, transactionSubject: transaction.subject, newStatus: nextStatus });
             addToast(`تم تحديث الحالة إلى "${nextStatusText}"`, '', 'info');
         }
     };
@@ -1064,10 +1099,6 @@ const App: React.FC = () => {
         return <LoginScreen />;
     }
 
-    if (justLoggedIn) {
-        return <WelcomeScreen currentUser={currentUser} />;
-    }
-
     return (
         <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
             <Header 
@@ -1088,7 +1119,7 @@ const App: React.FC = () => {
                             <>
                                 <SearchAndFilter
                                     onImportClick={handleGenericImport}
-                                    onAddEmployeeClick={() => { setEmployeeToEdit(null); setShowAddEmployeeModal(true); }}
+                                    onAddEmployeeClick={() => { setEmployeeToEdit(null); setShowAddEmployeeOnboarding(true); }}
                                     onExportClick={handleExportEmployees}
                                     onSortClick={() => setShowSortModal(true)}
                                     employees={employees}
@@ -1195,18 +1226,18 @@ const App: React.FC = () => {
                         setSelectedEmployee(null);
                         setTimeout(() => {
                             setEmployeeToEdit(emp);
-                            setShowAddEmployeeModal(true);
+                            setShowAddEmployeeOnboarding(true);
                         }, 100);
                     }}
                     onDelete={handleDeleteEmployee}
                 />
             )}
             
-            {(showAddEmployeeModal || employeeToEdit) && (
-                 <AddEmployeeModal
-                    isOpen={showAddEmployeeModal || !!employeeToEdit}
+            {(showAddEmployeeOnboarding || employeeToEdit) && (
+                 <AddEmployeeOnboarding
+                    isOpen={showAddEmployeeOnboarding || !!employeeToEdit}
                     onClose={() => {
-                        setShowAddEmployeeModal(false);
+                        setShowAddEmployeeOnboarding(false);
                         setEmployeeToEdit(null);
                     }}
                     onSave={handleSaveEmployee}

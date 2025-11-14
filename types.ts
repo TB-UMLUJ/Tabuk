@@ -193,3 +193,13 @@ export interface UpdatePreview<T> {
 
 // New type to manage user selections for updates
 export type UpdateSelection = Record<number | string, Set<string>>; // Key is employee/contact ID or name, value is a set of field names to update
+
+// --- New WebAuthn Types ---
+export interface WebAuthnCredential {
+  id: number;
+  created_at: string;
+  user_id: number;
+  credential_id: string;
+  public_key: string;
+  transports: string[];
+}
