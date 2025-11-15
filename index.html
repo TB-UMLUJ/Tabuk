@@ -17,6 +17,10 @@
       /* ==========================================================================
    1. Base, Mobile & General Styles
    ========================================================================== */
+html {
+  font-size: 13px; /* Further adjust base font size for mobile to make elements smaller */
+}
+
 body {
   font-family: 'Tajawal', 'sans-serif';
 }
@@ -196,6 +200,9 @@ textarea::placeholder {
    3. Tablet & Desktop Styles (min-width: 768px)
    ========================================================================== */
 @media (min-width: 768px) { /* Tailwind's 'md' breakpoint */
+  html {
+    font-size: 16px; /* Restore base font size for larger screens */
+  }
   /* Restore placeholder font size for larger screens */
   input::placeholder,
   textarea::placeholder {
