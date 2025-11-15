@@ -273,11 +273,11 @@ const LoginScreen: React.FC = () => {
                                     <p className="font-semibold text-lg text-gray-800 dark:text-white">مرحباً : {verifiedUserName}</p>
                                 </div>
                             )}
-                             <div className="flex flex-col items-stretch gap-3">
+                             <div className="flex flex-col sm:flex-row items-stretch gap-3">
                                 <button
                                     type="submit"
                                     disabled={isSubmitting || isWebAuthnSubmitting}
-                                    className="btn btn-primary w-full relative overflow-hidden"
+                                    className="btn btn-primary w-full flex-1 relative overflow-hidden"
                                     style={{ minHeight: '44px', borderRadius: '0.5rem' }}
                                 >
                                     <span
@@ -296,7 +296,7 @@ const LoginScreen: React.FC = () => {
                                     type="button"
                                     onClick={handleWebAuthnLogin}
                                     disabled={isWebAuthnSubmitting || isSubmitting}
-                                    className="btn btn-secondary gap-2"
+                                    className="btn btn-secondary flex-shrink-0 gap-2"
                                     title="تسجيل الدخول بالبصمة"
                                     aria-label="تسجيل الدخول بالبصمة"
                                     style={{ borderRadius: '0.5rem' }}

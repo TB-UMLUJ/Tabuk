@@ -296,7 +296,7 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                 
                 <div className="lg:col-span-8 flex flex-col gap-6">
                     {/* Stat Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                         <AnimatedStatCard 
                             title="المراكز الصحية" 
                             value={stats.totalFacilities} 
