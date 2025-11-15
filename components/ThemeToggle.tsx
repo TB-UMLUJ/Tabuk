@@ -8,7 +8,7 @@ const ThemeToggle: React.FC = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="btn btn-icon btn-secondary"
+      className="header-icon-btn"
       title={theme === 'light' ? 'التبديل إلى الوضع الداكن' : 'التبديل إلى الوضع المضيء'}
       aria-label="Toggle theme"
     >

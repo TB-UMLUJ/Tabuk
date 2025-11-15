@@ -209,7 +209,7 @@ export const ChevronLeftIcon: React.FC<IconProps> = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
 );
 export const ExclamationCircleIcon: React.FC<IconProps> = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12V8.25z" /></svg>
 );
 export const ListBulletIcon: React.FC<IconProps> = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
@@ -281,8 +281,6 @@ export const LinkedInIcon: React.FC<IconProps> = (props) => (
 
 export const FingerprintIcon: React.FC<IconProps> = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M7.864 4.243A7.5 7.5 0 0119.5 10.5c0 2.92-.556 5.709-1.588 8.263M9.75 10.5A.75.75 0 0110.5 9.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75H10.5a.75.75 0 01-.75-.75V10.5z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 10.5h.008v.008H12V10.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM12 19.5h.008v.008H12V19.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM12 15h.008v.008H12V15zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM5.625 15h.008v.008H5.625V15zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM8.25 15h.008v.008H8.25V15zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM15 15h.008v.008H15V15zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM8.25 19.5h.008v.008H8.25V19.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM15.75 9.75h.008v.008h-.008V9.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5a7.5 7.5 0 1015 0c0-2.92-.556-5.709-1.588-8.263" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7.864 4.243A7.5 7.5 0 0 1 19.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 0 0 4.5 10.5a7.464 7.464 0 0 1-1.15 3.993m1.989 3.559A11.209 11.209 0 0 0 8.25 10.5a3.75 3.75 0 1 1 7.5 0c0 .527-.021 1.049-.064 1.565M12 10.5a14.94 14.94 0 0 1-3.6 9.75m6.633-4.596a18.666 18.666 0 0 1-2.485 5.33" />
     </svg>
 );

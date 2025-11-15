@@ -52,7 +52,10 @@ const WebAuthnManagementView: React.FC = () => {
             const newCredential = await navigator.credentials.create({
                 publicKey: {
                     challenge,
-                    rp: { name: 'تجمع تبوك الصحي' },
+                    rp: { 
+                        name: 'تجمع تبوك الصحي',
+                        id: window.location.hostname 
+                    },
                     user: {
                         id: Uint8Array.from(String(currentUser.user_id), c => c.charCodeAt(0)),
                         name: currentUser.username,

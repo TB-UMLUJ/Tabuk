@@ -8,6 +8,7 @@ import InactiveAccountModal from './InactiveAccountModal';
 import { supabase } from '../lib/supabaseClient';
 import { base64UrlToArrayBuffer, arrayBufferToBase64Url } from '../lib/webauthnHelpers';
 import { useToast } from '../contexts/ToastContext';
+import WebAuthnPromptModal from './WebAuthnPromptModal';
 
 
 type NotificationType = 'success' | 'error' | 'info';
@@ -25,6 +26,7 @@ const LoginScreen: React.FC = () => {
     const [showInactiveAccountModal, setShowInactiveAccountModal] = useState(false);
     const [verifiedUserName, setVerifiedUserName] = useState<string | null>(null);
     const [loginStepMessage, setLoginStepMessage] = useState('');
+    const [webAuthnPrompt, setWebAuthnPrompt] = useState<{ isOpen: boolean; status: 'scanning' | 'success' | 'failed' }>({ isOpen: false, status: 'scanning' });
 
     useEffect(() => {
         const logoutMessage = sessionStorage.getItem('logoutMessage');
@@ -63,7 +65,7 @@ const LoginScreen: React.FC = () => {
         } else if (result) {
             // Step 2: Connection successful
             setLoginStepMessage('تم الاتصال بنجاح');
-            setVerifiedUserName((result as User).full_name); // Trigger animation and welcome message
+            setVerifiedUserName((result as Omit<User, 'permissions'>).full_name); // Trigger animation and welcome message
             await sleep(1500);
 
             // Step 3: Connecting to system
@@ -78,7 +80,7 @@ const LoginScreen: React.FC = () => {
             setLoginStepMessage('دخول ناجح');
             await sleep(1000);
 
-            performLogin(result as User);
+            await performLogin(result);
         } else {
             showNotification('اسم المستخدم أو كلمة المرور غير صحيحة.', 'error', 3000);
             setPassword('');
@@ -90,28 +92,28 @@ const LoginScreen: React.FC = () => {
     const handleWebAuthnLogin = async () => {
         setIsWebAuthnSubmitting(true);
         setNotification(null);
+        setWebAuthnPrompt({ isOpen: true, status: 'scanning' });
 
-        // 1. Check for browser support
         if (!navigator.credentials || !navigator.credentials.get) {
             showNotification('جهازك لا يدعم تسجيل الدخول بالبصمة أو الوجه.', 'error', 4000);
             setIsWebAuthnSubmitting(false);
+            setWebAuthnPrompt({ isOpen: false, status: 'failed' });
             return;
         }
 
         try {
-            // 2. Fetch available credentials from Supabase
             const { data: credentials, error: fetchError } = await supabase
                 .from('webauthn_credentials')
                 .select('*');
             
             if (fetchError) throw fetchError;
             if (!credentials || credentials.length === 0) {
-                showNotification('لم يتم ربط أي بصمة. يرجى تسجيل الدخول وإعدادها من الإعدادات.', 'info', 4000);
-                setIsWebAuthnSubmitting(false);
+                 setWebAuthnPrompt({ isOpen: false, status: 'failed' });
+                 showNotification('لم يتم ربط أي بصمة. يرجى تسجيل الدخول وإعدادها من الإعدادات.', 'info', 4000);
+                 setIsWebAuthnSubmitting(false);
                 return;
             }
 
-            // 3. Prepare options for navigator.credentials.get()
             const allowCredentials = credentials.map((cred: WebAuthnCredential) => ({
                 type: 'public-key' as PublicKeyCredentialType,
                 id: base64UrlToArrayBuffer(cred.credential_id),
@@ -119,12 +121,12 @@ const LoginScreen: React.FC = () => {
             
             const challenge = crypto.getRandomValues(new Uint8Array(32));
 
-            // 4. Call the WebAuthn API
             const assertion = await navigator.credentials.get({
                 publicKey: {
                     challenge,
                     allowCredentials,
                     userVerification: 'preferred',
+                    rpId: window.location.hostname,
                 },
             }) as PublicKeyCredential;
 
@@ -132,7 +134,8 @@ const LoginScreen: React.FC = () => {
                 throw new Error('فشل التحقق من الهوية.');
             }
 
-            // 5. Find the user associated with the returned credential
+            setWebAuthnPrompt(prev => ({ ...prev, status: 'success' }));
+
             const assertedCredentialId = arrayBufferToBase64Url(assertion.rawId);
             const matchingCredential = credentials.find(c => c.credential_id === assertedCredentialId);
 
@@ -140,7 +143,6 @@ const LoginScreen: React.FC = () => {
                 throw new Error('لم يتم العثور على البصمة المسجلة.');
             }
 
-            // 6. Fetch the full user object
             const { data: user, error: userError } = await supabase
                 .from('users')
                 .select('*, role:roles(*)')
@@ -152,15 +154,22 @@ const LoginScreen: React.FC = () => {
             if (!user.is_active) {
                 setShowInactiveAccountModal(true);
                 setIsWebAuthnSubmitting(false);
+                setWebAuthnPrompt({ isOpen: false, status: 'failed' });
                 return;
             }
-
-            // 7. Perform login and show success toast
-            performLogin(user);
+            
+            await sleep(1500);
+            await performLogin(user);
             addToast('مرحبًا بك 👋', 'تم تسجيل دخولك بالبصمة بنجاح.', 'success');
+            setWebAuthnPrompt({ isOpen: false, status: 'scanning' });
 
         } catch (error: any) {
             console.error("WebAuthn login error:", error);
+            setWebAuthnPrompt(prev => ({ ...prev, status: 'failed' }));
+            
+            await sleep(2000);
+            setWebAuthnPrompt({ isOpen: false, status: 'scanning' });
+
             let message = 'حدث خطأ أثناء تسجيل الدخول بالبصمة.';
             if (error.name === 'NotAllowedError') {
                 message = 'تم إلغاء عملية التحقق.';
@@ -184,7 +193,7 @@ const LoginScreen: React.FC = () => {
         error: { icon: <XCircleIcon className="h-5 w-5"/>, className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' },
         info: { icon: <InformationCircleIcon className="h-5 w-5"/>, className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' },
     };
-
+    
     return (
         <div className="min-h-screen relative flex flex-col items-center justify-center bg-gray-50 p-4 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800">
             <div className="absolute top-4 left-4">
@@ -264,48 +273,40 @@ const LoginScreen: React.FC = () => {
                                     <p className="font-semibold text-lg text-gray-800 dark:text-white">مرحباً : {verifiedUserName}</p>
                                 </div>
                             )}
-                            <button
-                                type="submit"
-                                disabled={isSubmitting || isWebAuthnSubmitting}
-                                className="btn btn-primary w-full relative overflow-hidden"
-                                style={{ minHeight: '46px' }}
-                            >
-                                <span
-                                    className="absolute top-0 right-0 h-full bg-primary-dark transition-all ease-in-out"
-                                    style={{ 
-                                        width: verifiedUserName ? '100%' : '0%',
-                                        transitionDuration: '5500ms'
-                                    }}
-                                ></span>
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                    {isSubmitting ? loginStepMessage : 'تسجيل الدخول'}
-                                    {!isSubmitting && <ArrowRightOnRectangleIcon className="h-5 w-5" />}
-                                </span>
-                            </button>
+                             <div className="flex flex-col sm:flex-row items-stretch gap-3">
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting || isWebAuthnSubmitting}
+                                    className="btn btn-primary w-full flex-1 relative overflow-hidden"
+                                    style={{ minHeight: '44px', borderRadius: '0.5rem' }}
+                                >
+                                    <span
+                                        className="absolute top-0 right-0 h-full bg-primary-dark transition-all ease-in-out"
+                                        style={{ 
+                                            width: verifiedUserName ? '100%' : '0%',
+                                            transitionDuration: '5500ms'
+                                        }}
+                                    ></span>
+                                    <span className="relative z-10 flex items-center justify-center gap-2">
+                                        {isSubmitting ? loginStepMessage : 'تسجيل الدخول'}
+                                        {!isSubmitting && <ArrowRightOnRectangleIcon className="h-5 w-5" />}
+                                    </span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleWebAuthnLogin}
+                                    disabled={isWebAuthnSubmitting || isSubmitting}
+                                    className="btn btn-secondary flex-shrink-0 gap-2"
+                                    title="تسجيل الدخول بالبصمة"
+                                    aria-label="تسجيل الدخول بالبصمة"
+                                    style={{ borderRadius: '0.5rem' }}
+                                >
+                                    <FingerprintIcon className="h-6 w-6"/>
+                                    <span>دخول بالبصمة</span>
+                                </button>
+                            </div>
                         </div>
                     </form>
-                     <div className="relative my-6 flex items-center">
-                        <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-                        <span className="flex-shrink mx-4 text-gray-400 dark:text-gray-500 text-sm">أو</span>
-                        <div className="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={handleWebAuthnLogin}
-                        disabled={isWebAuthnSubmitting || isSubmitting}
-                        className="w-full relative overflow-hidden flex items-center justify-center gap-2 p-3 rounded-full font-bold text-white shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
-                        style={{ background: 'linear-gradient(to right, #00BFA6, #00796B)' }}
-                    >
-                        {isWebAuthnSubmitting ? (
-                            'جاري التحقق من البصمة...'
-                        ) : (
-                            <>
-                                <FingerprintIcon className="w-6 h-6" />
-                                تسجيل الدخول بالبصمة 🔒
-                            </>
-                        )}
-                    </button>
                 </div>
 
                 <div className="h-16 mt-2 flex items-center justify-center">
@@ -328,6 +329,11 @@ const LoginScreen: React.FC = () => {
              <InactiveAccountModal 
                 isOpen={showInactiveAccountModal}
                 onClose={() => setShowInactiveAccountModal(false)}
+            />
+            <WebAuthnPromptModal 
+                isOpen={webAuthnPrompt.isOpen}
+                status={webAuthnPrompt.status}
+                onClose={() => setWebAuthnPrompt({ isOpen: false, status: 'scanning' })}
             />
         </div>
     );

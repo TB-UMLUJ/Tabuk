@@ -31,7 +31,6 @@ import TaskDetailModal from './components/TaskDetailModal';
 import { logActivity } from './lib/activityLogger';
 import SkeletonLoader from './components/SkeletonLoader';
 import SortModal, { SortConfig } from './components/SortModal';
-import GlobalSearch from './components/GlobalSearch';
 import ImportPreviewModal from './components/ImportPreviewModal';
 
 
@@ -51,6 +50,7 @@ const App: React.FC = () => {
     const [loading, setLoading] = useState(true);
 
     // UI & Filter State
+    const [employeeSearchTerm, setEmployeeSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'full_name_ar', direction: 'asc' });
     const [activeFilters, setActiveFilters] = useState<{ center: string; jobTitle: string }>({ center: 'all', jobTitle: 'all' });
     const [activeTab, setActiveTab] = useState<'directory' | 'orgChart' | 'officeDirectory' | 'tasks' | 'transactions' | 'statistics'>('statistics');
@@ -76,7 +76,6 @@ const App: React.FC = () => {
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [showSortModal, setShowSortModal] = useState(false);
-    const [isGlobalSearchOpen, setGlobalSearchOpen] = useState(false);
     const [confirmation, setConfirmation] = useState<{
         isOpen: boolean;
         title: string;
@@ -293,11 +292,23 @@ const App: React.FC = () => {
     }, [currentUser, employees, officeContacts, logos.mainLogoUrl, addToast]);
 
     const filteredEmployees = useMemo(() => {
+        const searchTerm = employeeSearchTerm.toLowerCase().trim();
+
         const filtered = employees.filter(employee => {
             const centerMatch = activeFilters.center === 'all' || employee.center === activeFilters.center;
             const jobTitleMatch = activeFilters.jobTitle === 'all' || employee.job_title === activeFilters.jobTitle;
             
             if (!centerMatch || !jobTitleMatch) return false;
+
+            if (searchTerm) {
+                return (
+                    employee.full_name_ar.toLowerCase().includes(searchTerm) ||
+                    (employee.national_id && employee.national_id.includes(searchTerm)) ||
+                    (employee.phone_direct && employee.phone_direct.includes(searchTerm)) ||
+                    employee.employee_id.includes(searchTerm) ||
+                    employee.job_title.toLowerCase().includes(searchTerm)
+                );
+            }
 
             return true;
         });
@@ -323,7 +334,7 @@ const App: React.FC = () => {
             
             return direction === 'asc' ? comparison : -comparison;
         });
-    }, [employees, sortConfig, activeFilters]);
+    }, [employees, sortConfig, activeFilters, employeeSearchTerm]);
 
     const visibleEmployees = useMemo(
         () => filteredEmployees.slice(0, visibleEmployeeCount),
@@ -1103,7 +1114,6 @@ const App: React.FC = () => {
         <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
             <Header 
                 onOpenSettings={() => setShowSettings(true)}
-                onOpenGlobalSearch={() => setGlobalSearchOpen(true)}
              />
             
             <main className="container mx-auto px-3 md:px-6 flex-grow pb-24 md:pb-6">
@@ -1118,6 +1128,8 @@ const App: React.FC = () => {
                         {activeTab === 'directory' && (
                             <>
                                 <SearchAndFilter
+                                    searchTerm={employeeSearchTerm}
+                                    onSearchChange={setEmployeeSearchTerm}
                                     onImportClick={handleGenericImport}
                                     onAddEmployeeClick={() => { setEmployeeToEdit(null); setShowAddEmployeeOnboarding(true); }}
                                     onExportClick={handleExportEmployees}
@@ -1204,18 +1216,6 @@ const App: React.FC = () => {
                     dataType={importPreview.dataType}
                 />
             )}
-
-            <GlobalSearch 
-                isOpen={isGlobalSearchOpen}
-                onClose={() => setGlobalSearchOpen(false)}
-                employees={employees}
-                officeContacts={officeContacts}
-                tasks={tasks}
-                transactions={transactions}
-                onSelectEmployee={(emp) => { setGlobalSearchOpen(false); setSelectedEmployee(emp); }}
-                onSelectTask={(task) => { setGlobalSearchOpen(false); setSelectedTask(task); }}
-                onSelectTransaction={(trans) => { setGlobalSearchOpen(false); setSelectedTransaction(trans); }}
-            />
 
             {selectedEmployee && (
                 <EmployeeProfileModal

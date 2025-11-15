@@ -3,13 +3,16 @@ import { supabase } from '../lib/supabaseClient';
 import { User } from '../types';
 import { logActivity } from '../lib/activityLogger';
 
+// Omit permissions from the base user type for login flow
+type BaseUser = Omit<User, 'permissions'>;
+
 interface AuthContextType {
     currentUser: User | null;
     isAuthenticating: boolean;
-    verifyCredentials: (username: string, password: string) => Promise<User | null | 'INACTIVE_ACCOUNT'>;
-    performLogin: (user: User) => void;
+    verifyCredentials: (username: string, password: string) => Promise<BaseUser | null | 'INACTIVE_ACCOUNT'>;
+    performLogin: (user: BaseUser) => Promise<void>;
     changePassword: (userId: number, currentPassword: string, newPassword: string) => Promise<boolean>;
-    logout: () => void;
+    logout: () => Promise<void>;
     hasPermission: (permissionName: string) => boolean;
 }
 
@@ -53,7 +56,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         checkSession();
     }, [fetchUserPermissions]);
 
-    const verifyCredentials = async (username: string, password: string): Promise<User | null | 'INACTIVE_ACCOUNT'> => {
+    const verifyCredentials = async (username: string, password: string): Promise<BaseUser | null | 'INACTIVE_ACCOUNT'> => {
         try {
             const { data, error } = await supabase
                 .from('users')
@@ -70,42 +73,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (!data.is_active) {
                 return 'INACTIVE_ACCOUNT';
             }
+            
+            // Permissions are now fetched in performLogin
+            return data as BaseUser;
 
-            const permissions = await fetchUserPermissions(data.role.role_id);
-            
-            const user: User = {
-                user_id: data.user_id,
-                username: data.username,
-                full_name: data.full_name,
-                is_active: data.is_active,
-                role: data.role,
-                role_id: data.role_id,
-                permissions,
-            };
-            
-            return user;
         } catch (err) {
             console.error(err);
             return null;
         }
     };
 
-    const performLogin = (user: User) => {
-        setCurrentUser(user);
-        sessionStorage.setItem('currentUser', JSON.stringify(user));
-        logActivity(user, 'LOGIN');
+    const performLogin = async (user: BaseUser) => {
+        const permissions = await fetchUserPermissions(user.role_id);
+        const fullUser: User = { ...user, permissions };
+        setCurrentUser(fullUser);
+        sessionStorage.setItem('currentUser', JSON.stringify(fullUser));
+        await logActivity(fullUser, 'LOGIN');
     };
 
 
     const logout = async () => {
-        await logActivity(currentUser, 'LOGOUT');
+        if(currentUser) {
+            await logActivity(currentUser, 'LOGOUT');
+        }
         setCurrentUser(null);
         sessionStorage.removeItem('currentUser');
         sessionStorage.setItem('logoutMessage', 'تم تسجيل خروجك بنجاح.');
     };
 
     const hasPermission = (permissionName: string): boolean => {
-        return !!currentUser?.permissions.includes(permissionName);
+        return !!currentUser?.permissions?.includes(permissionName);
     };
     
     const changePassword = async (userId: number, currentPassword: string, newPassword: string): Promise<boolean> => {

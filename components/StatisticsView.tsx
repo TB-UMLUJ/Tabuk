@@ -19,6 +19,7 @@ import {
 } from '../icons/Icons';
 import { supabase } from '../lib/supabaseClient'; // To get office contacts count
 import { useToast } from '../contexts/ToastContext';
+import AnimatedStatCard from './AnimatedStatCard';
 
 declare const XLSX: any;
 
@@ -50,40 +51,6 @@ const groupAndAggregate = (data: any[], key: string, limit?: number) => {
 };
 
 // --- Sub-Components ---
-const gradients = {
-    facilities: { id: 'grad-facilities', colors: ['#9b945f', '#B5B197'] }, 
-    offices: { id: 'grad-offices', colors: ['#9b945f', '#B5B197'] },     
-    ongoing: { id: 'grad-ongoing', colors: ['#F0B323', '#F8D06B'] },   
-    completed: { id: 'grad-completed', colors: ['#008755', '#33A077'] }, 
-    remainingTasks: { id: 'grad-remaining', colors: ['#707372', '#9CA3AF'] },
-    completedTasks: { id: 'grad-completed-tasks', colors: ['#008755', '#006640'] }
-};
-
-const StatCard: React.FC<{ title: string; value: string | number; icon: React.ReactElement<React.SVGProps<SVGSVGElement>>; gradientId: string; gradientColors: [string, string] }> = ({ title, value, icon, gradientId, gradientColors }) => (
-    <div className="relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/80 p-3 rounded-xl shadow-md border border-gray-200/50 dark:border-gray-700/50 overflow-hidden h-20">
-        <svg width="0" height="0" style={{ position: 'absolute' }}>
-            <defs>
-                <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor={gradientColors[0]} />
-                    <stop offset="100%" stopColor={gradientColors[1]} />
-                </linearGradient>
-            </defs>
-        </svg>
-
-        <div className="relative z-10">
-            <p className="text-gray-500 font-medium text-xs sm:text-sm dark:text-gray-400 truncate">{title}</p>
-            <p className="text-2xl font-bold text-gray-800 dark:text-white mt-1">{value}</p>
-        </div>
-        <div className="absolute -bottom-1 -left-1 z-0 opacity-50 dark:opacity-30">
-             {React.cloneElement(icon, { 
-                 className: 'w-10 h-10',
-                 stroke: `url(#${gradientId})`
-             })}
-        </div>
-    </div>
-);
-
-
 const HighlightCard: React.FC<{ text: string; icon: React.ReactNode; colorClass: string }> = ({ text, icon, colorClass }) => (
     <div className={`p-4 rounded-xl flex items-center gap-3 ${colorClass}`}>
         <div className="flex-shrink-0">{icon}</div>
@@ -329,48 +296,48 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                 
                 <div className="lg:col-span-8 flex flex-col gap-6">
                     {/* Stat Cards */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <StatCard 
+                    <div className="grid grid-cols-2 gap-4">
+                        <AnimatedStatCard 
                             title="المراكز الصحية" 
                             value={stats.totalFacilities} 
                             icon={<BuildingOfficeIcon />} 
-                            gradientId={gradients.facilities.id} 
-                            gradientColors={gradients.facilities.colors as [string, string]}
+                            bgClass="from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-900/30"
+                            iconColorClass="text-blue-400"
                         />
-                        <StatCard 
+                        <AnimatedStatCard 
                             title="تحويلات المكاتب" 
                             value={officeContacts.length} 
                             icon={<PhoneIcon />}
-                            gradientId={gradients.offices.id} 
-                            gradientColors={gradients.offices.colors as [string, string]}
+                            bgClass="from-indigo-100 to-indigo-50 dark:from-indigo-900/50 dark:to-indigo-900/30"
+                            iconColorClass="text-indigo-400"
                         />
-                        <StatCard 
+                        <AnimatedStatCard 
                             title="معاملات جارية" 
                             value={stats.ongoingTransactions} 
                             icon={<ClockIcon />}
-                            gradientId={gradients.ongoing.id} 
-                            gradientColors={gradients.ongoing.colors as [string, string]}
+                            bgClass="from-amber-100 to-amber-50 dark:from-amber-900/50 dark:to-amber-900/30"
+                            iconColorClass="text-amber-400"
                         />
-                        <StatCard 
+                        <AnimatedStatCard 
                             title="معاملات مكتملة" 
                             value={stats.completedTransactions} 
                             icon={<CheckCircleIcon />}
-                            gradientId={gradients.completed.id} 
-                            gradientColors={gradients.completed.colors as [string, string]}
+                            bgClass="from-green-100 to-green-50 dark:from-green-900/50 dark:to-green-900/30"
+                            iconColorClass="text-green-400"
                         />
-                        <StatCard 
+                        <AnimatedStatCard 
                             title="المهام المتبقية" 
                             value={stats.remainingTasks} 
                             icon={<BellIcon />}
-                            gradientId={gradients.remainingTasks.id} 
-                            gradientColors={gradients.remainingTasks.colors as [string, string]}
+                            bgClass="from-teal-100 to-teal-50 dark:from-teal-900/50 dark:to-teal-900/30"
+                            iconColorClass="text-teal-400"
                         />
-                        <StatCard 
+                        <AnimatedStatCard 
                             title="المهام المكتملة" 
                             value={stats.completedTasks} 
                             icon={<ShieldCheckIcon />}
-                            gradientId={gradients.completedTasks.id} 
-                            gradientColors={gradients.completedTasks.colors as [string, string]}
+                            bgClass="from-sky-100 to-sky-50 dark:from-sky-900/50 dark:to-sky-900/30"
+                            iconColorClass="text-sky-400"
                         />
                     </div>
                      {/* Smart Highlights */}
@@ -391,12 +358,6 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                             colorClass="bg-gradient-to-br from-blue-50 to-blue-100 text-blue-800 dark:from-blue-900/40 dark:to-blue-900/20 dark:text-blue-200"
                          />
                     </div>
-                </div>
-
-                
-                {/* === Analytics Header === */}
-                <div className="lg:col-span-12">
-                    <h2 className="text-xl font-bold text-gray-800 dark:text-white mt-6 mb-4 text-center">التحليلات الرئيسية</h2>
                 </div>
                 
                 {/* === ROW 4: Employee Charts === */}
