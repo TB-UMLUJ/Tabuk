@@ -13,8 +13,8 @@ interface WebAuthnPromptModalProps {
 const StatusGraphic: React.FC<{ status: Status }> = ({ status }) => {
     if (status === 'failed') {
         return (
-            <div className="relative w-[120px] h-[120px] flex items-center justify-center">
-                <FingerprintIcon className="w-[100px] h-[100px] text-red-400" />
+            <div className="relative w-[7.5rem] h-[7.5rem] flex items-center justify-center">
+                <FingerprintIcon className="w-[6.25rem] h-[6.25rem] text-red-400" />
                 <svg viewBox="0 0 100 100" className="absolute w-full h-full">
                     <path d="M 35 35 L 65 65 M 65 35 L 35 65" fill="none" stroke="white" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" className="animate-checkmark" />
                 </svg>
@@ -24,8 +24,8 @@ const StatusGraphic: React.FC<{ status: Status }> = ({ status }) => {
 
     if (status === 'success') {
         return (
-            <div className="relative w-[120px] h-[120px] flex items-center justify-center">
-                <FingerprintIcon className="w-[100px] h-[100px] text-green-400" />
+            <div className="relative w-[7.5rem] h-[7.5rem] flex items-center justify-center">
+                <FingerprintIcon className="w-[6.25rem] h-[6.25rem] text-green-400" />
                 <svg viewBox="0 0 100 100" className="absolute w-full h-full">
                     <path d="M 30 50 L 45 65 L 75 35" fill="none" stroke="white" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" className="animate-checkmark" />
                 </svg>
@@ -35,8 +35,8 @@ const StatusGraphic: React.FC<{ status: Status }> = ({ status }) => {
     
     // Scanning state
     return (
-        <div className="relative w-[120px] h-[120px] flex items-center justify-center">
-            <FingerprintIcon className="w-[100px] h-[100px] text-emerald-300 animate-pulse-strong" />
+        <div className="relative w-[7.5rem] h-[7.5rem] flex items-center justify-center">
+            <FingerprintIcon className="w-[6.25rem] h-[6.25rem] text-emerald-300 animate-pulse-strong" />
         </div>
     );
 };
@@ -110,7 +110,7 @@ const WebAuthnPromptModal: React.FC<WebAuthnPromptModalProps> = ({ isOpen, statu
             <div className={`relative bg-[#2A304C] rounded-2xl w-full max-w-sm text-center p-8 text-white transform ${isClosing ? 'animate-modal-out-scale' : 'animate-modal-in-scale'}`}>
                 <p className="font-semibold text-lg mb-8">{currentMessage.title}</p>
                 
-                <div className="relative flex justify-center items-center mb-8 h-[120px]">
+                <div className="relative flex justify-center items-center mb-8 h-[7.5rem]">
                    <StatusGraphic status={status} />
                 </div>
                 

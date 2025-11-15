@@ -278,7 +278,7 @@ const LoginScreen: React.FC = () => {
                                     type="submit"
                                     disabled={isSubmitting || isWebAuthnSubmitting}
                                     className="btn btn-primary w-full relative overflow-hidden"
-                                    style={{ minHeight: '44px', borderRadius: '0.5rem' }}
+                                    style={{ minHeight: '2.75rem', borderRadius: '0.5rem' }}
                                 >
                                     <span
                                         className="absolute top-0 right-0 h-full bg-primary-dark transition-all ease-in-out"

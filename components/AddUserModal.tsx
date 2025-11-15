@@ -230,7 +230,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onSave, us
                     padding: 0.5rem 1.5rem;
                     border-radius: 0.5rem;
                     transition: all 0.2s;
-                    min-width: 120px;
+                    min-width: 7.5rem;
                 }
                 .btn-primary:hover {
                     background-color: #004B80;

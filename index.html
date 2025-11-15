@@ -18,7 +18,7 @@
    1. Base, Mobile & General Styles
    ========================================================================== */
 html {
-  font-size: 15px; /* Adjust base font size for mobile to make elements smaller */
+  font-size: 93.75%; /* 15px / 16px */
 }
 
 body {
@@ -51,7 +51,7 @@ select {
 /* Smaller placeholder on mobile */
 input::placeholder,
 textarea::placeholder {
-  font-size: 13px;
+  font-size: 0.87rem; /* ~13px on 15px base */
 }
 
 /* --- Toast Notifications (Mobile First) --- */
@@ -201,13 +201,9 @@ textarea::placeholder {
    ========================================================================== */
 @media (min-width: 768px) { /* Tailwind's 'md' breakpoint */
   html {
-    font-size: 16px; /* Restore base font size for larger screens */
+    font-size: 100%; /* Restore base font size for larger screens */
   }
-  /* Restore placeholder font size for larger screens */
-  input::placeholder,
-  textarea::placeholder {
-    font-size: 16px;
-  }
+  /* Placeholder font size is now handled by browser default on larger screens */
 
   /* --- Toast Notifications (Desktop Overrides) --- */
   .toast-container {

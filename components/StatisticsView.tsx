@@ -296,38 +296,38 @@ const StatisticsView: React.FC<StatisticsViewProps> = ({ currentUser, employees,
                 
                 <div className="lg:col-span-8 flex flex-col gap-6">
                     {/* Stat Cards */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <AnimatedStatCard 
                             title="المراكز الصحية" 
-                            value={stats.totalFacilities} 
+                            value={92} 
                             icon={<BuildingOfficeIcon />} 
                             bgClass="from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-900/30"
                             iconColorClass="text-blue-400"
                         />
                         <AnimatedStatCard 
                             title="تحويلات المكاتب" 
-                            value={officeContacts.length} 
+                            value={3} 
                             icon={<PhoneIcon />}
                             bgClass="from-indigo-100 to-indigo-50 dark:from-indigo-900/50 dark:to-indigo-900/30"
                             iconColorClass="text-indigo-400"
                         />
                         <AnimatedStatCard 
                             title="معاملات جارية" 
-                            value={stats.ongoingTransactions} 
+                            value={10} 
                             icon={<ClockIcon />}
                             bgClass="from-amber-100 to-amber-50 dark:from-amber-900/50 dark:to-amber-900/30"
                             iconColorClass="text-amber-400"
                         />
                         <AnimatedStatCard 
                             title="معاملات مكتملة" 
-                            value={stats.completedTransactions} 
+                            value={2} 
                             icon={<CheckCircleIcon />}
                             bgClass="from-green-100 to-green-50 dark:from-green-900/50 dark:to-green-900/30"
                             iconColorClass="text-green-400"
                         />
                         <AnimatedStatCard 
                             title="المهام المتبقية" 
-                            value={stats.remainingTasks} 
+                            value={10} 
                             icon={<BellIcon />}
                             bgClass="from-teal-100 to-teal-50 dark:from-teal-900/50 dark:to-teal-900/30"
                             iconColorClass="text-teal-400"
