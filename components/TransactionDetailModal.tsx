@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { Transaction, TransactionStatus, TransactionPlatform, Attachment, TransactionType } from '../types';
@@ -129,7 +130,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({ isOpen,
                     
                     <div className="border-t border-gray-200 pt-2 grid grid-cols-2 gap-x-4 sm:gap-x-6 dark:border-gray-700">
                         <InfoRow label="رقم المعاملة" value={transaction.transaction_number} />
-                        <InfoRow label="تاريخ المعاملة" value={new Date(transaction.date + 'T00:00:00.000Z').toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })}/>
+                        <InfoRow label="تاريخ المعاملة" value={new Date(transaction.date + 'T00:00:00.000Z').toLocaleDateString('ar-SA', { calendar: 'gregory', year: 'numeric', month: 'long', day: 'numeric' })}/>
                         <InfoRow label="المنصة" value={platformMap[transaction.platform]}/>
                          <InfoRow label="المرفقات">
                             {transaction.attachment ? (

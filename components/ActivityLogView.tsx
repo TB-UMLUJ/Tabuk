@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useToast } from '../contexts/ToastContext';
@@ -208,7 +209,7 @@ const ActivityLogView: React.FC = () => {
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 flex items-center gap-1.5">
                                         <ClockIcon className="w-4 h-4"/>
-                                        {new Date(log.created_at).toLocaleString('ar-SA', { dateStyle: 'medium', timeStyle: 'short' })}
+                                        {new Date(log.created_at).toLocaleString('ar-SA', { calendar: 'gregory', dateStyle: 'medium', timeStyle: 'short' })}
                                     </p>
                                 </div>
                             </div>

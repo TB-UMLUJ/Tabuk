@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './lib/supabaseClient';
 import { PostgrestError } from '@supabase/supabase-js';
@@ -688,7 +689,7 @@ const App: React.FC = () => {
             'السجل المدني / الإقامة': emp.national_id,
             'الجنسية': emp.nationality,
             'الجنس': emp.gender,
-            'تاريخ الميلاد': emp.date_of_birth ? new Date(emp.date_of_birth).toLocaleDateString('ar-SA') : '',
+            'تاريخ الميلاد': emp.date_of_birth ? new Date(emp.date_of_birth).toLocaleDateString('en-CA') : '',
             'رقم التصنيف': emp.classification_id
         }));
         

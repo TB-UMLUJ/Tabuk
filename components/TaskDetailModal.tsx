@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { Task } from '../types';
@@ -66,7 +67,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, task, onClose
     if (!task || !modalRoot) return null;
 
     const formattedDate = task.due_date 
-        ? new Date(task.due_date + 'T00:00:00.000Z').toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })
+        ? new Date(task.due_date + 'T00:00:00.000Z').toLocaleDateString('ar-SA', { calendar: 'gregory', year: 'numeric', month: 'long', day: 'numeric' })
         : 'غير محدد';
 
     return ReactDOM.createPortal(

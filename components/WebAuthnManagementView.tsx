@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
@@ -141,7 +142,7 @@ const WebAuthnManagementView: React.FC = () => {
                                     <div>
                                         <p className="font-semibold text-gray-700 dark:text-gray-200">هذا الجهاز</p>
                                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                                            مُسجل بتاريخ: {new Date(cred.created_at).toLocaleDateString('ar-SA')}
+                                            مُسجل بتاريخ: {new Date(cred.created_at).toLocaleDateString('ar-SA', { calendar: 'gregory' })}
                                         </p>
                                     </div>
                                 </div>

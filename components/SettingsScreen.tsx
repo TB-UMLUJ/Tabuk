@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { supabase } from '../lib/supabaseClient';
@@ -108,7 +109,7 @@ const PolicyDetailModal: React.FC<PolicyDetailModalProps> = ({ isOpen, policy, o
                         <div className="flex-1">
                             <h2 className="text-xl md:text-2xl font-bold text-primary dark:text-white">{policy.title}</h2>
                              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                تاريخ الإنشاء: {new Date(policy.created_at).toLocaleDateString('ar-SA')}
+                                تاريخ الإنشاء: {new Date(policy.created_at).toLocaleDateString('ar-SA', { calendar: 'gregory' })}
                             </p>
                         </div>
                     </div>
@@ -723,7 +724,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
                                 className="p-2.5 rounded-lg text-gray-500 hover:bg-primary/10 hover:text-primary transition-all duration-200"
                                 aria-label="رجوع"
                             >
-                                <ChevronLeftIcon className="h-6 w-6" />
+                                <ChevronLeftIcon className="h-6 h-6" />
                             </button>
                         )}
                         <h2 className="text-xl font-bold text-primary dark:text-white">
@@ -735,7 +736,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ isOpen, onClose }) => {
                         className="p-2.5 rounded-lg text-gray-500 hover:bg-primary/10 hover:text-primary transition-all duration-200 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
                         aria-label="إغلاق"
                     >
-                        <CloseIcon className="h-6 w-6" />
+                        <CloseIcon className="h-6 h-6" />
                     </button>
                 </div>
             </header>

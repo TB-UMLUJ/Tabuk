@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Transaction, TransactionStatus, TransactionPlatform, TransactionType } from '../types';
 import { PaperClipIcon, CalendarDaysIcon, UserIcon, BuildingOfficeIcon, ArrowRightIcon, CheckIcon } from '../icons/Icons';
@@ -26,7 +27,7 @@ const platformMap: Record<TransactionPlatform, string> = {
 const TransactionCard: React.FC<TransactionCardProps> = ({ transaction, onSelect, onCycleStatus }) => {
     const { hasPermission } = useAuth();
     
-    const formattedDate = new Date(transaction.date + 'T00:00:00.000Z').toLocaleDateString('ar-SA', { day: '2-digit', month: 'short', year: 'numeric' });
+    const formattedDate = new Date(transaction.date + 'T00:00:00.000Z').toLocaleDateString('ar-SA', { calendar: 'gregory', day: '2-digit', month: 'short', year: 'numeric' });
     const statusInfo = statusMap[transaction.status];
     const typeInfo = {
         incoming: { text: 'واردة', className: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' },

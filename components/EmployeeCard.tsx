@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Employee } from '../types';
 import { IdentificationIcon, ShareIcon, EmailIcon, MapPinIcon, GlobeAltIcon, UserIcon } from '../icons/Icons';
@@ -35,7 +36,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onSelect }) => {
         if (employee.nationality) shareTextParts.push(`الجنسية: ${employee.nationality}`);
         if (employee.gender) shareTextParts.push(`الجنس: ${employee.gender}`);
         if (employee.date_of_birth) {
-            const formattedDate = new Date(employee.date_of_birth).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
+            const formattedDate = new Date(employee.date_of_birth).toLocaleDateString('ar-SA', { calendar: 'gregory', year: 'numeric', month: 'long', day: 'numeric' });
             shareTextParts.push(`تاريخ الميلاد: ${formattedDate}`);
         }
         if (employee.classification_id) shareTextParts.push(`رقم التصنيف: ${employee.classification_id}`);

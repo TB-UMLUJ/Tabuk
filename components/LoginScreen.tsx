@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserIcon, KeyIcon, ArrowRightOnRectangleIcon, CheckCircleIcon, XCircleIcon, InformationCircleIcon, FingerprintIcon } from '../icons/Icons';
+import { UserIcon, KeyIcon, ArrowLeftOnRectangleIcon, CheckCircleIcon, XCircleIcon, InformationCircleIcon, FingerprintIcon } from '../icons/Icons';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabaseClient';
 import { base64UrlToArrayBuffer, arrayBufferToBase64Url } from '../lib/webauthnHelpers';
 import { useToast } from '../contexts/ToastContext';
 import WebAuthnPromptModal from './WebAuthnPromptModal';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 
 type NotificationType = 'success' | 'error' | 'info';
@@ -22,8 +23,8 @@ const LoginScreen: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isWebAuthnSubmitting, setIsWebAuthnSubmitting] = useState(false);
     const [notification, setNotification] = useState<{ message: string; type: NotificationType } | null>(null);
-    const [forgotPasswordMessage, setForgotPasswordMessage] = useState<string | null>(null);
     const [showInactiveAccountModal, setShowInactiveAccountModal] = useState(false);
+    const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
     const [verifiedUserName, setVerifiedUserName] = useState<string | null>(null);
     const [loginStepMessage, setLoginStepMessage] = useState('');
     const [webAuthnPrompt, setWebAuthnPrompt] = useState<{ isOpen: boolean; status: 'scanning' | 'success' | 'failed' }>({ isOpen: false, status: 'scanning' });
@@ -48,7 +49,6 @@ const LoginScreen: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setNotification(null);
-        setForgotPasswordMessage(null);
         setIsSubmitting(true);
         setVerifiedUserName(null);
         setLoginStepMessage('');
@@ -182,10 +182,7 @@ const LoginScreen: React.FC = () => {
 
     const handleForgotPassword = (e: React.MouseEvent) => {
         e.preventDefault();
-        setForgotPasswordMessage('يرجى التواصل مع قسم الدعم الفني للمساعدة.');
-        setTimeout(() => {
-            setForgotPasswordMessage(null);
-        }, 5000); // Hide after 5 seconds
+        setShowForgotPasswordModal(true);
     };
     
     const notificationConfig = {
@@ -259,12 +256,6 @@ const LoginScreen: React.FC = () => {
                                     نسيت كلمة السر؟
                                 </button>
                             </div>
-                            {forgotPasswordMessage && (
-                                <div className="mt-2 p-2.5 rounded-lg flex items-center justify-center gap-2 animate-fade-in font-semibold text-sm bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                                    <InformationCircleIcon className="h-5 w-5"/>
-                                    <span>{forgotPasswordMessage}</span>
-                                </div>
-                            )}
                         </div>
                         
                         <div>
@@ -289,7 +280,7 @@ const LoginScreen: React.FC = () => {
                                     ></span>
                                     <span className="relative z-10 flex items-center justify-center gap-2">
                                         {isSubmitting ? loginStepMessage : 'تسجيل الدخول'}
-                                        {!isSubmitting && <ArrowRightOnRectangleIcon className="h-5 w-5" />}
+                                        {!isSubmitting && <ArrowLeftOnRectangleIcon className="h-5 w-5" />}
                                     </span>
                                 </button>
                                 <button
@@ -334,6 +325,10 @@ const LoginScreen: React.FC = () => {
                 isOpen={webAuthnPrompt.isOpen}
                 status={webAuthnPrompt.status}
                 onClose={() => setWebAuthnPrompt({ isOpen: false, status: 'scanning' })}
+            />
+            <ForgotPasswordModal 
+                isOpen={showForgotPasswordModal}
+                onClose={() => setShowForgotPasswordModal(false)}
             />
         </div>
     );

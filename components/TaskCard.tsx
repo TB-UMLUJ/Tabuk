@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Task } from '../types';
 import { 
@@ -43,7 +44,7 @@ const getDueDateStatus = (dueDate: string | undefined, isCompleted: boolean): { 
             icon: <ClockIcon className="w-4 h-4" />
         };
     } else {
-        const formattedDate = new Date(dueDate + 'T00:00:00.000Z').toLocaleDateString('ar-SA', { month: 'long', day: 'numeric' });
+        const formattedDate = new Date(dueDate + 'T00:00:00.000Z').toLocaleDateString('ar-SA', { calendar: 'gregory', month: 'long', day: 'numeric' });
         return {
             text: `تستحق في ${formattedDate}`,
             colorClass: 'text-gray-500 dark:text-gray-400',

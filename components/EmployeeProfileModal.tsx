@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { Employee, Certificate, EmployeeDocument } from '../types';
@@ -202,7 +203,7 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
                                 <InfoRow label="السجل المدني / الإقامة" value={employee.national_id} icon={<IdentificationIcon className="w-5 h-5"/>}/>
                                 <InfoRow label="الجنسية" value={employee.nationality} icon={<GlobeAltIcon className="w-5 h-5"/>}/>
                                 <InfoRow label="الجنس" value={employee.gender} icon={<UsersIcon className="w-5 h-5"/>}/>
-                                <InfoRow label="تاريخ الميلاد" value={employee.date_of_birth ? new Date(employee.date_of_birth).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' }) : undefined} icon={<CakeIcon className="w-5 h-5"/>}/>
+                                <InfoRow label="تاريخ الميلاد" value={employee.date_of_birth ? new Date(employee.date_of_birth).toLocaleDateString('ar-SA', { calendar: 'gregory', year: 'numeric', month: 'long', day: 'numeric' }) : undefined} icon={<CakeIcon className="w-5 h-5"/>}/>
                             </div>
                         </InfoCard>
 
@@ -239,7 +240,7 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
                                                         {cert.expiry_date && (
                                                             <p className={`text-sm flex items-center gap-1 ${isExpired ? 'text-red-500 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
                                                                 <CalendarDaysIcon className="w-4 h-4" />
-                                                                تنتهي في: {new Date(cert.expiry_date).toLocaleDateString('ar-SA')}
+                                                                تنتهي في: {new Date(cert.expiry_date).toLocaleDateString('ar-SA', { calendar: 'gregory' })}
                                                             </p>
                                                         )}
                                                     </div>
@@ -271,7 +272,7 @@ const EmployeeProfileModal: React.FC<EmployeeProfileModalProps> = ({ isOpen, emp
                                                 </div>
                                                 <div>
                                                     <p className="font-bold text-gray-800 dark:text-white">{doc.name}</p>
-                                                    <p className="text-sm text-gray-500 dark:text-gray-400">{doc.uploaded_at ? `تاريخ الرفع: ${new Date(doc.uploaded_at).toLocaleDateString('ar-SA')}` : ''}</p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">{doc.uploaded_at ? `تاريخ الرفع: ${new Date(doc.uploaded_at).toLocaleDateString('ar-SA', { calendar: 'gregory' })}` : ''}</p>
                                                 </div>
                                             </div>
                                             {doc.file_url && (
